@@ -1,2 +1,2 @@
-# minimun
-Minimun, android app launcher.
+# Minimun
+Minimun, android app launcher - [Download lastest version](https://github.com/JunioJsv/minimun/releases/latest)
