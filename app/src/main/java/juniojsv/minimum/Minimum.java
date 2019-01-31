@@ -50,12 +50,17 @@ public class Minimum extends AppCompatActivity {
         appsListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                Uri pkgUri = Uri.parse("package:" + appsList.get(position).getUninstallName());
+                Uri pkgUri = Uri.parse("package:" + appsList.get(position).getPackageName());
                 Intent uninstall = new Intent(Intent.ACTION_UNINSTALL_PACKAGE, pkgUri);
                 startActivity(uninstall);
                 return true;
             }
         });
+    }
+
+    @Override
+    public void onBackPressed() {
+
     }
 
     static void startAdapter(){

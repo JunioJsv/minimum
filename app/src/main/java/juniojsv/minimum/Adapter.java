@@ -45,7 +45,7 @@ public class Adapter extends BaseAdapter {
         App app = appsList.get(position);
 
         iconView.setImageDrawable(app.getIcon());
-        nameView.setText(app.getName());
+        nameView.setText(app.getPackageLabel());
         return convertView;
     }
 }

@@ -4,20 +4,20 @@ import android.content.Intent;
 import android.graphics.drawable.Drawable;
 
 public class App {
-    private String name;
+    private String packageLabel;
     private Drawable icon;
     private Intent intent;
-    private String uninstallName;
+    private String packageName;
 
-    App(String name, Drawable icon, Intent intent, String uninstallName) {
-        this.name = name;
+    App(String packageLabel, Drawable icon, Intent intent, String packageName) {
+        this.packageLabel = packageLabel;
         this.icon = icon;
         this.intent = intent;
-        this.uninstallName = uninstallName;
+        this.packageName = packageName;
     }
 
-    public String getName() {
-        return name;
+    public String getPackageLabel() {
+        return packageLabel;
     }
 
     public Drawable getIcon() {
@@ -28,7 +28,7 @@ public class App {
         return intent;
     }
 
-    public String getUninstallName() {
-        return uninstallName;
+    public String getPackageName() {
+        return packageName;
     }
 }

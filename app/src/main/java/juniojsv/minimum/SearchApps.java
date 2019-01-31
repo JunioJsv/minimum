@@ -9,6 +9,8 @@ import android.os.AsyncTask;
 import android.view.View;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class SearchApps extends AsyncTask<Void, Void, List<App>> {
@@ -32,19 +34,28 @@ public class SearchApps extends AsyncTask<Void, Void, List<App>> {
         List<App> appsList = new ArrayList<>();
 
         for (ApplicationInfo appInfo : appsInstalled) {
-            String name = appInfo.loadLabel(pkgManager).toString();
+            String packageLabel = appInfo.loadLabel(pkgManager).toString();
             Drawable icon = appInfo.loadIcon(pkgManager);
             Intent intent = pkgManager.getLaunchIntentForPackage(appInfo.packageName);
-            String uninstallName = appInfo.packageName;
+            String packageName = appInfo.packageName;
 
             if (intent != null && !appInfo.packageName.equals(BuildConfig.APPLICATION_ID)) {
                 intent.setAction(Intent.ACTION_MAIN);
                 intent.addCategory(Intent.CATEGORY_LAUNCHER);
 
-                App appCache = new App(name, icon, intent, uninstallName);
+                App appCache = new App(packageLabel, icon, intent, packageName);
                 appsList.add(appCache);
             }
         }
+
+        Collections.sort(appsList, new Comparator<App>() {
+            @Override
+            public int compare(App app1, App app2) {
+                String app1Label = app1.getPackageLabel();
+                String app2Label = app2.getPackageLabel();
+                return app1Label.compareTo(app2Label);
+            }
+        });
         return appsList;
     }
 
