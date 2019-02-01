@@ -3,16 +3,16 @@ package juniojsv.minimum;
 import android.content.BroadcastReceiver;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -56,6 +56,28 @@ public class Minimum extends AppCompatActivity {
                 return true;
             }
         });
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.minimum_shortcut, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        final int dial_id = 2131165236;
+        final int camera_id = 2131165220;
+
+        switch (item.getItemId()) {
+            case dial_id:
+                Intent dialIntent = new Intent(Intent.ACTION_DIAL);
+                startActivity(dialIntent);
+                break;
+            case camera_id:
+                break;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
