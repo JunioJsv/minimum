@@ -5,7 +5,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -23,12 +23,14 @@ public class Minimum extends AppCompatActivity {
     static Adapter adapter;
     static ProgressBar progressBar;
     SearchApps searchApps = new SearchApps(this);
+    TakePhoto takePhoto;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.minimum);
 
+        takePhoto = new TakePhoto(this);
         adapter =  new Adapter(this, appsList);
         appsListView = findViewById(R.id.appsListView);
         progressBar = findViewById(R.id.progressBar);
@@ -76,6 +78,7 @@ public class Minimum extends AppCompatActivity {
                 startActivity(dialIntent);
                 break;
             case camera_id:
+                takePhoto.Capture();
                 break;
         }
         return super.onOptionsItemSelected(item);
@@ -84,6 +87,14 @@ public class Minimum extends AppCompatActivity {
     @Override
     public void onBackPressed() {
 
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == com.mindorks.paracamera.Camera.REQUEST_TAKE_PHOTO) {
+
+        }
     }
 
     static void startAdapter(){

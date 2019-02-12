@@ -10,6 +10,5 @@
         android:id="@+id/camera_shortcut"
         app:showAsAction="always"
         android:title="Camera"
-        android:icon="@drawable/ic_camera_24dp"
-        android:enabled="false" />
+        android:icon="@drawable/ic_camera_24dp" />
 </menu>
