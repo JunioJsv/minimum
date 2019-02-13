@@ -6,9 +6,9 @@ import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -20,6 +20,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import juniojsv.minimum.Utilities.MoveFileTo;
+
 public class Minimum extends AppCompatActivity {
     static List<App> appsList = new ArrayList<>(0);
     static ListView appsListView;
@@ -27,13 +29,13 @@ public class Minimum extends AppCompatActivity {
     static ProgressBar progressBar;
     SearchApps searchApps = new SearchApps(this);
     TakePhoto takePhoto;
+    MoveFileTo moveFileTo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.minimum);
 
-        takePhoto = new TakePhoto(this);
         adapter =  new Adapter(this, appsList);
         appsListView = findViewById(R.id.appsListView);
         progressBar = findViewById(R.id.progressBar);
@@ -81,6 +83,7 @@ public class Minimum extends AppCompatActivity {
                 startActivity(dialIntent);
                 break;
             case camera_id:
+                takePhoto = new TakePhoto(this);
                 takePhoto.Capture();
                 break;
         }
@@ -96,13 +99,16 @@ public class Minimum extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == com.mindorks.paracamera.Camera.REQUEST_TAKE_PHOTO & !Build.MANUFACTURER.equals("LGE")) {
+
             try {
-                takePhoto.moveBitmapToSdcard(new File(takePhoto.getCamera().getCameraBitmapPath()));
+                moveFileTo = new MoveFileTo(new File(takePhoto.getCamera().getCameraBitmapPath()), new File(Environment.getExternalStorageDirectory().getPath() + "/Minimum"));
+                moveFileTo.execute();
             } catch (Exception error) {
                 error.printStackTrace();
             }
 
         } else if(requestCode == com.mindorks.paracamera.Camera.REQUEST_TAKE_PHOTO & Build.MANUFACTURER.equals("LGE")) {
+
             try {
                 File file = new File(takePhoto.getCamera().getCameraBitmapPath());
                 file.delete();
@@ -110,7 +116,6 @@ public class Minimum extends AppCompatActivity {
             } catch (Exception error) {
                 error.printStackTrace();
             }
-
         }
     }
 
