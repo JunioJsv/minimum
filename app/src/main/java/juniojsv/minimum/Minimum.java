@@ -4,9 +4,11 @@ import android.content.BroadcastReceiver;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -14,6 +16,7 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -92,7 +95,21 @@ public class Minimum extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == com.mindorks.paracamera.Camera.REQUEST_TAKE_PHOTO) {
+        if (requestCode == com.mindorks.paracamera.Camera.REQUEST_TAKE_PHOTO & !Build.MANUFACTURER.equals("LGE")) {
+            try {
+                takePhoto.moveBitmapToSdcard(new File(takePhoto.getCamera().getCameraBitmapPath()));
+            } catch (Exception error) {
+                error.printStackTrace();
+            }
+
+        } else if(requestCode == com.mindorks.paracamera.Camera.REQUEST_TAKE_PHOTO & Build.MANUFACTURER.equals("LGE")) {
+            try {
+                File file = new File(takePhoto.getCamera().getCameraBitmapPath());
+                file.delete();
+
+            } catch (Exception error) {
+                error.printStackTrace();
+            }
 
         }
     }
