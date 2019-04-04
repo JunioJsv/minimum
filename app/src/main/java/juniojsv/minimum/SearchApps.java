@@ -31,7 +31,7 @@ public class SearchApps extends AsyncTask<Void, Void, List<App>> {
 
         PackageManager pkgManager = context.getPackageManager();
         List<ApplicationInfo> appsInstalled = pkgManager.getInstalledApplications(0);
-        List<App> appsList = new ArrayList<>();
+        List<App> appsListCache = new ArrayList<>();
 
         for (ApplicationInfo appInfo : appsInstalled) {
             String packageLabel = appInfo.loadLabel(pkgManager).toString();
@@ -40,15 +40,19 @@ public class SearchApps extends AsyncTask<Void, Void, List<App>> {
             String packageName = appInfo.packageName;
 
             if (intent != null && !appInfo.packageName.equals(BuildConfig.APPLICATION_ID)) {
+
+                if (packageLabel.charAt(0) != Character.toUpperCase(packageLabel.charAt(0))) {
+                    packageLabel = packageLabel.substring(0, 1).toUpperCase() + packageLabel.substring(1);
+                }
+
                 intent.setAction(Intent.ACTION_MAIN);
                 intent.addCategory(Intent.CATEGORY_LAUNCHER);
 
-                App appCache = new App(packageLabel, icon, intent, packageName);
-                appsList.add(appCache);
+                appsListCache.add(new App(packageLabel, icon, intent, packageName));
             }
         }
 
-        Collections.sort(appsList, new Comparator<App>() {
+        Collections.sort(appsListCache, new Comparator<App>() {
             @Override
             public int compare(App app1, App app2) {
                 String app1Label = app1.getPackageLabel();
@@ -56,7 +60,7 @@ public class SearchApps extends AsyncTask<Void, Void, List<App>> {
                 return app1Label.compareTo(app2Label);
             }
         });
-        return appsList;
+        return appsListCache;
     }
 
     @Override
