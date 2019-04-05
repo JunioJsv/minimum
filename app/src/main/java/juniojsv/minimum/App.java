@@ -20,6 +20,10 @@ public class App {
         return packageLabel;
     }
 
+    public void setPackageLabel(String packageLabel) {
+        this.packageLabel = packageLabel;
+    }
+
     public Drawable getIcon() {
         return icon;
     }

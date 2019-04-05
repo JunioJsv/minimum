@@ -9,9 +9,9 @@ import android.os.AsyncTask;
 import android.view.View;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
+
+import juniojsv.minimum.Utilities.SortListOfApps;
 
 public class SearchApps extends AsyncTask<Void, Void, List<App>> {
     private Context context;
@@ -41,10 +41,6 @@ public class SearchApps extends AsyncTask<Void, Void, List<App>> {
 
             if (intent != null && !appInfo.packageName.equals(BuildConfig.APPLICATION_ID)) {
 
-                if (packageLabel.charAt(0) != Character.toUpperCase(packageLabel.charAt(0))) {
-                    packageLabel = packageLabel.substring(0, 1).toUpperCase() + packageLabel.substring(1);
-                }
-
                 intent.setAction(Intent.ACTION_MAIN);
                 intent.addCategory(Intent.CATEGORY_LAUNCHER);
 
@@ -52,14 +48,8 @@ public class SearchApps extends AsyncTask<Void, Void, List<App>> {
             }
         }
 
-        Collections.sort(appsListCache, new Comparator<App>() {
-            @Override
-            public int compare(App app1, App app2) {
-                String app1Label = app1.getPackageLabel();
-                String app2Label = app2.getPackageLabel();
-                return app1Label.compareTo(app2Label);
-            }
-        });
+        new SortListOfApps(appsListCache);
+
         return appsListCache;
     }
 
