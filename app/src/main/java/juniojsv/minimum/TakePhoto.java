@@ -5,7 +5,7 @@ import android.app.Activity;
 import com.mindorks.paracamera.Camera;
 
 public class TakePhoto {
-    Camera camera;
+    private Camera camera;
 
     TakePhoto(Activity activity) {
         this.camera = new Camera.Builder()

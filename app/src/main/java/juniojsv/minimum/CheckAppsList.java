@@ -12,8 +12,8 @@ import java.util.List;
 import juniojsv.minimum.Utilities.SortListOfApps;
 
 public class CheckAppsList extends BroadcastReceiver{
-    Context context;
-    Intent intent;
+    private Context context;
+    private Intent intent;
 
     @Override
     public void onReceive(Context context, Intent intent) {
