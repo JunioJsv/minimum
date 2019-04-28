@@ -11,4 +11,9 @@
         app:showAsAction="always"
         android:title="Camera"
         android:icon="@drawable/ic_camera_24dp" />
+    <item
+        android:id="@+id/setting_shortcut"
+        app:showAsAction="always"
+        android:title="Settings"
+        android:icon="@drawable/ic_settings_24dp" />
 </menu>
