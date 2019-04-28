@@ -25,12 +25,12 @@ public class Adapter extends BaseAdapter {
 
     @Override
     public Object getItem(int position) {
-        return null;
+        return appsList.get(position);
     }
 
     @Override
     public long getItemId(int position) {
-        return 0;
+        return appsList.indexOf(appsList.get(position));
     }
 
     @Override

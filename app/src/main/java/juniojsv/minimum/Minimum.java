@@ -24,12 +24,12 @@ import juniojsv.minimum.Utilities.MoveFileTo;
 
 public class Minimum extends AppCompatActivity {
     static List<App> appsList = new ArrayList<>(0);
-    static ListView appsListView;
-    static Adapter adapter;
-    static ProgressBar progressBar;
-    SearchApps searchApps = new SearchApps(this);
-    TakePhoto takePhoto;
-    MoveFileTo moveFileTo;
+    public static ListView appsListView;
+    public static Adapter adapter;
+    public static ProgressBar progressBar;
+    private SearchApps searchApps = new SearchApps(this);
+    private TakePhoto takePhoto;
+    private MoveFileTo moveFileTo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
