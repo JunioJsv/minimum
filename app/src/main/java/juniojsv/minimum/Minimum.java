@@ -30,7 +30,7 @@ public class Minimum extends AppCompatActivity {
     public static ProgressBar progressBar;
     public static SharedPreferences settings;
     private BroadcastReceiver checkAppsList;
-    private SearchApps searchApps = new SearchApps(this);
+    private SearchApps searchApps = new SearchApps(getPackageManager());
     private TakePhoto takePhoto;
     private MoveFileTo moveFileTo;
 
