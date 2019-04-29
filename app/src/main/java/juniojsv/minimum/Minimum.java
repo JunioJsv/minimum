@@ -41,7 +41,7 @@ public class Minimum extends AppCompatActivity implements SearchAppsListener {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.minimum);
 
-        searchApps = new SearchApps(getPackageManager());
+        searchApps = new SearchApps(this.getPackageManager());
         adapter =  new Adapter(this, appsList);
         appsListView = findViewById(R.id.appsListView);
         progressBar = findViewById(R.id.progressBar);
@@ -162,7 +162,7 @@ public class Minimum extends AppCompatActivity implements SearchAppsListener {
     }
 
     @Override
-    public void onAppsLoadingFinished() {
+    public void onAppsLoadingFinished(List<App> appsList) {
         setAppsList(appsList);
         startAdapter();
         progressBar.setVisibility(View.GONE);

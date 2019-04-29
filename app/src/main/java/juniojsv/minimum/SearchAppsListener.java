@@ -1,11 +1,11 @@
 package juniojsv.minimum;
 
-import android.icu.util.UniversalTimeScale;
+import java.util.List;
 
 interface SearchAppsListener {
 
     void onAppsLoadingStarting();
 
-    void onAppsLoadingFinished();
+    void onAppsLoadingFinished(List<App> appsList);
 
 }

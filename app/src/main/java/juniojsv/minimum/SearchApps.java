@@ -58,6 +58,6 @@ public class SearchApps extends AsyncTask<Void, Void, List<App>> {
     @Override
     protected void onPostExecute(List<App> appsList) {
         super.onPostExecute(appsList);
-        searchAppsListener.onAppsLoadingFinished();
+        searchAppsListener.onAppsLoadingFinished(appsList);
     }
 }
