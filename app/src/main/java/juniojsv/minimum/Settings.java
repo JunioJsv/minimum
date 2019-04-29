@@ -2,22 +2,20 @@ package juniojsv.minimum;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
-import android.widget.CheckBox;
+import android.preference.PreferenceActivity;
 
-public class Settings extends AppCompatActivity {
+public class Settings extends PreferenceActivity {
     public static boolean needRestart;
-    private CheckBox checkBoxDarkTheme;
+    private SharedPreferences checkBoxDarkTheme;
     private SharedPreferences.Editor settingEditor = Minimum.settings.edit();
     private final boolean DARK_THEME_PREF = Minimum.settings.getBoolean("dark_theme", false);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        applySettings();
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.settings);
-        setTitle("Settings");
-        checkBoxDarkTheme = findViewById(R.id.prefs_dark_theme);
-        checkBoxDarkTheme.setChecked(DARK_THEME_PREF);
+        addPreferencesFromResource(R.xml.settings);
+        checkBoxDarkTheme = findPreference("prefs_dark_theme").getSharedPreferences();
     }
 
     @Override
@@ -27,13 +25,20 @@ public class Settings extends AppCompatActivity {
     }
 
     private void updateSettings() {
-        if (checkBoxDarkTheme.isChecked() != DARK_THEME_PREF) {
-            settingEditor.putBoolean("dark_theme", checkBoxDarkTheme.isChecked());
+        if (checkBoxDarkTheme.getBoolean("prefs_dark_theme", false) != DARK_THEME_PREF) {
+            settingEditor.putBoolean("dark_theme", checkBoxDarkTheme.getBoolean("prefs_dark_theme", false));
             needRestart = true;
         }
 
         if (needRestart) {
             settingEditor.apply();
+            recreate();
+        }
+    }
+
+    private void applySettings() {
+        if (Minimum.settings.getBoolean("dark_theme", false)) {
+            setTheme(R.style.AppThemeDark);
         }
     }
 }
