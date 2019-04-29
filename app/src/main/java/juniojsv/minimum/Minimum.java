@@ -3,6 +3,7 @@ package juniojsv.minimum;
 import android.content.BroadcastReceiver;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -27,12 +28,16 @@ public class Minimum extends AppCompatActivity {
     public static ListView appsListView;
     public static Adapter adapter;
     public static ProgressBar progressBar;
+    public static SharedPreferences settings;
+    private BroadcastReceiver checkAppsList;
     private SearchApps searchApps = new SearchApps(this);
     private TakePhoto takePhoto;
     private MoveFileTo moveFileTo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        settings = getSharedPreferences("Settings", MODE_PRIVATE);
+        applySettings();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.minimum);
 
@@ -41,7 +46,7 @@ public class Minimum extends AppCompatActivity {
         progressBar = findViewById(R.id.progressBar);
         searchApps.execute();
 
-        BroadcastReceiver checkAppsList = new CheckAppsList();
+        checkAppsList = new CheckAppsList();
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(Intent.ACTION_PACKAGE_ADDED);
         intentFilter.addAction(Intent.ACTION_PACKAGE_REMOVED);
@@ -74,18 +79,19 @@ public class Minimum extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        final int dial_id = 2131165236;
-        final int camera_id = 2131165220;
 
         switch (item.getItemId()) {
-            case dial_id:
+            case R.id.dial_shortcut:
                 Intent dialIntent = new Intent(Intent.ACTION_DIAL);
                 startActivity(dialIntent);
                 break;
-            case camera_id:
+            case R.id.camera_shortcut:
                 takePhoto = new TakePhoto(this);
                 takePhoto.Capture();
                 break;
+            case R.id.setting_shortcut:
+                Intent settingIntent = new Intent(this, Settings.class);
+                startActivity(settingIntent);
         }
         return super.onOptionsItemSelected(item);
     }
@@ -93,6 +99,16 @@ public class Minimum extends AppCompatActivity {
     @Override
     public void onBackPressed() {
 
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (Settings.needRestart) {
+            Settings.needRestart = false;
+            unregisterReceiver(checkAppsList);
+            recreate();
+        }
     }
 
     @Override
@@ -116,6 +132,12 @@ public class Minimum extends AppCompatActivity {
             } catch (Exception error) {
                 error.printStackTrace();
             }
+        }
+    }
+
+    private void applySettings() {
+        if (settings.getBoolean("dark_theme", false)) {
+            setTheme(R.style.AppThemeDark);
         }
     }
 
