@@ -1,14 +1,11 @@
 package juniojsv.minimum;
 
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
-import android.view.View;
 
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,15 +13,20 @@ import juniojsv.minimum.Utilities.SortListOfApps;
 
 public class SearchApps extends AsyncTask<Void, Void, List<App>> {
     private PackageManager packageManager;
+    private SearchAppsListener searchAppsListener;
 
     SearchApps(PackageManager packageManager) {
         this.packageManager = packageManager;
     }
 
+    void setListener(SearchAppsListener searchAppsListener) {
+        this.searchAppsListener = searchAppsListener;
+    }
+
     @Override
     protected void onPreExecute() {
+        searchAppsListener.onAppsLoadingStarting();
         super.onPreExecute();
-        Minimum.progressBar.setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -56,8 +58,6 @@ public class SearchApps extends AsyncTask<Void, Void, List<App>> {
     @Override
     protected void onPostExecute(List<App> appsList) {
         super.onPostExecute(appsList);
-        Minimum.setAppsList(appsList);
-        Minimum.startAdapter();
-        Minimum.progressBar.setVisibility(View.GONE);
+        searchAppsListener.onAppsLoadingFinished();
     }
 }

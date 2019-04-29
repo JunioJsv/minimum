@@ -23,14 +23,14 @@ import java.util.List;
 
 import juniojsv.minimum.Utilities.MoveFileTo;
 
-public class Minimum extends AppCompatActivity {
+public class Minimum extends AppCompatActivity implements SearchAppsListener {
     static List<App> appsList = new ArrayList<>(0);
     public static ListView appsListView;
     public static Adapter adapter;
-    public static ProgressBar progressBar;
+    public ProgressBar progressBar;
     public static SharedPreferences settings;
     private BroadcastReceiver checkAppsList;
-    private SearchApps searchApps = new SearchApps(getPackageManager());
+    private SearchApps searchApps;
     private TakePhoto takePhoto;
     private MoveFileTo moveFileTo;
 
@@ -41,9 +41,11 @@ public class Minimum extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.minimum);
 
+        searchApps = new SearchApps(getPackageManager());
         adapter =  new Adapter(this, appsList);
         appsListView = findViewById(R.id.appsListView);
         progressBar = findViewById(R.id.progressBar);
+        searchApps.setListener(this);
         searchApps.execute();
 
         checkAppsList = new CheckAppsList();
@@ -147,10 +149,22 @@ public class Minimum extends AppCompatActivity {
         } else adapter.notifyDataSetChanged();
     }
 
-    static void setAppsList(List<App> appsListCache) {
+    void setAppsList(List<App> appsListCache) {
         if (appsList.size() != 0) {
             appsList.clear();
         }
         appsList.addAll(appsListCache);
+    }
+
+    @Override
+    public void onAppsLoadingStarting() {
+        progressBar.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void onAppsLoadingFinished() {
+        setAppsList(appsList);
+        startAdapter();
+        progressBar.setVisibility(View.GONE);
     }
 }
