@@ -29,12 +29,14 @@ public class Minimum extends AppCompatActivity {
     public static Adapter adapter;
     public static ProgressBar progressBar;
     public static SharedPreferences settings;
+    private BroadcastReceiver checkAppsList;
     private SearchApps searchApps = new SearchApps(this);
     private TakePhoto takePhoto;
     private MoveFileTo moveFileTo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        settings = getSharedPreferences("Settings", MODE_PRIVATE);
         applySettings();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.minimum);
@@ -44,7 +46,7 @@ public class Minimum extends AppCompatActivity {
         progressBar = findViewById(R.id.progressBar);
         searchApps.execute();
 
-        BroadcastReceiver checkAppsList = new CheckAppsList();
+        checkAppsList = new CheckAppsList();
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(Intent.ACTION_PACKAGE_ADDED);
         intentFilter.addAction(Intent.ACTION_PACKAGE_REMOVED);
@@ -100,6 +102,16 @@ public class Minimum extends AppCompatActivity {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        if (Settings.needRestart) {
+            Settings.needRestart = false;
+            unregisterReceiver(checkAppsList);
+            recreate();
+        }
+    }
+
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == com.mindorks.paracamera.Camera.REQUEST_TAKE_PHOTO & !Build.MANUFACTURER.equals("LGE")) {
@@ -124,7 +136,6 @@ public class Minimum extends AppCompatActivity {
     }
 
     private void applySettings() {
-        settings = getSharedPreferences("Settings", MODE_PRIVATE);
         if (settings.getBoolean("dark_theme", false)) {
             setTheme(R.style.AppThemeDark);
         }

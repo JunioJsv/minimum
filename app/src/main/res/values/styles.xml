@@ -9,10 +9,13 @@
     </style>
 
     <style name="AppThemeDark" parent="Theme.AppCompat">
-        <!-- Customize your theme here. -->
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorPrimary">@color/dark_color_primary</item>
+        <item name="colorPrimaryDark">@color/dark_color_primary_dark</item>
         <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:windowBackground">@color/dark_color_window_background</item>
+        <item name="android:textColorPrimary">@color/dark_text_color_primary</item>
+        <item name="android:textColorSecondary">@color/dark_text_color_secondary</item>
+        <item name="android:textColorTertiary">@color/material_grey_200</item>
     </style>
 
 </resources>
