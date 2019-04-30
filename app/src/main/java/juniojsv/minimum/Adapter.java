@@ -34,18 +34,18 @@ public class Adapter extends BaseAdapter {
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-        if (convertView == null) {
-            convertView = View.inflate(context, R.layout.appitem, null);
+    public View getView(int position, View view, ViewGroup parent) {
+        if (view == null) {
+            view = View.inflate(context, R.layout.app_view, null);
         }
 
-        ImageView iconView = convertView.findViewById(R.id.iconView);
-        TextView nameView = convertView.findViewById(R.id.nameView);
+        ImageView iconView = view.findViewById(R.id.iconView);
+        TextView nameView = view.findViewById(R.id.nameView);
 
         App app = appsList.get(position);
 
         iconView.setImageDrawable(app.getIcon());
         nameView.setText(app.getPackageLabel());
-        return convertView;
+        return view;
     }
 }

@@ -4,7 +4,7 @@ import android.app.Activity;
 
 import com.mindorks.paracamera.Camera;
 
-public class TakePhoto {
+class TakePhoto {
     private Camera camera;
 
     TakePhoto(Activity activity) {
@@ -18,7 +18,7 @@ public class TakePhoto {
                 .build(activity);
     }
 
-    void Capture() {
+    void capture() {
         try {
             camera.takePicture();
         } catch (Exception error) {

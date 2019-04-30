@@ -14,6 +14,11 @@ import juniojsv.minimum.Utilities.SortListOfApps;
 public class CheckAppsList extends BroadcastReceiver{
     private Context context;
     private Intent intent;
+    private MinimumInterface minimumInterface;
+
+    CheckAppsList(MinimumInterface minimumInterface) {
+        this.minimumInterface = minimumInterface;
+    }
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -21,28 +26,28 @@ public class CheckAppsList extends BroadcastReceiver{
         this.intent = intent;
 
         if (intent.getAction().equals(Intent.ACTION_PACKAGE_ADDED)) {
-            addAppInList(Minimum.appsList);
+            addAppInList(minimumInterface.getAppsList());
         }
 
         if (intent.getAction().equals(Intent.ACTION_PACKAGE_REMOVED)) {
-            removeAppOfList(Minimum.appsList);
+            removeAppOfList(minimumInterface.getAppsList());
         }
 
     }
 
     private void addAppInList(List<App> targetList) {
-        PackageManager pkgManager = context.getPackageManager();
+        PackageManager packageManager = context.getPackageManager();
         ApplicationInfo appInfo = null;
 
         try {
-            appInfo = pkgManager.getApplicationInfo(intent.getDataString().substring(8), 0);
+            appInfo = packageManager.getApplicationInfo(intent.getDataString().substring(8), 0);
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
         }
 
-        String packageLabel = appInfo.loadLabel(pkgManager).toString();
-        Drawable icon = appInfo.loadIcon(pkgManager);
-        Intent intent = pkgManager.getLaunchIntentForPackage(appInfo.packageName);
+        String packageLabel = appInfo.loadLabel(packageManager).toString();
+        Drawable icon = appInfo.loadIcon(packageManager);
+        Intent intent = packageManager.getLaunchIntentForPackage(appInfo.packageName);
         String packageName = appInfo.packageName;
 
         if (intent != null && !appInfo.packageName.equals(BuildConfig.APPLICATION_ID)) {
@@ -52,7 +57,7 @@ public class CheckAppsList extends BroadcastReceiver{
 
             targetList.add(new App(packageLabel, icon, intent, packageName));
             new SortListOfApps(targetList);
-            Minimum.startAdapter();
+            minimumInterface.notifyAdapter();
 
         }
     }
@@ -67,6 +72,6 @@ public class CheckAppsList extends BroadcastReceiver{
         }
 
         targetList.remove(targetApp);
-        Minimum.startAdapter();
+        minimumInterface.notifyAdapter();
     }
 }
