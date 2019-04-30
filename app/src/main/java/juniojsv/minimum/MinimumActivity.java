@@ -23,7 +23,7 @@ import java.util.List;
 
 import juniojsv.minimum.Utilities.MoveFileTo;
 
-public class Minimum extends AppCompatActivity {
+public class MinimumActivity extends AppCompatActivity {
     static List<App> appsList = new ArrayList<>(0);
     public static ListView appsListView;
     public static Adapter adapter;
@@ -32,14 +32,13 @@ public class Minimum extends AppCompatActivity {
     private BroadcastReceiver checkAppsList;
     private SearchApps searchApps = new SearchApps(this);
     private TakePhoto takePhoto;
-    private MoveFileTo moveFileTo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         settings = getSharedPreferences("Settings", MODE_PRIVATE);
         applySettings();
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.minimum);
+        setContentView(R.layout.minimum_activity);
 
         adapter =  new Adapter(this, appsList);
         appsListView = findViewById(R.id.appsListView);
@@ -90,7 +89,7 @@ public class Minimum extends AppCompatActivity {
                 takePhoto.Capture();
                 break;
             case R.id.setting_shortcut:
-                Intent settingIntent = new Intent(this, Settings.class);
+                Intent settingIntent = new Intent(this, SettingsActivity.class);
                 startActivity(settingIntent);
         }
         return super.onOptionsItemSelected(item);
@@ -104,8 +103,8 @@ public class Minimum extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (Settings.needRestart) {
-            Settings.needRestart = false;
+        if (SettingsActivity.needRestart) {
+            SettingsActivity.needRestart = false;
             unregisterReceiver(checkAppsList);
             recreate();
         }
@@ -117,7 +116,7 @@ public class Minimum extends AppCompatActivity {
         if (requestCode == com.mindorks.paracamera.Camera.REQUEST_TAKE_PHOTO & !Build.MANUFACTURER.equals("LGE")) {
 
             try {
-                moveFileTo = new MoveFileTo(new File(takePhoto.getCamera().getCameraBitmapPath()), new File(Environment.getExternalStorageDirectory().getPath() + "/Minimum"));
+                MoveFileTo moveFileTo = new MoveFileTo(new File(takePhoto.getCamera().getCameraBitmapPath()), new File(Environment.getExternalStorageDirectory().getPath() + "/Minimum"));
                 moveFileTo.execute();
             } catch (Exception error) {
                 error.printStackTrace();

@@ -21,11 +21,11 @@ public class CheckAppsList extends BroadcastReceiver{
         this.intent = intent;
 
         if (intent.getAction().equals(Intent.ACTION_PACKAGE_ADDED)) {
-            addAppInList(Minimum.appsList);
+            addAppInList(MinimumActivity.appsList);
         }
 
         if (intent.getAction().equals(Intent.ACTION_PACKAGE_REMOVED)) {
-            removeAppOfList(Minimum.appsList);
+            removeAppOfList(MinimumActivity.appsList);
         }
 
     }
@@ -52,7 +52,7 @@ public class CheckAppsList extends BroadcastReceiver{
 
             targetList.add(new App(packageLabel, icon, intent, packageName));
             new SortListOfApps(targetList);
-            Minimum.startAdapter();
+            MinimumActivity.startAdapter();
 
         }
     }
@@ -67,6 +67,6 @@ public class CheckAppsList extends BroadcastReceiver{
         }
 
         targetList.remove(targetApp);
-        Minimum.startAdapter();
+        MinimumActivity.startAdapter();
     }
 }

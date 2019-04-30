@@ -23,7 +23,7 @@ public class SearchApps extends AsyncTask<Void, Void, List<App>> {
     @Override
     protected void onPreExecute() {
         super.onPreExecute();
-        Minimum.progressBar.setVisibility(View.VISIBLE);
+        MinimumActivity.progressBar.setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -56,8 +56,8 @@ public class SearchApps extends AsyncTask<Void, Void, List<App>> {
     @Override
     protected void onPostExecute(List<App> appsList) {
         super.onPostExecute(appsList);
-        Minimum.setAppsList(appsList);
-        Minimum.startAdapter();
-        Minimum.progressBar.setVisibility(View.GONE);
+        MinimumActivity.setAppsList(appsList);
+        MinimumActivity.startAdapter();
+        MinimumActivity.progressBar.setVisibility(View.GONE);
     }
 }

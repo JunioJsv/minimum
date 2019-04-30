@@ -4,17 +4,17 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
 
-public class Settings extends PreferenceActivity {
+public class SettingsActivity extends PreferenceActivity {
     public static boolean needRestart;
     private SharedPreferences checkBoxDarkTheme;
-    private SharedPreferences.Editor settingEditor = Minimum.settings.edit();
-    private final boolean DARK_THEME_PREF = Minimum.settings.getBoolean("dark_theme", false);
+    private SharedPreferences.Editor settingEditor = MinimumActivity.settings.edit();
+    private final boolean DARK_THEME_PREF = MinimumActivity.settings.getBoolean("dark_theme", false);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         applySettings();
         super.onCreate(savedInstanceState);
-        addPreferencesFromResource(R.xml.settings);
+        addPreferencesFromResource(R.xml.settings_activity);
         checkBoxDarkTheme = findPreference("prefs_dark_theme").getSharedPreferences();
     }
 
@@ -37,7 +37,7 @@ public class Settings extends PreferenceActivity {
     }
 
     private void applySettings() {
-        if (Minimum.settings.getBoolean("dark_theme", false)) {
+        if (MinimumActivity.settings.getBoolean("dark_theme", false)) {
             setTheme(R.style.AppThemeDark);
         }
     }
