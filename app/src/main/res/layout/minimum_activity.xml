@@ -7,7 +7,7 @@
     tools:context=".MinimumActivity">
 
     <ProgressBar
-        android:id="@+id/progressBar"
+        android:id="@+id/loading"
         style="?android:attr/progressBarStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

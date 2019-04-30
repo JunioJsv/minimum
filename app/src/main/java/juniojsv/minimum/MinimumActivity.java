@@ -23,14 +23,13 @@ import java.util.List;
 
 import juniojsv.minimum.Utilities.MoveFileTo;
 
-public class MinimumActivity extends AppCompatActivity {
-    static List<App> appsList = new ArrayList<>(0);
-    public static ListView appsListView;
-    public static Adapter adapter;
-    public static ProgressBar progressBar;
+public class MinimumActivity extends AppCompatActivity implements MinimumInterface{
+    public List<App> appsList = new ArrayList<>(0);
+    public ListView appsListView;
+    public Adapter adapter;
+    public ProgressBar loading;
     public static SharedPreferences settings;
     private BroadcastReceiver checkAppsList;
-    private SearchApps searchApps = new SearchApps(this);
     private TakePhoto takePhoto;
 
     @Override
@@ -40,18 +39,23 @@ public class MinimumActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.minimum_activity);
 
-        adapter =  new Adapter(this, appsList);
+        //findViewById:
         appsListView = findViewById(R.id.appsListView);
-        progressBar = findViewById(R.id.progressBar);
+        loading = findViewById(R.id.loading);
+        //end
+
+        SearchApps searchApps = new SearchApps(this.getPackageManager(), this);
+        adapter =  new Adapter(this, appsList);
         searchApps.execute();
 
-        checkAppsList = new CheckAppsList();
+        checkAppsList = new CheckAppsList(this);
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(Intent.ACTION_PACKAGE_ADDED);
         intentFilter.addAction(Intent.ACTION_PACKAGE_REMOVED);
         intentFilter.addDataScheme("package");
         this.registerReceiver(checkAppsList, intentFilter);
 
+        //onClick
         appsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -68,6 +72,7 @@ public class MinimumActivity extends AppCompatActivity {
                 return true;
             }
         });
+        //end
     }
 
     @Override
@@ -86,7 +91,7 @@ public class MinimumActivity extends AppCompatActivity {
                 break;
             case R.id.camera_shortcut:
                 takePhoto = new TakePhoto(this);
-                takePhoto.Capture();
+                takePhoto.capture();
                 break;
             case R.id.setting_shortcut:
                 Intent settingIntent = new Intent(this, SettingsActivity.class);
@@ -97,7 +102,7 @@ public class MinimumActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-
+        //Nope
     }
 
     @Override
@@ -126,6 +131,7 @@ public class MinimumActivity extends AppCompatActivity {
 
             try {
                 File file = new File(takePhoto.getCamera().getCameraBitmapPath());
+                //noinspection ResultOfMethodCallIgnored
                 file.delete();
 
             } catch (Exception error) {
@@ -140,16 +146,30 @@ public class MinimumActivity extends AppCompatActivity {
         }
     }
 
-    static void startAdapter(){
+    @Override
+    public void notifyAdapter() {
         if (appsListView.getAdapter() == null)  {
             appsListView.setAdapter(adapter);
         } else adapter.notifyDataSetChanged();
     }
 
-    static void setAppsList(List<App> appsListCache) {
+    @Override
+    public List<App> getAppsList() {
+        return appsList;
+    }
+
+    @Override
+    public void onSearchAppsStarting() {
+        loading.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void onSearchAppsFinished(List<App> newAppsList) {
         if (appsList.size() != 0) {
             appsList.clear();
         }
-        appsList.addAll(appsListCache);
+        appsList.addAll(newAppsList);
+        notifyAdapter();
+        loading.setVisibility(View.GONE);
     }
 }

@@ -1,12 +1,10 @@
 package juniojsv.minimum;
 
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
-import android.view.View;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,29 +12,30 @@ import java.util.List;
 import juniojsv.minimum.Utilities.SortListOfApps;
 
 public class SearchApps extends AsyncTask<Void, Void, List<App>> {
-    private Context context;
+    private PackageManager packageManager;
+    private MinimumInterface minimumInterface;
 
-    SearchApps(Context context) {
-        this.context = context;
+    SearchApps(PackageManager packageManager, MinimumInterface minimumInterface) {
+        this.packageManager = packageManager;
+        this.minimumInterface = minimumInterface;
     }
 
     @Override
     protected void onPreExecute() {
         super.onPreExecute();
-        MinimumActivity.progressBar.setVisibility(View.VISIBLE);
+        minimumInterface.onSearchAppsStarting();
     }
 
     @Override
     protected List<App> doInBackground(Void... voids) {
 
-        PackageManager pkgManager = context.getPackageManager();
-        List<ApplicationInfo> appsInstalled = pkgManager.getInstalledApplications(0);
-        List<App> appsListCache = new ArrayList<>();
+        List<ApplicationInfo> appsInstalled = packageManager.getInstalledApplications(0);
+        List<App> newAppsList = new ArrayList<>();
 
         for (ApplicationInfo appInfo : appsInstalled) {
-            String packageLabel = appInfo.loadLabel(pkgManager).toString();
-            Drawable icon = appInfo.loadIcon(pkgManager);
-            Intent intent = pkgManager.getLaunchIntentForPackage(appInfo.packageName);
+            String packageLabel = appInfo.loadLabel(packageManager).toString();
+            Drawable icon = appInfo.loadIcon(packageManager);
+            Intent intent = packageManager.getLaunchIntentForPackage(appInfo.packageName);
             String packageName = appInfo.packageName;
 
             if (intent != null && !appInfo.packageName.equals(BuildConfig.APPLICATION_ID)) {
@@ -44,20 +43,18 @@ public class SearchApps extends AsyncTask<Void, Void, List<App>> {
                 intent.setAction(Intent.ACTION_MAIN);
                 intent.addCategory(Intent.CATEGORY_LAUNCHER);
 
-                appsListCache.add(new App(packageLabel, icon, intent, packageName));
+                newAppsList.add(new App(packageLabel, icon, intent, packageName));
             }
         }
 
-        new SortListOfApps(appsListCache);
+        new SortListOfApps(newAppsList);
 
-        return appsListCache;
+        return newAppsList;
     }
 
     @Override
-    protected void onPostExecute(List<App> appsList) {
-        super.onPostExecute(appsList);
-        MinimumActivity.setAppsList(appsList);
-        MinimumActivity.startAdapter();
-        MinimumActivity.progressBar.setVisibility(View.GONE);
+    protected void onPostExecute(List<App> newAppsList) {
+        super.onPostExecute(newAppsList);
+        minimumInterface.onSearchAppsFinished(newAppsList);
     }
 }
