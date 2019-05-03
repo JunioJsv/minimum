@@ -37,20 +37,20 @@ public class CheckAppsList extends BroadcastReceiver{
 
     private void addAppInList(List<App> targetList) {
         PackageManager packageManager = context.getPackageManager();
-        ApplicationInfo appInfo = null;
+        ApplicationInfo app = null;
 
         try {
-            appInfo = packageManager.getApplicationInfo(intent.getDataString().substring(8), 0);
-        } catch (PackageManager.NameNotFoundException e) {
-            e.printStackTrace();
+            app = packageManager.getApplicationInfo(intent.getDataString().substring(8), 0);
+        } catch (PackageManager.NameNotFoundException exception) {
+            exception.printStackTrace();
         }
 
-        String packageLabel = appInfo.loadLabel(packageManager).toString();
-        Drawable icon = appInfo.loadIcon(packageManager);
-        Intent intent = packageManager.getLaunchIntentForPackage(appInfo.packageName);
-        String packageName = appInfo.packageName;
+        String packageLabel = app.loadLabel(packageManager).toString();
+        Drawable icon = app.loadIcon(packageManager);
+        Intent intent = packageManager.getLaunchIntentForPackage(app.packageName);
+        String packageName = app.packageName;
 
-        if (intent != null && !appInfo.packageName.equals(BuildConfig.APPLICATION_ID)) {
+        if (intent != null && !app.packageName.equals(BuildConfig.APPLICATION_ID)) {
 
             intent.setAction(Intent.ACTION_MAIN);
             intent.addCategory(Intent.CATEGORY_LAUNCHER);

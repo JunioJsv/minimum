@@ -29,16 +29,16 @@ public class SearchApps extends AsyncTask<Void, Void, List<App>> {
     @Override
     protected List<App> doInBackground(Void... voids) {
 
-        List<ApplicationInfo> appsInstalled = packageManager.getInstalledApplications(0);
+        List<ApplicationInfo> installedApps = packageManager.getInstalledApplications(0);
         List<App> newAppsList = new ArrayList<>();
 
-        for (ApplicationInfo appInfo : appsInstalled) {
-            String packageLabel = appInfo.loadLabel(packageManager).toString();
-            Drawable icon = appInfo.loadIcon(packageManager);
-            Intent intent = packageManager.getLaunchIntentForPackage(appInfo.packageName);
-            String packageName = appInfo.packageName;
+        for (ApplicationInfo app : installedApps) {
+            String packageLabel = app.loadLabel(packageManager).toString();
+            Drawable icon = app.loadIcon(packageManager);
+            Intent intent = packageManager.getLaunchIntentForPackage(app.packageName);
+            String packageName = app.packageName;
 
-            if (intent != null && !appInfo.packageName.equals(BuildConfig.APPLICATION_ID)) {
+            if (intent != null && !app.packageName.equals(BuildConfig.APPLICATION_ID)) {
 
                 intent.setAction(Intent.ACTION_MAIN);
                 intent.addCategory(Intent.CATEGORY_LAUNCHER);
