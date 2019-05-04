@@ -10,17 +10,14 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.AdapterView
-import android.widget.ListView
-import android.widget.ProgressBar
 import juniojsv.minimum.utilities.MoveFileTo
+import kotlinx.android.synthetic.main.minimum_activity.*
 import java.io.File
 import java.util.*
 
 class MinimumActivity : AppCompatActivity(), MinimumInterface {
     override var appsList: MutableList<App> = ArrayList(0)
-    private lateinit var appsListView: ListView
-    private lateinit var adapter: Adapter
-    private lateinit var loading: ProgressBar
+    private var adapter: Adapter = Adapter(this, appsList)
     private lateinit var checkAppsList: BroadcastReceiver
     private lateinit var takePhoto: TakePhoto
 
@@ -30,16 +27,8 @@ class MinimumActivity : AppCompatActivity(), MinimumInterface {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.minimum_activity)
 
-        //findViewById:
-        appsListView = findViewById(R.id.appsListView)
-        loading = findViewById(R.id.loading)
-        //end
-
         val searchApps = SearchApps(this.packageManager, this)
-        adapter = Adapter(this, appsList)
-        if(appsList.size == 0) {
-            searchApps.execute()
-        }
+        if(appsList.size == 0) searchApps.execute()
 
         checkAppsList = CheckAppsList(this)
         val intentFilter = IntentFilter()
@@ -48,7 +37,10 @@ class MinimumActivity : AppCompatActivity(), MinimumInterface {
         intentFilter.addDataScheme("package")
         this.registerReceiver(checkAppsList, intentFilter)
 
-        //onClick
+        setOnClick()
+    }
+
+    private fun setOnClick() {
         appsListView.onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
             val appIntent = appsList[position].intent
             startActivity(appIntent)
@@ -59,7 +51,6 @@ class MinimumActivity : AppCompatActivity(), MinimumInterface {
             startActivity(uninstall)
             true
         }
-        //end
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
