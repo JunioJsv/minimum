@@ -8,5 +8,5 @@ interface MinimumInterface {
 
     fun onSearchAppsStarting()
 
-    fun onSearchAppsFinished(newAppsList: List<App>)
+    fun onSearchAppsFinished(newAppsList: MutableList<App>)
 }

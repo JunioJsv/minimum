@@ -131,7 +131,7 @@ class MinimumActivity : AppCompatActivity(), MinimumInterface {
         loading.visibility = View.VISIBLE
     }
 
-    override fun onSearchAppsFinished(newAppsList: List<App>) {
+    override fun onSearchAppsFinished(newAppsList: MutableList<App>) {
         if (appsList.size != 0) {
             appsList.clear()
         }

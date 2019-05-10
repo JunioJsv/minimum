@@ -2,6 +2,7 @@ package juniojsv.minimum
 
 import android.content.Context
 import android.view.View
+import android.view.View.inflate
 import android.view.ViewGroup
 import android.widget.BaseAdapter
 import android.widget.ImageView
@@ -22,18 +23,13 @@ class Adapter internal constructor(private val context: Context, private val app
     }
 
     override fun getView(position: Int, view: View?, parent: ViewGroup): View {
-        var targetView: View? = view
-        if (targetView == null) {
-            targetView = View.inflate(context, R.layout.app_view, null)
-        }
+        val targetView: View = inflate(context, R.layout.app_view, null)
 
-        val iconView: ImageView = targetView!!.findViewById(R.id.iconView)
+        val iconView: ImageView = targetView.findViewById(R.id.iconView)
         val nameView: TextView = targetView.findViewById(R.id.nameView)
 
-        val app: App = appsList[position]
-
-        iconView.setImageDrawable(app.icon)
-        nameView.text = app.packageLabel
+        iconView.setImageDrawable(appsList[position].icon)
+        nameView.text = appsList[position].packageLabel
         return targetView
     }
 }
