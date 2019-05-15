@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Minimum</string>
+    <string name="name_view">App name</string>
+    <string name="dial">Dial</string>
+    <string name="camera">Camera</string>
+    <string name="settings">Settings</string>
 </resources>

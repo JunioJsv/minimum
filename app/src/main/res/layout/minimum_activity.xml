@@ -16,14 +16,14 @@
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="8dp"
         android:elevation="10dp"
-        app:layout_constraintBottom_toBottomOf="@+id/appsListView"
-        app:layout_constraintEnd_toEndOf="@+id/appsListView"
+        app:layout_constraintBottom_toBottomOf="@+id/apps_list_view"
+        app:layout_constraintEnd_toEndOf="@+id/apps_list_view"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:visibility="gone" />
 
     <ListView
-        android:id="@+id/appsListView"
+        android:id="@+id/apps_list_view"
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:dividerHeight="0dp"

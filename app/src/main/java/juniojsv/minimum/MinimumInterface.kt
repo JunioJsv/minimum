@@ -2,7 +2,7 @@ package juniojsv.minimum
 
 interface MinimumInterface {
 
-    val appsList: MutableList<App>
+    var appsList: MutableList<App>
 
     fun notifyAdapter()
 

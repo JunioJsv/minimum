@@ -3,17 +3,17 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/dial_shortcut"
-        app:showAsAction="always"
-        android:title="Dial"
+        app:showAsAction="ifRoom"
+        android:title="@string/dial"
         android:icon="@drawable/ic_phone_24dp" />
     <item
         android:id="@+id/camera_shortcut"
-        app:showAsAction="always"
-        android:title="Camera"
+        app:showAsAction="ifRoom"
+        android:title="@string/camera"
         android:icon="@drawable/ic_camera_24dp" />
     <item
         android:id="@+id/setting_shortcut"
-        app:showAsAction="always"
-        android:title="Settings"
+        app:showAsAction="ifRoom"
+        android:title="@string/settings"
         android:icon="@drawable/ic_settings_24dp" />
 </menu>

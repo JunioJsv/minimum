@@ -13,10 +13,9 @@ import android.widget.AdapterView
 import juniojsv.minimum.utilities.MoveFileTo
 import kotlinx.android.synthetic.main.minimum_activity.*
 import java.io.File
-import java.util.*
 
 class MinimumActivity : AppCompatActivity(), MinimumInterface {
-    override var appsList: MutableList<App> = ArrayList(0)
+    override var appsList: MutableList<App> = ArrayList()
     private var adapter: Adapter = Adapter(this, appsList)
     private lateinit var checkAppsList: BroadcastReceiver
     private lateinit var takePhoto: TakePhoto
@@ -41,11 +40,11 @@ class MinimumActivity : AppCompatActivity(), MinimumInterface {
     }
 
     private fun setOnClick() {
-        appsListView.onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
+        apps_list_view.onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
             val appIntent = appsList[position].intent
             startActivity(appIntent)
         }
-        appsListView.onItemLongClickListener = AdapterView.OnItemLongClickListener { _, _, position, _ ->
+        apps_list_view.onItemLongClickListener = AdapterView.OnItemLongClickListener { _, _, position, _ ->
             val pkgUri = Uri.parse("package:" + appsList[position].packageName)
             val uninstall = Intent(Intent.ACTION_UNINSTALL_PACKAGE, pkgUri)
             startActivity(uninstall)
@@ -121,8 +120,8 @@ class MinimumActivity : AppCompatActivity(), MinimumInterface {
     }
 
     override fun notifyAdapter() {
-        if (appsListView.adapter == null) {
-            appsListView.adapter = adapter
+        if (apps_list_view.adapter == null) {
+            apps_list_view.adapter = adapter
         } else
             adapter.notifyDataSetChanged()
     }
