@@ -41,12 +41,11 @@ class MinimumActivity : AppCompatActivity(), MinimumInterface {
 
     private fun setOnClick() {
         apps_list_view.onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
-            val appIntent = appsList[position].intent
-            startActivity(appIntent)
+            startActivity(appsList[position].intent)
         }
         apps_list_view.onItemLongClickListener = AdapterView.OnItemLongClickListener { _, _, position, _ ->
-            val pkgUri = Uri.parse("package:" + appsList[position].packageName)
-            val uninstall = Intent(Intent.ACTION_UNINSTALL_PACKAGE, pkgUri)
+            val packageUri = Uri.parse("package:" + appsList[position].packageName)
+            val uninstall = Intent(Intent.ACTION_UNINSTALL_PACKAGE, packageUri)
             startActivity(uninstall)
             true
         }
@@ -122,8 +121,7 @@ class MinimumActivity : AppCompatActivity(), MinimumInterface {
     override fun notifyAdapter() {
         if (apps_list_view.adapter == null) {
             apps_list_view.adapter = adapter
-        } else
-            adapter.notifyDataSetChanged()
+        } else adapter.notifyDataSetChanged()
     }
 
     override fun onSearchAppsStarting() {
