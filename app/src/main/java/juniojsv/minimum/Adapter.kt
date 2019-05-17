@@ -5,8 +5,7 @@ import android.view.View
 import android.view.View.inflate
 import android.view.ViewGroup
 import android.widget.BaseAdapter
-import android.widget.ImageView
-import android.widget.TextView
+import kotlinx.android.synthetic.main.app_view.view.*
 
 class Adapter internal constructor(private val context: Context, private val appsList: MutableList<App>) : BaseAdapter() {
 
@@ -25,11 +24,8 @@ class Adapter internal constructor(private val context: Context, private val app
     override fun getView(position: Int, view: View?, parent: ViewGroup): View {
         val targetView: View = inflate(context, R.layout.app_view, null)
 
-        val iconView: ImageView = targetView.findViewById(R.id.icon_view)
-        val nameView: TextView = targetView.findViewById(R.id.name_view)
-
-        iconView.setImageDrawable(appsList[position].icon)
-        nameView.text = appsList[position].packageLabel
+        targetView.icon_view.setImageDrawable(appsList[position].icon)
+        targetView.name_view.text = appsList[position].packageLabel
         return targetView
     }
 }

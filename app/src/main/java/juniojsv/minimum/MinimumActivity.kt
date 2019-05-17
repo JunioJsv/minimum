@@ -59,16 +59,14 @@ class MinimumActivity : AppCompatActivity(), MinimumInterface {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.dial_shortcut -> {
-                val dialIntent = Intent(Intent.ACTION_DIAL)
-                startActivity(dialIntent)
+                startActivity(Intent(Intent.ACTION_DIAL))
             }
             R.id.camera_shortcut -> {
                 takePhoto = TakePhoto(this)
                 takePhoto.capture()
             }
             R.id.setting_shortcut -> {
-                val settingIntent = Intent(this, SettingsActivity::class.java)
-                startActivity(settingIntent)
+                startActivity(Intent(this, SettingsActivity::class.java))
             }
         }
         return super.onOptionsItemSelected(item)
