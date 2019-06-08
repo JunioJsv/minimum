@@ -26,8 +26,9 @@ class MinimumActivity : AppCompatActivity(), MinimumInterface {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.minimum_activity)
 
-        val searchApps = SearchApps(this.packageManager, this)
-        if(appsList.size == 0) searchApps.execute()
+        SearchApps(this, this).apply {
+            if (appsList.size == 0) execute()
+        }
 
         checkAppsList = CheckAppsList(this)
         val intentFilter = IntentFilter()

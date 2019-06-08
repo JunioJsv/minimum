@@ -22,10 +22,15 @@ class Adapter internal constructor(private val context: Context, private val app
     }
 
     override fun getView(position: Int, view: View?, parent: ViewGroup): View {
-        val targetView: View = inflate(context, R.layout.app_view, null)
+//        val targetView: View = inflate(context, R.layout.app_view, null)
+//
+//        targetView.icon_view.setImageDrawable(appsList[position].icon)
+//        targetView.name_view.text = appsList[position].packageLabel
+//        return targetView
 
-        targetView.icon_view.setImageDrawable(appsList[position].icon)
-        targetView.name_view.text = appsList[position].packageLabel
-        return targetView
+        return inflate(context, R.layout.app_view, null).apply {
+            icon_view.setImageDrawable(appsList[position].icon)
+            name_view.text = appsList[position].packageLabel
+        }
     }
 }
