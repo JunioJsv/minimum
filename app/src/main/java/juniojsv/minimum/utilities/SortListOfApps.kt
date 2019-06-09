@@ -7,9 +7,9 @@ class SortListOfApps(listToSort: MutableList<App>) {
 
     init {
 
-        for (app in listToSort) {
-            if (app.packageLabel[0] != Character.toUpperCase(app.packageLabel[0])) {
-                app.packageLabel = app.packageLabel.substring(0, 1).toUpperCase() + app.packageLabel.substring(1)
+        listToSort.forEach {
+            if (it.packageLabel[0] != Character.toUpperCase(it.packageLabel[0])) {
+                it.packageLabel = it.packageLabel.substring(0, 1).toUpperCase() + it.packageLabel.substring(1)
             }
         }
 
