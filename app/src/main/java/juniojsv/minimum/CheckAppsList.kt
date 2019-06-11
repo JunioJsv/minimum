@@ -8,7 +8,7 @@ import android.content.pm.PackageManager
 
 import juniojsv.minimum.utilities.SortListOfApps
 
-class CheckAppsList internal constructor(private val minimumInterface: MinimumInterface) : BroadcastReceiver() {
+class CheckAppsList internal constructor(private val minimum: MinimumActivity) : BroadcastReceiver() {
     private var context: Context? = null
     private var intent: Intent? = null
 
@@ -17,11 +17,11 @@ class CheckAppsList internal constructor(private val minimumInterface: MinimumIn
         this.intent = intent
 
         if (intent.action == Intent.ACTION_PACKAGE_ADDED) {
-            addAppInList(minimumInterface.appsList)
+            addAppInList(minimum.appsList)
         }
 
         if (intent.action == Intent.ACTION_PACKAGE_REMOVED) {
-            removeAppOfList(minimumInterface.appsList)
+            removeAppOfList(minimum.appsList)
         }
 
     }
@@ -48,7 +48,7 @@ class CheckAppsList internal constructor(private val minimumInterface: MinimumIn
 
             targetList.add(App(packageLabel, icon, intent, packageName))
             SortListOfApps(targetList)
-            minimumInterface.notifyAdapter()
+            minimum.notifyAdapter()
 
         }
     }
@@ -63,6 +63,6 @@ class CheckAppsList internal constructor(private val minimumInterface: MinimumIn
         }
 
         targetList.remove(targetApp)
-        minimumInterface.notifyAdapter()
+        minimum.notifyAdapter()
     }
 }

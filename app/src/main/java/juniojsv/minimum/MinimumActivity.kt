@@ -1,6 +1,7 @@
 package juniojsv.minimum
 
-import android.content.*
+import android.content.Intent
+import android.content.IntentFilter
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -14,28 +15,32 @@ import juniojsv.minimum.utilities.MoveFileTo
 import kotlinx.android.synthetic.main.minimum_activity.*
 import java.io.File
 
-class MinimumActivity : AppCompatActivity(), MinimumInterface {
-    override var appsList: MutableList<App> = ArrayList()
+class MinimumActivity : AppCompatActivity() {
+    var appsList: MutableList<App> = ArrayList()
     private var adapter: Adapter = Adapter(this, appsList)
-    private lateinit var checkAppsList: BroadcastReceiver
-    private lateinit var takePhoto: TakePhoto
+    private lateinit var camera: TakePhoto
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        settings = getSharedPreferences("Settings", Context.MODE_PRIVATE)
         applySettings()
         super.onCreate(savedInstanceState)
         setContentView(R.layout.minimum_activity)
 
-        val searchApps = SearchApps(this.packageManager, this)
-        if(appsList.size == 0) searchApps.execute()
+        SearchApps(this).apply {
+            if (appsList.size == 0) execute()
+        }
 
-        checkAppsList = CheckAppsList(this)
-        val intentFilter = IntentFilter()
-        intentFilter.addAction(Intent.ACTION_PACKAGE_ADDED)
-        intentFilter.addAction(Intent.ACTION_PACKAGE_REMOVED)
-        intentFilter.addDataScheme("package")
-        this.registerReceiver(checkAppsList, intentFilter)
+        registerReceiver(
+                CheckAppsList(this).apply {
+                    thisCheckAppsList = this
+                },
+                IntentFilter().apply {
+                    addAction(Intent.ACTION_PACKAGE_ADDED)
+                    addAction(Intent.ACTION_PACKAGE_REMOVED)
+                    addDataScheme("package")
+                }
+        )
 
+        thisActivity = this
         setOnClick()
     }
 
@@ -62,8 +67,9 @@ class MinimumActivity : AppCompatActivity(), MinimumInterface {
                 startActivity(Intent(Intent.ACTION_DIAL))
             }
             R.id.camera_shortcut -> {
-                takePhoto = TakePhoto(this)
-                takePhoto.capture()
+                camera = TakePhoto(this).apply {
+                    capture()
+                }
             }
             R.id.setting_shortcut -> {
                 startActivity(Intent(this, SettingsActivity::class.java))
@@ -76,22 +82,15 @@ class MinimumActivity : AppCompatActivity(), MinimumInterface {
         //Nope
     }
 
-    override fun onResume() {
-        super.onResume()
-        if (SettingsActivity.needRestart) {
-            SettingsActivity.needRestart = false
-            unregisterReceiver(checkAppsList)
-            recreate()
-        }
-    }
-
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if ((requestCode == com.mindorks.paracamera.Camera.REQUEST_TAKE_PHOTO) and (Build.MANUFACTURER != "LGE")) {
 
             try {
-                val moveFileTo = MoveFileTo(File(takePhoto.camera.cameraBitmapPath), File(Environment.getExternalStorageDirectory().path + "/Minimum"))
-                moveFileTo.execute()
+                MoveFileTo(
+                        File(camera.camera.cameraBitmapPath),
+                        File(Environment.getExternalStorageDirectory().path + "/Minimum"))
+                        .execute()
             } catch (error: Exception) {
                 error.printStackTrace()
             }
@@ -99,9 +98,10 @@ class MinimumActivity : AppCompatActivity(), MinimumInterface {
         } else if ((requestCode == com.mindorks.paracamera.Camera.REQUEST_TAKE_PHOTO) and (Build.MANUFACTURER == "LGE")) {
 
             try {
-                val file = File(takePhoto.camera.cameraBitmapPath)
 
-                file.delete()
+                File(camera.camera.cameraBitmapPath).apply {
+                    delete()
+                }
 
             } catch (error: Exception) {
                 error.printStackTrace()
@@ -111,22 +111,22 @@ class MinimumActivity : AppCompatActivity(), MinimumInterface {
     }
 
     private fun applySettings() {
-        if (settings.getBoolean("dark_theme", false)) {
+        if (Settings(this).getBoolean("dark_theme")) {
             setTheme(R.style.AppThemeDark)
         }
     }
 
-    override fun notifyAdapter() {
+    fun notifyAdapter() {
         if (apps_list_view.adapter == null) {
             apps_list_view.adapter = adapter
         } else adapter.notifyDataSetChanged()
     }
 
-    override fun onSearchAppsStarting() {
+    fun onSearchAppsStarting() {
         loading.visibility = View.VISIBLE
     }
 
-    override fun onSearchAppsFinished(newAppsList: MutableList<App>) {
+    fun onSearchAppsFinished(newAppsList: MutableList<App>) {
         if (appsList.size != 0) {
             appsList.clear()
         }
@@ -136,6 +136,13 @@ class MinimumActivity : AppCompatActivity(), MinimumInterface {
     }
 
     companion object {
-        lateinit var settings: SharedPreferences
+        private var thisActivity: MinimumActivity? = null
+        private var thisCheckAppsList: CheckAppsList? = null
+        fun recreate() {
+            thisActivity?.apply {
+                unregisterReceiver(thisCheckAppsList)
+                recreate()
+            }
+        }
     }
 }

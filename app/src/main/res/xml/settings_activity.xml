@@ -3,7 +3,7 @@
     <PreferenceCategory
         android:title="Appearance" />
     <CheckBoxPreference
-        android:key="prefs_dark_theme"
+        android:key="dark_theme"
         android:defaultValue="false"
         android:title="Enable dark mode"
         android:summary="Change the theme to darker colors with more contrast." />
