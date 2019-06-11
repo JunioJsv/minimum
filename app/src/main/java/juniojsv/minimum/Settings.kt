@@ -4,7 +4,12 @@ import android.content.Context
 
 class Settings(context: Context) {
 
-    private val settings = context.getSharedPreferences("settings", Context.MODE_PRIVATE)
+    private val settings = context.getSharedPreferences("${context.packageName}_settings", Context.MODE_PRIVATE).apply {
+        registerOnSharedPreferenceChangeListener { _, key ->
+            MinimumActivity.recreate()
+            SettingsActivity.recreate()
+        }
+    }
 
     fun putBoolean(key: String, boolean: Boolean) {
         settings.edit().apply {

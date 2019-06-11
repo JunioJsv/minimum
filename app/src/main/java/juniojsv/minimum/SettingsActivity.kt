@@ -13,6 +13,8 @@ class SettingsActivity : PreferenceActivity() {
         findPreference("dark_theme").sharedPreferences.registerOnSharedPreferenceChangeListener { sharedPreferences, key ->
             Settings(this).putBoolean(key, sharedPreferences.getBoolean(key, false))
         }
+
+        thisActivity = this
     }
 
     private fun applySettings() {
@@ -22,6 +24,15 @@ class SettingsActivity : PreferenceActivity() {
             }
         }
 
+    }
+
+    companion object {
+        private var thisActivity: SettingsActivity? = null
+        fun recreate() {
+            thisActivity?.apply {
+                recreate()
+            }
+        }
     }
 
 }

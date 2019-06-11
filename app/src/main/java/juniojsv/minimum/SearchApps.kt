@@ -1,18 +1,17 @@
 package juniojsv.minimum
 
-import android.content.Context
 import android.content.Intent
 import android.graphics.drawable.Drawable
 import android.os.AsyncTask
 import juniojsv.minimum.utilities.SortListOfApps
 import java.util.*
 
-class SearchApps internal constructor(context: Context, private val minimumInterface: MinimumInterface) : AsyncTask<Void, Void, MutableList<App>>() {
-    private val packageManager = context.packageManager
+class SearchApps internal constructor(private val minimum: MinimumActivity) : AsyncTask<Void, Void, MutableList<App>>() {
+    private val packageManager = minimum.packageManager
 
     override fun onPreExecute() {
         super.onPreExecute()
-        minimumInterface.onSearchAppsStarting()
+        minimum.onSearchAppsStarting()
     }
 
     override fun doInBackground(vararg voids: Void): MutableList<App>? {
@@ -41,6 +40,6 @@ class SearchApps internal constructor(context: Context, private val minimumInter
 
     override fun onPostExecute(newAppsList: MutableList<App>) {
         super.onPostExecute(newAppsList)
-        minimumInterface.onSearchAppsFinished(newAppsList)
+        minimum.onSearchAppsFinished(newAppsList)
     }
 }

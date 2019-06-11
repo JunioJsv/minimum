@@ -15,8 +15,8 @@ import juniojsv.minimum.utilities.MoveFileTo
 import kotlinx.android.synthetic.main.minimum_activity.*
 import java.io.File
 
-class MinimumActivity : AppCompatActivity(), MinimumInterface {
-    override var appsList: MutableList<App> = ArrayList()
+class MinimumActivity : AppCompatActivity() {
+    var appsList: MutableList<App> = ArrayList()
     private var adapter: Adapter = Adapter(this, appsList)
     private lateinit var camera: TakePhoto
 
@@ -25,12 +25,14 @@ class MinimumActivity : AppCompatActivity(), MinimumInterface {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.minimum_activity)
 
-        SearchApps(this, this).apply {
+        SearchApps(this).apply {
             if (appsList.size == 0) execute()
         }
 
         registerReceiver(
-                CheckAppsList(this),
+                CheckAppsList(this).apply {
+                    thisCheckAppsList = this
+                },
                 IntentFilter().apply {
                     addAction(Intent.ACTION_PACKAGE_ADDED)
                     addAction(Intent.ACTION_PACKAGE_REMOVED)
@@ -38,6 +40,7 @@ class MinimumActivity : AppCompatActivity(), MinimumInterface {
                 }
         )
 
+        thisActivity = this
         setOnClick()
     }
 
@@ -79,12 +82,6 @@ class MinimumActivity : AppCompatActivity(), MinimumInterface {
         //Nope
     }
 
-//    override fun onResume() {
-//        super.onResume()
-//        unregisterReceiver(checkAppsList)
-//        recreate()
-//    }
-
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if ((requestCode == com.mindorks.paracamera.Camera.REQUEST_TAKE_PHOTO) and (Build.MANUFACTURER != "LGE")) {
@@ -93,9 +90,7 @@ class MinimumActivity : AppCompatActivity(), MinimumInterface {
                 MoveFileTo(
                         File(camera.camera.cameraBitmapPath),
                         File(Environment.getExternalStorageDirectory().path + "/Minimum"))
-                        .apply {
-                            execute()
-                        }
+                        .execute()
             } catch (error: Exception) {
                 error.printStackTrace()
             }
@@ -121,17 +116,17 @@ class MinimumActivity : AppCompatActivity(), MinimumInterface {
         }
     }
 
-    override fun notifyAdapter() {
+    fun notifyAdapter() {
         if (apps_list_view.adapter == null) {
             apps_list_view.adapter = adapter
         } else adapter.notifyDataSetChanged()
     }
 
-    override fun onSearchAppsStarting() {
+    fun onSearchAppsStarting() {
         loading.visibility = View.VISIBLE
     }
 
-    override fun onSearchAppsFinished(newAppsList: MutableList<App>) {
+    fun onSearchAppsFinished(newAppsList: MutableList<App>) {
         if (appsList.size != 0) {
             appsList.clear()
         }
@@ -140,7 +135,14 @@ class MinimumActivity : AppCompatActivity(), MinimumInterface {
         loading.visibility = View.GONE
     }
 
-//    companion object {
-//        lateinit var settings: SharedPreferences
-//    }
+    companion object {
+        private var thisActivity: MinimumActivity? = null
+        private var thisCheckAppsList: CheckAppsList? = null
+        fun recreate() {
+            thisActivity?.apply {
+                unregisterReceiver(thisCheckAppsList)
+                recreate()
+            }
+        }
+    }
 }
