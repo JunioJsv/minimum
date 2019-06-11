@@ -6,9 +6,10 @@ class Settings(context: Context) {
 
     private val settings = context.getSharedPreferences("${context.packageName}_settings", Context.MODE_PRIVATE).apply {
         registerOnSharedPreferenceChangeListener { _, key ->
-            if (key == "dark_theme")
+            if (key == "dark_theme") {
                 MinimumActivity.recreate()
-            SettingsActivity.recreate()
+                SettingsActivity.recreate()
+            }
         }
     }
 
