@@ -10,6 +10,7 @@
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
         android:layout_margin="8dp"
+        android:contentDescription="@string/todo"
         app:srcCompat="@mipmap/ic_launcher" />
 
     <TextView

@@ -1,17 +1,20 @@
 package juniojsv.minimum
 
 import android.os.Bundle
-import android.preference.PreferenceActivity
+import android.support.v7.app.AppCompatActivity
+import kotlinx.android.synthetic.main.settings_activity.*
 
-class SettingsActivity : PreferenceActivity() {
+class SettingsActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         applySettings()
         super.onCreate(savedInstanceState)
-        addPreferencesFromResource(R.xml.settings_activity)
+        setContentView(R.layout.settings_activity).apply {
+            dark_mode.isChecked = Settings(this@SettingsActivity).getBoolean("dark_theme")
+        }
 
-        findPreference("dark_theme").sharedPreferences.registerOnSharedPreferenceChangeListener { sharedPreferences, key ->
-            Settings(this).putBoolean(key, sharedPreferences.getBoolean(key, false))
+        dark_mode.setOnCheckedChangeListener { _, isChecked ->
+            Settings(this).putBoolean("dark_theme", isChecked)
         }
 
         thisActivity = this
