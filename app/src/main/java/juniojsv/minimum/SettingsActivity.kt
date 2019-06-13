@@ -10,7 +10,9 @@ class SettingsActivity : AppCompatActivity() {
         applySettings()
         super.onCreate(savedInstanceState)
         setContentView(R.layout.settings_activity).apply {
+            title = "Settings"
             dark_mode.isChecked = Settings(this@SettingsActivity).getBoolean("dark_theme")
+            version.text = "${getString(R.string.version)} ${BuildConfig.VERSION_NAME}"
         }
 
         dark_mode.setOnCheckedChangeListener { _, isChecked ->

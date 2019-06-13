@@ -8,4 +8,6 @@
     <string name="enable_dark_mode">Enable dark mode</string>
     <string name="dark_mode_description">Change the theme to darker colors with more contrast.</string>
     <string name="todo">TODO</string>
+    <string name="about">About</string>
+    <string name="version">Version</string>
 </resources>
