@@ -3,66 +3,53 @@ package juniojsv.minimum
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.content.pm.ApplicationInfo
-import android.content.pm.PackageManager
-
 import juniojsv.minimum.utilities.SortListOfApps
 
 class CheckAppsList internal constructor(private val minimum: MinimumActivity) : BroadcastReceiver() {
-    private var context: Context? = null
-    private var intent: Intent? = null
 
     override fun onReceive(context: Context, intent: Intent) {
-        this.context = context
-        this.intent = intent
 
-        if (intent.action == Intent.ACTION_PACKAGE_ADDED) {
-            addAppInList(minimum.appsList)
-        }
+        when(intent.action) {
 
-        if (intent.action == Intent.ACTION_PACKAGE_REMOVED) {
-            removeAppOfList(minimum.appsList)
-        }
+            Intent.ACTION_PACKAGE_ADDED -> {
+                val packageManager = context.packageManager
+                val newApp = packageManager.getApplicationInfo(intent.dataString!!.substring(8), 0)
+                val newAppIntent = packageManager.getLaunchIntentForPackage(newApp.packageName)
 
-    }
+                if(newAppIntent != null && newApp.packageName != BuildConfig.APPLICATION_ID) {
+                    minimum.apply {
+                        appsList.add(
+                                App(
+                                        newApp.loadLabel(packageManager).toString(),
+                                        newApp.loadIcon(packageManager),
+                                        newAppIntent.apply {
+                                            action = Intent.ACTION_MAIN
+                                            addCategory(Intent.CATEGORY_LAUNCHER)
+                                        },
+                                        newApp.packageName
+                                )
+                        )
+                        SortListOfApps(appsList)
+                        notifyAdapter()
+                    }
+                }
+            }
 
-    private fun addAppInList(targetList: MutableList<App>) {
-        val packageManager = context!!.packageManager
-        var app: ApplicationInfo? = null
+            Intent.ACTION_PACKAGE_REMOVED -> {
+                val removedApp = intent.dataString!!.substring(8)
+                var targetInList: App? = null
 
-        try {
-            app = packageManager.getApplicationInfo(intent!!.dataString!!.substring(8), 0)
-        } catch (exception: PackageManager.NameNotFoundException) {
-            exception.printStackTrace()
-        }
-
-        val packageLabel = app!!.loadLabel(packageManager).toString()
-        val icon = app.loadIcon(packageManager)
-        val intent = packageManager.getLaunchIntentForPackage(app.packageName)
-        val packageName = app.packageName
-
-        if (intent != null && app.packageName != BuildConfig.APPLICATION_ID) {
-
-            intent.action = Intent.ACTION_MAIN
-            intent.addCategory(Intent.CATEGORY_LAUNCHER)
-
-            targetList.add(App(packageLabel, icon, intent, packageName))
-            SortListOfApps(targetList)
-            minimum.notifyAdapter()
-
-        }
-    }
-
-    private fun removeAppOfList(targetList: MutableList<App>) {
-        var targetApp: App? = null
-
-        for (app in targetList) {
-            if (app.packageName == intent!!.dataString!!.substring(8)) {
-                targetApp = app
+                minimum.apply {
+                    appsList.apply {
+                        forEach {
+                            if(it.packageName == removedApp) targetInList = it
+                        }
+                        remove(targetInList)
+                    }
+                    notifyAdapter()
+                }
             }
         }
 
-        targetList.remove(targetApp)
-        minimum.notifyAdapter()
     }
 }
