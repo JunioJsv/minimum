@@ -3,27 +3,48 @@ package juniojsv.minimum
 import android.content.Intent
 import android.content.IntentFilter
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
-import android.os.Environment
-import android.support.v7.app.AppCompatActivity
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.AdapterView
-import juniojsv.minimum.utilities.MoveFileTo
+import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.minimum_activity.*
-import java.io.File
+import kotlinx.android.synthetic.main.search_header.view.*
 
 class MinimumActivity : AppCompatActivity() {
     var appsList: MutableList<App> = ArrayList()
     private var adapter: Adapter = Adapter(this, appsList)
-    private lateinit var camera: TakePhoto
+    private var filteredList: MutableList<App> = ArrayList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         applySettings()
         super.onCreate(savedInstanceState)
         setContentView(R.layout.minimum_activity)
+
+        apps_list_view.addHeaderView(layoutInflater.inflate(
+                R.layout.search_header, apps_list_view, false))
+        apps_list_view.search_header.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(p0: Editable?) {
+            }
+
+            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+            }
+
+            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+                filteredList.clear()
+                //Log.d("$this", "${appsList.filter { app: App ->  app.packageLabel.contains(p0!!, true)}}")
+                //appsList.removeIf { app ->  !app.packageLabel.contains(p0!!, true)}
+                appsList.forEach {
+                    if (it.packageLabel.contains(p0!!, true)) filteredList.add(it)
+                }
+
+                //apps_list_view.adapter = Adapter(this@MinimumActivity, filteredList)
+            }
+
+        })
 
         SearchApps(this).apply {
             if (appsList.size == 0) execute()
@@ -67,9 +88,7 @@ class MinimumActivity : AppCompatActivity() {
                 startActivity(Intent(Intent.ACTION_DIAL))
             }
             R.id.camera_shortcut -> {
-                camera = TakePhoto(this).apply {
-                    capture()
-                }
+                TakePhoto(this)
             }
             R.id.setting_shortcut -> {
                 startActivity(Intent(this, SettingsActivity::class.java))
@@ -79,35 +98,7 @@ class MinimumActivity : AppCompatActivity() {
     }
 
     override fun onBackPressed() {
-        //Nope
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if ((requestCode == com.mindorks.paracamera.Camera.REQUEST_TAKE_PHOTO) and (Build.MANUFACTURER != "LGE")) {
-
-            try {
-                MoveFileTo(
-                        File(camera.camera.cameraBitmapPath),
-                        File(Environment.getExternalStorageDirectory().path + "/Minimum"))
-                        .execute()
-            } catch (error: Exception) {
-                error.printStackTrace()
-            }
-
-        } else if ((requestCode == com.mindorks.paracamera.Camera.REQUEST_TAKE_PHOTO) and (Build.MANUFACTURER == "LGE")) {
-
-            try {
-
-                File(camera.camera.cameraBitmapPath).apply {
-                    delete()
-                }
-
-            } catch (error: Exception) {
-                error.printStackTrace()
-            }
-
-        }
+        // Nope
     }
 
     private fun applySettings() {
@@ -127,7 +118,7 @@ class MinimumActivity : AppCompatActivity() {
     }
 
     fun onSearchAppsFinished(newAppsList: MutableList<App>) {
-        if (appsList.size != 0) {
+        if (appsList.isNotEmpty()) {
             appsList.clear()
         }
         appsList.addAll(newAppsList)

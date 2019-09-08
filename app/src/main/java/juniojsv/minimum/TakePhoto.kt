@@ -1,24 +1,53 @@
 package juniojsv.minimum
 
-import android.app.Activity
+import android.Manifest.permission.CAMERA
+import android.Manifest.permission.WRITE_EXTERNAL_STORAGE
+import android.content.pm.PackageManager.PERMISSION_DENIED
+import android.os.Environment
+import android.widget.Toast
+import androidx.camera.core.CameraX
+import androidx.camera.core.ImageCapture
+import androidx.camera.core.ImageCaptureConfig
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import androidx.lifecycle.LifecycleOwner
+import java.io.File
 
-import com.mindorks.paracamera.Camera
+class TakePhoto(minimumActivity: MinimumActivity) {
 
-internal class TakePhoto(activity: Activity) {
-    val camera: Camera = Camera.Builder()
-            .resetToCorrectOrientation(true)
-            .setTakePhotoRequestCode(1)
-            .setName("IMG_" + System.currentTimeMillis())
-            .setImageFormat(Camera.IMAGE_JPEG)
-            .setCompression(70)
-            .setImageHeight(1000)
-            .build(activity)
+    init {
+        if(ContextCompat.checkSelfPermission(minimumActivity, CAMERA) == PERMISSION_DENIED ||
+                ContextCompat.checkSelfPermission(minimumActivity, WRITE_EXTERNAL_STORAGE) == PERMISSION_DENIED) {
+            ActivityCompat.requestPermissions(minimumActivity, arrayOf(CAMERA, WRITE_EXTERNAL_STORAGE), REQUEST_CODE)
+        } else {
+            CameraX.unbindAll()
+            ImageCapture(ImageCaptureConfig.Builder()
+                    .setTargetRotation(minimumActivity.windowManager.defaultDisplay.rotation)
+                    .build()).apply {
+                CameraX.bindToLifecycle(minimumActivity as LifecycleOwner, this)
+                takePicture(createTempFile(
+                        "${System.currentTimeMillis()}", ".jpg"
+                ), object : ImageCapture.OnImageSavedListener {
+                    override fun onImageSaved(file: File) {
+                        file.apply {
+                            copyTo(File(PATH + file.name))
+                            delete()
+                        }
+                        Toast.makeText(minimumActivity, "Saved", Toast.LENGTH_SHORT).show()
+                    }
 
-    fun capture() {
-        try {
-            camera.takePicture()
-        } catch (error: Exception) {
-            error.printStackTrace()
+                    override fun onError(imageCaptureError: ImageCapture.ImageCaptureError, message: String, cause: Throwable?) {
+                        Toast.makeText(minimumActivity, "$message $cause", Toast.LENGTH_SHORT).show()
+                    }
+
+                })
+
+            }
         }
+    }
+
+    companion object {
+        val PATH = "${Environment.getExternalStorageDirectory().absolutePath}/Minimum/"
+        val REQUEST_CODE = (0..0xff).random()
     }
 }
