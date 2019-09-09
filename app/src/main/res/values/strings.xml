@@ -11,4 +11,6 @@
     <string name="about">About</string>
     <string name="version">Version</string>
     <string name="search">Search</string>
+    <string name="author">Created by Jeovene Santos, Aka JunioJsv</string>
+    <string name="author_title">Author</string>
 </resources>
