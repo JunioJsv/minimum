@@ -2,7 +2,8 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:padding="8dp">
 
     <EditText
         android:id="@+id/search_header"
@@ -10,5 +11,6 @@
         android:layout_height="wrap_content"
         android:ems="10"
         android:hint="@string/search"
+        android:importantForAutofill="no"
         android:inputType="textPersonName" />
 </LinearLayout>

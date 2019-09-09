@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import android.widget.BaseAdapter
 import kotlinx.android.synthetic.main.app_view.view.*
 
-class Adapter internal constructor(private val context: Context, private val appsList: MutableList<App>) : BaseAdapter() {
+class Adapter internal constructor(private val context: Context, private var appsList: MutableList<App>) : BaseAdapter() {
 
     override fun getCount(): Int {
         return appsList.size
@@ -21,6 +21,9 @@ class Adapter internal constructor(private val context: Context, private val app
         return appsList.indexOf(appsList[position]).toLong()
     }
 
+    fun changeList(appsList: MutableList<App>) {
+        this.appsList = appsList
+    }
     override fun getView(position: Int, view: View?, parent: ViewGroup): View {
 
         return inflate(context, R.layout.app_view, null).apply {

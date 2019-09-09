@@ -16,35 +16,61 @@ import kotlinx.android.synthetic.main.search_header.view.*
 
 class MinimumActivity : AppCompatActivity() {
     var appsList: MutableList<App> = ArrayList()
+    private val filteredList: MutableList<App> = ArrayList()
     private var adapter: Adapter = Adapter(this, appsList)
-    private var filteredList: MutableList<App> = ArrayList()
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         applySettings()
         super.onCreate(savedInstanceState)
         setContentView(R.layout.minimum_activity)
 
-        apps_list_view.addHeaderView(layoutInflater.inflate(
-                R.layout.search_header, apps_list_view, false))
-        apps_list_view.search_header.addTextChangedListener(object : TextWatcher {
-            override fun afterTextChanged(p0: Editable?) {
+        apps_list_view.apply {
+            addHeaderView(layoutInflater.inflate(
+                    R.layout.search_header, apps_list_view, false))
+
+            onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
+                if(search_header.text.isNotEmpty() && position > 0) startActivity(
+                        filteredList[position - 1].intent)
+                else if(position > 0) startActivity(appsList[position - 1].intent)
             }
 
-            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-            }
-
-            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-                filteredList.clear()
-                //Log.d("$this", "${appsList.filter { app: App ->  app.packageLabel.contains(p0!!, true)}}")
-                //appsList.removeIf { app ->  !app.packageLabel.contains(p0!!, true)}
-                appsList.forEach {
-                    if (it.packageLabel.contains(p0!!, true)) filteredList.add(it)
+            onItemLongClickListener = AdapterView.OnItemLongClickListener { _, _, position, _ ->
+                if(search_header.text.isNotEmpty() && position > 0) {
+                    val packageUri = Uri.parse("package:" + filteredList[position - 1].packageName)
+                    val uninstall = Intent(Intent.ACTION_UNINSTALL_PACKAGE, packageUri)
+                    startActivity(uninstall)
                 }
-
-                //apps_list_view.adapter = Adapter(this@MinimumActivity, filteredList)
+                else if(position > 0) {
+                    val packageUri = Uri.parse("package:" + appsList[position - 1].packageName)
+                    val uninstall = Intent(Intent.ACTION_UNINSTALL_PACKAGE, packageUri)
+                    startActivity(uninstall)
+                }
+                true
             }
 
-        })
+            search_header.apply {
+                addTextChangedListener(object : TextWatcher {
+                    override fun afterTextChanged(p0: Editable?) {
+                    }
+
+                    override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+                    }
+
+                    override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+                        filteredList.clear()
+                        if(p0!!.isNotEmpty()) {
+                            appsList.forEach {
+                                if (it.packageLabel.contains(p0, true)) filteredList.add(it)
+                            }
+                            this@MinimumActivity.adapter.changeList(filteredList)
+                        } else this@MinimumActivity.adapter.changeList(appsList)
+                        notifyAdapter()
+                    }
+
+                })
+            }
+        }
 
         SearchApps(this).apply {
             if (appsList.size == 0) execute()
@@ -62,19 +88,6 @@ class MinimumActivity : AppCompatActivity() {
         )
 
         thisActivity = this
-        setOnClick()
-    }
-
-    private fun setOnClick() {
-        apps_list_view.onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
-            startActivity(appsList[position].intent)
-        }
-        apps_list_view.onItemLongClickListener = AdapterView.OnItemLongClickListener { _, _, position, _ ->
-            val packageUri = Uri.parse("package:" + appsList[position].packageName)
-            val uninstall = Intent(Intent.ACTION_UNINSTALL_PACKAGE, packageUri)
-            startActivity(uninstall)
-            true
-        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -107,10 +120,11 @@ class MinimumActivity : AppCompatActivity() {
         }
     }
 
-    fun notifyAdapter() {
+    fun notifyAdapter(clearSearch: Boolean = false) {
         if (apps_list_view.adapter == null) {
             apps_list_view.adapter = adapter
         } else adapter.notifyDataSetChanged()
+        if (clearSearch) apps_list_view.search_header.text.clear()
     }
 
     fun onSearchAppsStarting() {
@@ -118,11 +132,11 @@ class MinimumActivity : AppCompatActivity() {
     }
 
     fun onSearchAppsFinished(newAppsList: MutableList<App>) {
-        if (appsList.isNotEmpty()) {
-            appsList.clear()
+        appsList.apply {
+            if (isNotEmpty()) clear()
+            addAll(newAppsList)
+            notifyAdapter()
         }
-        appsList.addAll(newAppsList)
-        notifyAdapter()
         loading.visibility = View.GONE
     }
 

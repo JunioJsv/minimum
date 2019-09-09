@@ -30,7 +30,7 @@ class CheckAppsList internal constructor(private val minimum: MinimumActivity) :
                                 )
                         )
                         SortListOfApps(appsList)
-                        notifyAdapter()
+                        notifyAdapter(true)
                     }
                 }
             }
@@ -46,7 +46,7 @@ class CheckAppsList internal constructor(private val minimum: MinimumActivity) :
                         }
                         remove(targetInList)
                     }
-                    notifyAdapter()
+                    notifyAdapter(true)
                 }
             }
         }
