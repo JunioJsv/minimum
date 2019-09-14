@@ -1,7 +1,0 @@
-os: linux
-  language: generic
-  before_script:
-    - sudo apt install git
-  script:
-    - git clone https://github.com/JunioJsv/minimum
-    - ./gradlew build debugAssemble
