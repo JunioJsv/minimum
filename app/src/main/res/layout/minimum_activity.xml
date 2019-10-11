@@ -20,7 +20,7 @@
         app:layout_constraintEnd_toEndOf="@+id/apps_list_view"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:visibility="gone" />
+        tools:visibility="visible" />
 
     <ListView
         android:id="@+id/apps_list_view"

@@ -1,14 +1,19 @@
 package juniojsv.minimum
 
 import android.content.Context
+import androidx.appcompat.app.AppCompatActivity
 
-class Settings(context: Context) {
+class Settings(activity: AppCompatActivity) {
+    private val context = activity.applicationContext
 
-    private val settings = context.getSharedPreferences("${context.packageName}_settings", Context.MODE_PRIVATE).apply {
+    init {
+        if (!activitys.contains(activity)) activitys.add(activity)
+    }
+
+    private val settings = context.getSharedPreferences("${context.packageName}.settings", Context.MODE_PRIVATE).apply {
         registerOnSharedPreferenceChangeListener { _, key ->
-            if (key == "dark_theme") {
-                MinimumActivity.recreate()
-                SettingsActivity.recreate()
+            if (key == KEY_DARK_MODE) {
+                activitys.forEach { it.recreate() }
             }
         }
     }
@@ -21,6 +26,11 @@ class Settings(context: Context) {
 
     fun getBoolean(key: String): Boolean {
         return settings.getBoolean(key, false)
+    }
+
+    companion object {
+        private val activitys: ArrayList<AppCompatActivity> = ArrayList()
+        const val KEY_DARK_MODE: String = "dark_theme"
     }
 
 }

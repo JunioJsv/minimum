@@ -3,18 +3,14 @@ package juniojsv.minimum
 import android.content.Intent
 import android.graphics.drawable.Drawable
 import android.os.AsyncTask
-import juniojsv.minimum.utilities.SortListOfApps
-import java.util.*
+import androidx.appcompat.app.AppCompatActivity
+import juniojsv.minimum.extension.arrayList.sort
+import java.lang.ref.WeakReference
 
-class SearchApps internal constructor(private val minimum: MinimumActivity) : AsyncTask<Void, Void, MutableList<App>>() {
-    private val packageManager = minimum.packageManager
+class GetApps internal constructor(activity: WeakReference<AppCompatActivity>, private val onFinished: (apps: ArrayList<App>) -> Unit) : AsyncTask<Void, Void, ArrayList<App>>() {
+    private val packageManager = activity.get()!!.packageManager
 
-    override fun onPreExecute() {
-        super.onPreExecute()
-        minimum.onSearchAppsStarting()
-    }
-
-    override fun doInBackground(vararg voids: Void): MutableList<App>? {
+    override fun doInBackground(vararg voids: Void): ArrayList<App> {
 
         return ArrayList<App>().apply {
             packageManager.getInstalledApplications(0).forEach {
@@ -34,12 +30,12 @@ class SearchApps internal constructor(private val minimum: MinimumActivity) : As
                     add(App(packageLabel, icon, intent, packageName))
                 }
             }
-            SortListOfApps(this)
+            sort()
         }
     }
 
-    override fun onPostExecute(newAppsList: MutableList<App>) {
-        super.onPostExecute(newAppsList)
-        minimum.onSearchAppsFinished(newAppsList)
+    override fun onPostExecute(apps: ArrayList<App>) {
+        super.onPostExecute(apps)
+        onFinished.invoke(apps)
     }
 }
