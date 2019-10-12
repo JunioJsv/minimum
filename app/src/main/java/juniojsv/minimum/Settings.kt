@@ -7,13 +7,27 @@ class Settings(activity: AppCompatActivity) {
     private val context = activity.applicationContext
 
     init {
-        if (!activitys.contains(activity)) activitys.add(activity)
+        activities.find {
+            it.localClassName == activity.localClassName
+        }?.let {
+            replace -> activities[activities.indexOf(replace)] = activity
+        }?: activities.add(activity)
     }
 
     private val settings = context.getSharedPreferences("${context.packageName}.settings", Context.MODE_PRIVATE).apply {
         registerOnSharedPreferenceChangeListener { _, key ->
             if (key == KEY_DARK_MODE) {
-                activitys.forEach { it.recreate() }
+                activities.forEach { activity ->
+                    when(activity.localClassName) {
+                        "MinimumActivity" -> {
+                            (activity as MinimumActivity).apply {
+                                unregisterReceiver(broadcastReceiver)
+                                recreate()
+                            }
+                        }
+                        else -> activity.recreate()
+                    }
+                }
             }
         }
     }
@@ -29,7 +43,7 @@ class Settings(activity: AppCompatActivity) {
     }
 
     companion object {
-        private val activitys: ArrayList<AppCompatActivity> = ArrayList()
+        private val activities: ArrayList<AppCompatActivity> = ArrayList()
         const val KEY_DARK_MODE: String = "dark_theme"
     }
 

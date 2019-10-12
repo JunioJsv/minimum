@@ -24,6 +24,7 @@ class MinimumActivity : AppCompatActivity() {
     private var apps: ArrayList<App> = ArrayList()
     private val filteredApps: ArrayList<App> = ArrayList()
     private var adapter: Adapter = Adapter(this, apps)
+    lateinit var broadcastReceiver: BroadcastReceiver
 
     override fun onCreate(savedInstanceState: Bundle?) {
         if (Settings(this).getBoolean(KEY_DARK_MODE)) {
@@ -57,11 +58,9 @@ class MinimumActivity : AppCompatActivity() {
 
             search_header.apply {
                 addTextChangedListener(object : TextWatcher {
-                    override fun afterTextChanged(p0: Editable?) {
-                    }
+                    override fun afterTextChanged(p0: Editable?) {}
 
-                    override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-                    }
+                    override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
 
                     override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
                         filteredApps.clear()
@@ -123,7 +122,7 @@ class MinimumActivity : AppCompatActivity() {
                             }
                         }
                     }
-                },
+                }.also { broadcastReceiver = it },
                 IntentFilter().apply {
                     addAction(Intent.ACTION_PACKAGE_ADDED)
                     addAction(Intent.ACTION_PACKAGE_REMOVED)
@@ -156,10 +155,9 @@ class MinimumActivity : AppCompatActivity() {
         // Nope
     }
 
-    fun notifyAdapter(clearSearch: Boolean = false) {
-        if (apps_list_view.adapter == null) {
-            apps_list_view.adapter = adapter
-        } else adapter.notifyDataSetChanged()
+    private fun notifyAdapter(clearSearch: Boolean = false) {
+        apps_list_view.adapter?.let { adapter.notifyDataSetChanged() } ?:
+                apps_list_view.also { it.adapter = adapter }
         if (clearSearch) apps_list_view.search_header.text.clear()
     }
 }

@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import android.widget.BaseAdapter
 import kotlinx.android.synthetic.main.app_view.view.*
 
-class Adapter internal constructor(private val context: Context, private var apps: ArrayList<App>) : BaseAdapter() {
+class Adapter(private val context: Context, private var apps: ArrayList<App>) : BaseAdapter() {
 
     override fun getCount(): Int {
         return apps.size
