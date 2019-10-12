@@ -1,14 +1,14 @@
 package juniojsv.minimum
 
+import android.content.Context
 import android.content.Intent
 import android.graphics.drawable.Drawable
 import android.os.AsyncTask
-import androidx.appcompat.app.AppCompatActivity
 import juniojsv.minimum.extension.arrayList.sort
 import java.lang.ref.WeakReference
 
-class GetApps internal constructor(activity: WeakReference<AppCompatActivity>, private val onFinished: (apps: ArrayList<App>) -> Unit) : AsyncTask<Void, Void, ArrayList<App>>() {
-    private val packageManager = activity.get()!!.packageManager
+class GetApps internal constructor(context: WeakReference<Context>, private val onFinished: (apps: ArrayList<App>) -> Unit) : AsyncTask<Void, Void, ArrayList<App>>() {
+    private val packageManager = context.get()!!.packageManager
 
     override fun doInBackground(vararg voids: Void): ArrayList<App> {
 

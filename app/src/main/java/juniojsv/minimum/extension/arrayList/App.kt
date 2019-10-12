@@ -1,5 +1,6 @@
 package juniojsv.minimum.extension.arrayList
 
+import android.util.Log
 import juniojsv.minimum.App
 
 fun ArrayList<App>.sort() {
@@ -19,5 +20,5 @@ fun ArrayList<App>.removeByPackage(packageName : String) {
     this.forEach {
         if (it.packageName == packageName) target = it
     }
-    remove(target!!)
+    target?.let { app -> remove(app) } ?: Log.e("removeByPackage", "Not found $packageName in ArrayList<App>")
 }
