@@ -1,54 +1,24 @@
 package juniojsv.minimum
 
-import android.Manifest.permission.CAMERA
-import android.Manifest.permission.WRITE_EXTERNAL_STORAGE
-import android.content.pm.PackageManager.PERMISSION_DENIED
-import android.os.Environment
-import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
-import androidx.camera.core.CameraX
-import androidx.camera.core.ImageCapture
-import androidx.camera.core.ImageCaptureConfig
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
-import androidx.lifecycle.LifecycleOwner
-import java.io.File
+import android.content.Context
+import android.content.Intent
+import android.provider.MediaStore
+import android.util.Log
 
-class TakePhoto(activity: AppCompatActivity) {
+class TakePhoto(context: Context) {
 
     init {
-        if(ContextCompat.checkSelfPermission(activity, CAMERA) == PERMISSION_DENIED ||
-                ContextCompat.checkSelfPermission(activity, WRITE_EXTERNAL_STORAGE) == PERMISSION_DENIED) {
-            ActivityCompat.requestPermissions(activity, arrayOf(CAMERA, WRITE_EXTERNAL_STORAGE), REQUEST_CODE)
-        } else {
-            CameraX.unbindAll()
-            ImageCapture(ImageCaptureConfig.Builder()
-                    .setTargetRotation(activity.windowManager.defaultDisplay.rotation)
-                    .build()).apply {
-                CameraX.bindToLifecycle(activity as LifecycleOwner, this)
-                takePicture(createTempFile(
-                        "${System.currentTimeMillis()}", ".jpg"
-                ), object : ImageCapture.OnImageSavedListener {
-                    override fun onImageSaved(file: File) {
-                        file.apply {
-                            copyTo(File(PATH + file.name))
-                            delete()
-                        }
-                        Toast.makeText(activity, "Saved", Toast.LENGTH_SHORT).show()
-                    }
-
-                    override fun onError(imageCaptureError: ImageCapture.ImageCaptureError, message: String, cause: Throwable?) {
-                        Toast.makeText(activity, "$message $cause", Toast.LENGTH_SHORT).show()
-                    }
-
-                })
-
-            }
+        context.packageManager.apply {
+            resolveActivity(Intent(MediaStore.ACTION_IMAGE_CAPTURE), 0)?.let { info ->
+                (info.activityInfo?.applicationInfo ?:
+                    info.serviceInfo?.applicationInfo ?:
+                        info.providerInfo?.applicationInfo)?.let { camera ->
+                            getLaunchIntentForPackage(camera.packageName)?.let { intent ->
+                                context.startActivity(intent)
+                            } ?: Log.d("TakePhoto", "Camera app has no launch intent")
+                } ?: Log.d("TakePhoto", "Not found camera info")
+            } ?: Log.d("TakePhoto", "No camera app installed")
         }
-    }
 
-    companion object {
-        val PATH = "${Environment.getExternalStorageDirectory().absolutePath}/Minimum/"
-        val REQUEST_CODE = (0..0xff).random()
     }
 }

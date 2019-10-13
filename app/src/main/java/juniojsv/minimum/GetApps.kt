@@ -13,21 +13,21 @@ class GetApps(context: WeakReference<Context>, private val onFinished: (apps: Ar
     override fun doInBackground(vararg voids: Void): ArrayList<App> {
 
         return ArrayList<App>().apply {
-            packageManager.getInstalledApplications(0).forEach {
+            packageManager.getInstalledApplications(0).forEach { info ->
 
-                val intent: Intent? = packageManager.getLaunchIntentForPackage(it.packageName)
+                val intent: Intent? = packageManager.getLaunchIntentForPackage(info.packageName)
 
-                if (intent != null && it.packageName != BuildConfig.APPLICATION_ID) {
+                if (intent != null && info.packageName != BuildConfig.APPLICATION_ID) {
                     intent.apply {
                         action = Intent.ACTION_MAIN
                         addCategory(Intent.CATEGORY_LAUNCHER)
                     }
 
-                    val packageLabel: String = it.loadLabel(packageManager).toString()
-                    val icon: Drawable = it.loadIcon(packageManager)
-                    val packageName: String = it.packageName
+                    val label: String = info.loadLabel(packageManager).toString()
+                    val icon: Drawable = info.loadIcon(packageManager)
+                    val packageName: String = info.packageName
 
-                    add(App(packageLabel, icon, intent, packageName))
+                    add(App(label, icon, intent, packageName))
                 }
             }
             sort()

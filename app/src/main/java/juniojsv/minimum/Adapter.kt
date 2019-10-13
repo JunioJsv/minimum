@@ -29,7 +29,7 @@ class Adapter(private val context: Context, private var apps: ArrayList<App>) : 
 
         return inflate(context, R.layout.app_view, null).apply {
             icon_view.setImageDrawable(apps[position].icon)
-            name_view.text = apps[position].packageLabel
+            label_view.text = apps[position].label
         }
     }
 }

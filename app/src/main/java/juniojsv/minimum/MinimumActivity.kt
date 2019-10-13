@@ -45,12 +45,12 @@ class MinimumActivity : AppCompatActivity() {
 
             onItemLongClickListener = AdapterView.OnItemLongClickListener { _, _, position, _ ->
                 if (search_header.text.isNotEmpty() && position > 0) {
-                    val packageUri = Uri.parse("package:" + filteredApps[position - 1].packageName)
-                    val uninstall = Intent(Intent.ACTION_UNINSTALL_PACKAGE, packageUri)
+                    val packageName = Uri.parse("package:" + filteredApps[position - 1].packageName)
+                    val uninstall = Intent(Intent.ACTION_DELETE, packageName)
                     startActivity(uninstall)
                 } else if (position > 0) {
-                    val packageUri = Uri.parse("package:" + apps[position - 1].packageName)
-                    val uninstall = Intent(Intent.ACTION_UNINSTALL_PACKAGE, packageUri)
+                    val packageName = Uri.parse("package:" + apps[position - 1].packageName)
+                    val uninstall = Intent(Intent.ACTION_DELETE, packageName)
                     startActivity(uninstall)
                 }
                 true
@@ -65,8 +65,8 @@ class MinimumActivity : AppCompatActivity() {
                     override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
                         filteredApps.clear()
                         if (p0!!.isNotEmpty()) {
-                            apps.forEach {
-                                if (it.packageLabel.contains(p0, true)) filteredApps.add(it)
+                            apps.forEach { app ->
+                                if (app.label.contains(p0, true)) filteredApps.add(app)
                             }
                             this@MinimumActivity.adapter.changeList(filteredApps)
                         } else this@MinimumActivity.adapter.changeList(apps)
