@@ -4,7 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.drawable.Drawable
 import android.os.AsyncTask
-import juniojsv.minimum.extension.arrayList.sort
+import juniojsv.minimum.extension.sort
 import java.lang.ref.WeakReference
 
 class GetApps(context: WeakReference<Context>, private val onFinished: (apps: ArrayList<App>) -> Unit) : AsyncTask<Void, Void, ArrayList<App>>() {

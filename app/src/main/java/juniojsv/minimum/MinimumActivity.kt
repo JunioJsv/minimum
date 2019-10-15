@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.net.Uri
 import android.os.Bundle
+import android.provider.MediaStore
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.Menu
@@ -14,8 +15,8 @@ import android.view.View
 import android.widget.AdapterView
 import androidx.appcompat.app.AppCompatActivity
 import juniojsv.minimum.Settings.Companion.KEY_DARK_MODE
-import juniojsv.minimum.extension.arrayList.removeByPackage
-import juniojsv.minimum.extension.arrayList.sort
+import juniojsv.minimum.extension.removeByPackage
+import juniojsv.minimum.extension.sort
 import kotlinx.android.synthetic.main.minimum_activity.*
 import kotlinx.android.synthetic.main.search_header.view.*
 import java.lang.ref.WeakReference
@@ -24,10 +25,12 @@ class MinimumActivity : AppCompatActivity() {
     private var apps: ArrayList<App> = ArrayList()
     private val filteredApps: ArrayList<App> = ArrayList()
     private var adapter: Adapter = Adapter(this, apps)
+    private lateinit var settings: Settings
     lateinit var broadcastReceiver: BroadcastReceiver
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        if (Settings(this).getBoolean(KEY_DARK_MODE)) {
+        Settings(this).also { settings = it }
+        if (settings.getBoolean(KEY_DARK_MODE)) {
             setTheme(R.style.AppThemeDark)
         }
         super.onCreate(savedInstanceState)
@@ -142,7 +145,12 @@ class MinimumActivity : AppCompatActivity() {
                 startActivity(Intent(Intent.ACTION_DIAL))
             }
             R.id.camera_shortcut -> {
-                TakePhoto(this)
+                startActivity(
+                        Intent.createChooser(
+                                Intent(MediaStore.INTENT_ACTION_STILL_IMAGE_CAMERA),
+                                getString(R.string.take_pictures_with)
+                        )
+                )
             }
             R.id.setting_shortcut -> {
                 startActivity(Intent(this, SettingsActivity::class.java))

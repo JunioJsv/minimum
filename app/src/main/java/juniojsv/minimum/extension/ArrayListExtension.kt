@@ -1,4 +1,4 @@
-package juniojsv.minimum.extension.arrayList
+package juniojsv.minimum.extension
 
 import android.util.Log
 import juniojsv.minimum.App

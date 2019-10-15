@@ -10,6 +10,7 @@
         android:id="@+id/camera_shortcut"
         android:icon="@drawable/ic_camera_24dp"
         android:title="@string/camera"
+        android:visible="true"
         app:showAsAction="ifRoom" />
     <item
         android:id="@+id/setting_shortcut"
