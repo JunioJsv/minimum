@@ -6,7 +6,7 @@ import juniojsv.minimum.App
 fun ArrayList<App>.sort() {
     forEach { app ->
         if (!app.label[0].isUpperCase())
-            app.label[0].toUpperCase()
+            app.label = app.label[0].toUpperCase() + app.label.substring(1)
     }
     sortWith(Comparator { app1, app2 ->
         app1.label.compareTo(app2.label)
