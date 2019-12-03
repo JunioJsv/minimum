@@ -22,6 +22,27 @@
             android:text="@string/dark_mode_description" />
 
         <TextView
+            android:id="@+id/textView"
+            style="@style/settings_category"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/misc" />
+
+        <TextView
+            android:id="@+id/textView2"
+            style="@style/settings_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/enable_fast_scroll" />
+
+        <Switch
+            android:id="@+id/fast_scroll"
+            style="@style/settings_subtitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/fast_scroll_description" />
+
+        <TextView
             style="@style/settings_category"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

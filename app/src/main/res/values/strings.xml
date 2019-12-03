@@ -14,4 +14,7 @@
     <string name="search">Search</string>
     <string name="author">Created by Jeovene Santos, Aka JunioJsv</string>
     <string name="author_title">Author</string>
+    <string name="fast_scroll_description">Show fast scroll bar on apps list, but it increment cpu consumption</string>
+    <string name="misc">Misc</string>
+    <string name="enable_fast_scroll">Enable fast scroll</string>
 </resources>

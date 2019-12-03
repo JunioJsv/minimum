@@ -14,7 +14,9 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.AdapterView
 import androidx.appcompat.app.AppCompatActivity
-import juniojsv.minimum.Settings.Companion.KEY_DARK_MODE
+import juniojsv.minimum.SettingsManager.Companion.KEY_DARK_MODE
+import juniojsv.minimum.SettingsManager.Companion.KEY_FAST_SCROLL
+import juniojsv.minimum.extension.isNull
 import juniojsv.minimum.extension.removeByPackage
 import juniojsv.minimum.extension.sort
 import kotlinx.android.synthetic.main.minimum_activity.*
@@ -25,14 +27,14 @@ class MinimumActivity : AppCompatActivity() {
     private var apps: ArrayList<App> = ArrayList()
     private val filteredApps: ArrayList<App> = ArrayList()
     private var adapter: Adapter = Adapter(this, apps)
-    private lateinit var settings: Settings
+    private lateinit var settings: SettingsManager
     lateinit var broadcastReceiver: BroadcastReceiver
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        Settings(this).also { settings = it }
-        if (settings.getBoolean(KEY_DARK_MODE)) {
-            setTheme(R.style.AppThemeDark)
-        }
+
+        SettingsManager(this).also { settings = it }
+        if (settings.getBoolean(KEY_DARK_MODE)) setTheme(R.style.dark_mode)
+
         super.onCreate(savedInstanceState)
         setContentView(R.layout.minimum_activity)
 
@@ -41,9 +43,10 @@ class MinimumActivity : AppCompatActivity() {
                     R.layout.search_header, apps_list_view, false))
 
             onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
-                if (search_header.text.isNotEmpty() && position > 0) startActivity(
-                        filteredApps[position - 1].intent)
-                else if (position > 0) startActivity(apps[position - 1].intent)
+                if (search_header.text.isNotEmpty() && position > 0)
+                    startActivity(filteredApps[position - 1].intent)
+                else if (position > 0)
+                    startActivity(apps[position - 1].intent)
             }
 
             onItemLongClickListener = AdapterView.OnItemLongClickListener { _, _, position, _ ->
@@ -78,6 +81,8 @@ class MinimumActivity : AppCompatActivity() {
 
                 })
             }
+
+            apps_list_view.isFastScrollEnabled = settings.getBoolean(KEY_FAST_SCROLL)
         }
 
         GetApps(WeakReference(this)) { apps ->
@@ -93,19 +98,18 @@ class MinimumActivity : AppCompatActivity() {
 
         registerReceiver(
                 object : BroadcastReceiver() {
-                    @Suppress("NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
                     override fun onReceive(context: Context, intent: Intent) {
                         when(intent.action) {
                             Intent.ACTION_PACKAGE_ADDED -> {
                                 val appAdded = context.packageManager.getApplicationInfo(intent.dataString!!.substring(8), 0)
                                 val appIntentAdded = context.packageManager.getLaunchIntentForPackage(appAdded.packageName)
 
-                                if(appIntentAdded != null && appAdded.packageName != BuildConfig.APPLICATION_ID) {
+                                if(!appIntentAdded.isNull && appAdded.packageName != BuildConfig.APPLICATION_ID) {
                                     apps.apply {
                                         add(App(
                                                 appAdded.loadLabel(context.packageManager).toString(),
                                                 appAdded.loadIcon(context.packageManager),
-                                                appIntentAdded.apply {
+                                                appIntentAdded!!.apply {
                                                     action = Intent.ACTION_MAIN
                                                     addCategory(Intent.CATEGORY_LAUNCHER)
                                                 },

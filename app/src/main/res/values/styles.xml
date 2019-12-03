@@ -1,14 +1,12 @@
 <resources>
 
-    <!-- application light theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="light_mode" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="colorPrimary">@color/light_color_primary</item>
         <item name="colorPrimaryDark">@color/light_color_primary_dark</item>
         <item name="colorAccent">@color/light_color_accent</item>
     </style>
 
-    <!-- application dark theme. -->
-    <style name="AppThemeDark" parent="Theme.AppCompat">
+    <style name="dark_mode" parent="Theme.AppCompat">
         <item name="colorPrimary">@color/dark_color_primary</item>
         <item name="colorPrimaryDark">@color/dark_color_primary_dark</item>
         <item name="colorAccent">@color/light_color_accent</item>
