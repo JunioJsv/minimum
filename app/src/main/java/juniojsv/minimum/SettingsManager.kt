@@ -20,18 +20,10 @@ class SettingsManager(activity: AppCompatActivity) {
                     when(key) {
                         KEY_DARK_MODE ->
                             activities.forEach { activity ->
-                                when(activity::class) {
-                                    MinimumActivity::class -> {
-                                        (activity as MinimumActivity).apply {
-                                            unregisterReceiver(broadcastReceiver)
-                                            recreate()
-                                        }
-                                    }
-                                    else -> activity.recreate()
-                                }
+                                activity.recreate()
                             }
                         KEY_FAST_SCROLL ->
-                            activities.find { activity -> activity::class == MinimumActivity::class }!!
+                            activities.find { activity -> activity is MinimumActivity }!!
                                     .apps_list_view.isFastScrollEnabled = preferences!!
                                     .getBoolean(KEY_FAST_SCROLL, false)
                     }

@@ -28,7 +28,7 @@ class MinimumActivity : AppCompatActivity() {
     private val filteredApps: ArrayList<App> = ArrayList()
     private var adapter: Adapter = Adapter(this, apps)
     private lateinit var settings: SettingsManager
-    lateinit var broadcastReceiver: BroadcastReceiver
+    private lateinit var broadcastReceiver: BroadcastReceiver
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
@@ -165,6 +165,11 @@ class MinimumActivity : AppCompatActivity() {
 
     override fun onBackPressed() {
         // Nope
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        unregisterReceiver(broadcastReceiver)
     }
 
     private fun notifyAdapter(clearSearch: Boolean = false) {

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent" android:layout_height="match_parent">
 
     <ImageView
@@ -9,9 +10,12 @@
         android:layout_height="48dp"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
-        android:layout_margin="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
         android:contentDescription="@string/todo"
-        app:srcCompat="@mipmap/ic_launcher" />
+        tools:srcCompat="@mipmap/ic_launcher" />
 
     <TextView
         android:id="@+id/label_view"
@@ -20,5 +24,5 @@
         android:layout_alignParentTop="true"
         android:layout_marginTop="24dp"
         android:layout_toEndOf="@+id/icon_view"
-        android:text="@string/name_view" />
+        tools:text="label view" />
 </RelativeLayout>
