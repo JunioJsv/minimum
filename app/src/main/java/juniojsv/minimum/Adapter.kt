@@ -40,5 +40,6 @@ class Adapter(private val context: Context, private var apps: ArrayList<App>) : 
             inflate(context, R.layout.app_view, null).apply {
                 icon_view.setImageDrawable(apps[position].icon)
                 label_view.text = apps[position].label
+                tag_new.visibility = if (apps[position].isNew) View.VISIBLE else View.GONE
             }
 }

@@ -27,115 +27,126 @@ class MinimumActivity : AppCompatActivity() {
     private var apps: ArrayList<App> = ArrayList()
     private val filteredApps: ArrayList<App> = ArrayList()
     private var adapter: Adapter = Adapter(this, apps)
-    private lateinit var settings: SettingsManager
-    private lateinit var broadcastReceiver: BroadcastReceiver
+    private val broadcastReceiver: BroadcastReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            when (intent.action) {
+                Intent.ACTION_PACKAGE_ADDED -> {
+                    val appAdded = context.packageManager.getApplicationInfo(intent.dataString!!.substring(8), 0)
+                    val appIntentAdded = context.packageManager.getLaunchIntentForPackage(appAdded.packageName)
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-
-        SettingsManager(this).also { settings = it }
-        if (settings.getBoolean(KEY_DARK_MODE)) setTheme(R.style.dark_mode)
-
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.minimum_activity)
-
-        apps_list_view.apply {
-            addHeaderView(layoutInflater.inflate(
-                    R.layout.search_header, apps_list_view, false))
-
-            onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
-                if (search_header.text.isNotEmpty() && position > 0)
-                    startActivity(filteredApps[position - 1].intent)
-                else if (position > 0)
-                    startActivity(apps[position - 1].intent)
-            }
-
-            onItemLongClickListener = AdapterView.OnItemLongClickListener { _, _, position, _ ->
-                if (search_header.text.isNotEmpty() && position > 0) {
-                    val packageName = Uri.parse("package:" + filteredApps[position - 1].packageName)
-                    val uninstall = Intent(Intent.ACTION_DELETE, packageName)
-                    startActivity(uninstall)
-                } else if (position > 0) {
-                    val packageName = Uri.parse("package:" + apps[position - 1].packageName)
-                    val uninstall = Intent(Intent.ACTION_DELETE, packageName)
-                    startActivity(uninstall)
-                }
-                true
-            }
-
-            search_header.apply {
-                addTextChangedListener(object : TextWatcher {
-                    override fun afterTextChanged(p0: Editable?) {}
-
-                    override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
-
-                    override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-                        filteredApps.clear()
-                        if (p0!!.isNotEmpty()) {
-                            apps.forEach { app ->
-                                if (app.label.contains(p0, true)) filteredApps.add(app)
-                            }
-                            this@MinimumActivity.adapter.changeList(filteredApps)
-                        } else this@MinimumActivity.adapter.changeList(apps)
-                        notifyAdapter()
-                    }
-
-                })
-            }
-
-            apps_list_view.isFastScrollEnabled = settings.getBoolean(KEY_FAST_SCROLL)
-        }
-
-        GetApps(WeakReference(this)) { apps ->
-            this.apps.apply {
-                if (isNotEmpty()) clear()
-                addAll(apps)
-                notifyAdapter()
-            }
-            loading.visibility = View.GONE
-        }.apply {
-            if(apps.isEmpty()) execute()
-        }
-
-        registerReceiver(
-                object : BroadcastReceiver() {
-                    override fun onReceive(context: Context, intent: Intent) {
-                        when(intent.action) {
-                            Intent.ACTION_PACKAGE_ADDED -> {
-                                val appAdded = context.packageManager.getApplicationInfo(intent.dataString!!.substring(8), 0)
-                                val appIntentAdded = context.packageManager.getLaunchIntentForPackage(appAdded.packageName)
-
-                                if(!appIntentAdded.isNull && appAdded.packageName != BuildConfig.APPLICATION_ID) {
-                                    apps.apply {
-                                        add(App(
-                                                appAdded.loadLabel(context.packageManager).toString(),
-                                                appAdded.loadIcon(context.packageManager),
-                                                appIntentAdded!!.apply {
-                                                    action = Intent.ACTION_MAIN
-                                                    addCategory(Intent.CATEGORY_LAUNCHER)
-                                                },
-                                                appAdded.packageName
-                                        ))
-                                        sort()
-                                    }
-                                }
-                                notifyAdapter(true)
-                            }
-
-                            Intent.ACTION_PACKAGE_REMOVED -> {
-                                apps.removeByPackage(
-                                        intent.dataString!!.substring(8)
-                                )
-                                notifyAdapter(true)
-                            }
+                    if (!appIntentAdded.isNull && appAdded.packageName != BuildConfig.APPLICATION_ID) {
+                        apps.apply {
+                            add(App(
+                                    appAdded.loadLabel(context.packageManager).toString(),
+                                    appAdded.loadIcon(context.packageManager),
+                                    appIntentAdded!!.apply {
+                                        action = Intent.ACTION_MAIN
+                                        addCategory(Intent.CATEGORY_LAUNCHER)
+                                    },
+                                    appAdded.packageName,
+                                    true
+                            ))
+                            sort()
                         }
                     }
-                }.also { broadcastReceiver = it },
-                IntentFilter().apply {
-                    addAction(Intent.ACTION_PACKAGE_ADDED)
-                    addAction(Intent.ACTION_PACKAGE_REMOVED)
-                    addDataScheme("package")
+                    notifyAdapter(true)
                 }
-        )
+
+                Intent.ACTION_PACKAGE_REMOVED -> {
+                    apps.removeByPackage(
+                            intent.dataString!!.substring(8)
+                    )
+                    notifyAdapter(true)
+                }
+            }
+        }
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        SettingsManager(this).also { settings ->
+            if (settings.getBoolean(KEY_DARK_MODE)) setTheme(R.style.dark_mode)
+
+            super.onCreate(savedInstanceState)
+            setContentView(R.layout.minimum_activity)
+
+            apps_list_view.apply {
+                addHeaderView(layoutInflater.inflate(
+                        R.layout.search_header, apps_list_view, false))
+
+                onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
+                    fun launchIntent(app: App): Intent =
+                            app.run {
+                                if (isNew) {
+                                    isNew = false
+                                    notifyAdapter()
+                                }
+                                intent
+                            }
+
+                    if (search_header.text.isNotEmpty() && position > 0)
+                        startActivity(launchIntent(filteredApps[position - 1]))
+                    else if (position > 0)
+                        startActivity(launchIntent(apps[position - 1]))
+                }
+
+                onItemLongClickListener = AdapterView.OnItemLongClickListener { _, _, position, _ ->
+                    fun uninstallIntent(app: App): Intent =
+                            Intent(
+                                    Intent.ACTION_DELETE,
+                                    Uri.parse("package:${app.packageName}")
+                            )
+
+                    if (search_header.text.isNotEmpty() && position > 0)
+                        startActivity(uninstallIntent(filteredApps[position - 1]))
+                    else if (position > 0) {
+                        startActivity(uninstallIntent(apps[position - 1]))
+                    }
+                    true
+                }
+
+                search_header.apply {
+                    addTextChangedListener(object : TextWatcher {
+                        override fun afterTextChanged(p0: Editable?) {}
+
+                        override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+
+                        override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+                            filteredApps.clear()
+                            if (p0!!.isNotEmpty()) {
+                                apps.forEach { app ->
+                                    if (app.label.contains(p0, true)) filteredApps.add(app)
+                                }
+                                this@MinimumActivity.adapter.changeList(filteredApps)
+                            } else this@MinimumActivity.adapter.changeList(apps)
+                            notifyAdapter()
+                        }
+
+                    })
+                }
+
+                apps_list_view.isFastScrollEnabled = settings.getBoolean(KEY_FAST_SCROLL)
+            }
+
+            GetApps(WeakReference(this)) { apps ->
+                this.apps.apply {
+                    if (isNotEmpty()) clear()
+                    addAll(apps)
+                    notifyAdapter()
+                }
+                loading.visibility = View.GONE
+            }.apply {
+                if (apps.isEmpty()) execute()
+            }
+
+            registerReceiver(
+                    broadcastReceiver,
+                    IntentFilter().apply {
+                        addAction(Intent.ACTION_PACKAGE_ADDED)
+                        addAction(Intent.ACTION_PACKAGE_REMOVED)
+                        addDataScheme("package")
+                    }
+            )
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -173,8 +184,8 @@ class MinimumActivity : AppCompatActivity() {
     }
 
     private fun notifyAdapter(clearSearch: Boolean = false) {
-        apps_list_view.adapter?.let { adapter.notifyDataSetChanged() } ?:
-                apps_list_view.also { it.adapter = adapter }
+        apps_list_view.adapter?.let { adapter.notifyDataSetChanged() }
+                ?: apps_list_view.also { it.adapter = adapter }
         if (clearSearch) apps_list_view.search_header.text.clear()
     }
 }
