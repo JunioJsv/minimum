@@ -1,20 +1,17 @@
 <resources>
     <string name="app_name">Minimum</string>
-    <string name="dial">Dial</string>
-    <string name="camera">Camera</string>
-    <string name="settings">Settings</string>
-    <string name="appearance">Appearance</string>
+    <string name="dial_shortcut">Dial</string>
+    <string name="camera_shortcut">Camera</string>
+    <string name="settings_shortcut">Settings</string>
+    <string name="appearance_category">Appearance</string>
+    <string name="about_category">About</string>
     <string name="todo">TODO</string>
-    <string name="about">About</string>
-    <string name="version">Version</string>
+    <string name="version_title">Version</string>
     <string name="search">Search</string>
-    <string name="misc">Misc</string>
-    <string name="enable_dark_mode">Enable dark mode</string>
-    <string name="dark_mode_description">Change the theme to darker colors with more contrast</string>
-    <string name="take_pictures_with">Take pictures with?</string>
+    <string name="dark_mode_title">Enable dark mode</string>
+    <string name="dark_mode_description">Apply darker colors for more contrast</string>
+    <string name="take_pictures_with">Take pictures with</string>
     <string name="author_title">Author</string>
-    <string name="author">Created by Jeovene Santos, Aka JunioJsv</string>
-    <string name="enable_fast_scroll">Enable fast scroll</string>
-    <string name="fast_scroll_description">Show fast scroll bar on apps list, but it increment cpu consumption</string>
+    <string name="author_description">Created by Jeovene Santos, Aka JunioJsv</string>
     <string name="tag_new">New</string>
 </resources>

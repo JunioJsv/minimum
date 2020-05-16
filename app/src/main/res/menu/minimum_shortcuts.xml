@@ -4,17 +4,17 @@
     <item
         android:id="@+id/dial_shortcut"
         app:showAsAction="ifRoom"
-        android:title="@string/dial"
+        android:title="@string/dial_shortcut"
         android:icon="@drawable/ic_phone_24dp" />
     <item
         android:id="@+id/camera_shortcut"
         android:icon="@drawable/ic_camera_24dp"
-        android:title="@string/camera"
+        android:title="@string/camera_shortcut"
         android:visible="true"
         app:showAsAction="ifRoom" />
     <item
         android:id="@+id/setting_shortcut"
         app:showAsAction="ifRoom"
-        android:title="@string/settings"
+        android:title="@string/settings_shortcut"
         android:icon="@drawable/ic_settings_24dp" />
 </menu>

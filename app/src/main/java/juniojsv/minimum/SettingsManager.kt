@@ -2,33 +2,29 @@ package juniojsv.minimum
 
 import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
-import juniojsv.minimum.extension.isNull
 import kotlinx.android.synthetic.main.minimum_activity.*
 
 class SettingsManager(activity: AppCompatActivity) {
-    private val context = activity.applicationContext
-
     init {
-        activities.find {
-            it.localClassName == activity.localClassName
-        }?.let {
-            replace -> activities[activities.indexOf(replace)] = activity
-        }?: activities.add(activity)
-        if (preferences.isNull)
-            preferences = context.getSharedPreferences("${context.packageName}.preferences", 0).apply {
-                registerOnSharedPreferenceChangeListener { _, key ->
-                    when(key) {
-                        KEY_DARK_MODE ->
-                            activities.forEach { activity ->
+        registerActivity(activity)
+        if (preferences == null)
+            with(activity.applicationContext) {
+                preferences = getSharedPreferences("$packageName.preferences", 0).apply {
+                    registerOnSharedPreferenceChangeListener { _, key ->
+                        when (key) {
+                            KEY_DARK_MODE -> activities.forEach { activity ->
                                 activity.recreate()
                             }
-                        KEY_FAST_SCROLL ->
-                            activities.find { activity -> activity is MinimumActivity }!!
-                                    .apps_list_view.isFastScrollEnabled = preferences!!
-                                    .getBoolean(KEY_FAST_SCROLL, false)
+                        }
                     }
                 }
             }
+    }
+
+    private fun registerActivity(activity: AppCompatActivity) {
+        activities.find { registered -> activity.localClassName == registered.localClassName }?.let { target ->
+            activities[activities.indexOf(target)] = activity
+        } ?: activities.add(activity)
     }
 
     fun putBoolean(key: String, boolean: Boolean) =
@@ -42,7 +38,6 @@ class SettingsManager(activity: AppCompatActivity) {
         private var preferences: SharedPreferences? = null
         private val activities: ArrayList<AppCompatActivity> = ArrayList()
         const val KEY_DARK_MODE: String = "dark_theme"
-        const val KEY_FAST_SCROLL: String = "fast_scroll"
     }
 
 }

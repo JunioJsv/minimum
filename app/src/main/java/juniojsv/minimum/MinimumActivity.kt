@@ -15,13 +15,10 @@ import android.view.View
 import android.widget.AdapterView
 import androidx.appcompat.app.AppCompatActivity
 import juniojsv.minimum.SettingsManager.Companion.KEY_DARK_MODE
-import juniojsv.minimum.SettingsManager.Companion.KEY_FAST_SCROLL
-import juniojsv.minimum.extension.isNull
 import juniojsv.minimum.extension.removeByPackage
 import juniojsv.minimum.extension.sort
 import kotlinx.android.synthetic.main.minimum_activity.*
 import kotlinx.android.synthetic.main.search_header.view.*
-import java.lang.ref.WeakReference
 
 class MinimumActivity : AppCompatActivity() {
     private var apps: ArrayList<App> = ArrayList()
@@ -31,25 +28,27 @@ class MinimumActivity : AppCompatActivity() {
         override fun onReceive(context: Context, intent: Intent) {
             when (intent.action) {
                 Intent.ACTION_PACKAGE_ADDED -> {
-                    val appAdded = context.packageManager.getApplicationInfo(intent.dataString!!.substring(8), 0)
-                    val appIntentAdded = context.packageManager.getLaunchIntentForPackage(appAdded.packageName)
+                    val packageManager = context.packageManager
+                    val application = packageManager.getApplicationInfo(intent.dataString!!.substring(8), 0)
+                    val applicationIntent = packageManager.getLaunchIntentForPackage(application.packageName)
 
-                    if (!appIntentAdded.isNull && appAdded.packageName != BuildConfig.APPLICATION_ID) {
-                        apps.apply {
-                            add(App(
-                                    appAdded.loadLabel(context.packageManager).toString(),
-                                    appAdded.loadIcon(context.packageManager),
-                                    appIntentAdded!!.apply {
-                                        action = Intent.ACTION_MAIN
-                                        addCategory(Intent.CATEGORY_LAUNCHER)
-                                    },
-                                    appAdded.packageName,
-                                    true
-                            ))
-                            sort()
+                    if (applicationIntent != null && application.packageName != BuildConfig.APPLICATION_ID) {
+                        applicationIntent.apply {
+                            action = Intent.ACTION_MAIN
+                            categories.add(Intent.CATEGORY_LAUNCHER)
                         }
+                        application.apply {
+                            loadLabel(packageManager).toString().also { label ->
+                                loadIcon(packageManager).also { icon ->
+                                    with(apps) {
+                                        add(App(label, icon, applicationIntent, packageName, true))
+                                        sort()
+                                    }
+                                }
+                            }
+                        }
+                        notifyAdapter(true)
                     }
-                    notifyAdapter(true)
                 }
 
                 Intent.ACTION_PACKAGE_REMOVED -> {
@@ -104,38 +103,30 @@ class MinimumActivity : AppCompatActivity() {
                     true
                 }
 
-                search_header.apply {
-                    addTextChangedListener(object : TextWatcher {
-                        override fun afterTextChanged(p0: Editable?) {}
+                search_header.addTextChangedListener(object : TextWatcher {
+                    override fun afterTextChanged(p0: Editable?) {}
 
-                        override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+                    override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
 
-                        override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-                            filteredApps.clear()
-                            if (p0!!.isNotEmpty()) {
-                                apps.forEach { app ->
-                                    if (app.label.contains(p0, true)) filteredApps.add(app)
-                                }
-                                this@MinimumActivity.adapter.changeList(filteredApps)
-                            } else this@MinimumActivity.adapter.changeList(apps)
-                            notifyAdapter()
-                        }
-
-                    })
-                }
-
-                apps_list_view.isFastScrollEnabled = settings.getBoolean(KEY_FAST_SCROLL)
+                    override fun onTextChanged(string: CharSequence, start: Int, before: Int, count: Int) {
+                        filteredApps.clear()
+                        if (string.isNotEmpty()) {
+                            apps.forEach { app ->
+                                if (app.label.contains(string, true)) filteredApps.add(app)
+                            }
+                            this@MinimumActivity.adapter.changeList(filteredApps)
+                        } else this@MinimumActivity.adapter.changeList(apps)
+                        notifyAdapter()
+                    }
+                })
             }
 
-            GetApps(WeakReference(this)) { apps ->
-                this.apps.apply {
-                    if (isNotEmpty()) clear()
-                    addAll(apps)
+            ApplicationManager.getAll(applicationContext) { apps ->
+                runOnUiThread {
+                    this.apps.addAll(apps)
                     notifyAdapter()
+                    loading.visibility = View.GONE
                 }
-                loading.visibility = View.GONE
-            }.apply {
-                if (apps.isEmpty()) execute()
             }
 
             registerReceiver(

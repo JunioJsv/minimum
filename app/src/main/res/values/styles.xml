@@ -29,17 +29,17 @@
     <style name="settings_title">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_marginStart">16dp</item>
-        <item name="android:layout_marginTop">16dp</item>
         <item name="android:textAppearance">@style/TextAppearance.AppCompat.Title</item>
         <item name="android:textSize">14sp</item>
+    </style>
+
+    <style name="settings_container">
+        <item name="android:padding">16dp</item>
     </style>
 
     <style name="settings_subtitle" parent="android:TextAppearance.Material.Widget.Toolbar.Subtitle">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_marginStart">16dp</item>
-        <item name="android:layout_marginEnd">16dp</item>
         <item name="android:textSize">14sp</item>
     </style>
 

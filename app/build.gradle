@@ -1,6 +1,6 @@
 apply plugin: 'com.android.application'
-apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
 
 android {
     compileSdkVersion 29
@@ -8,12 +8,12 @@ android {
         applicationId "juniojsv.minimum"
         minSdkVersion 21
         targetSdkVersion 29
-        versionCode 1
-        versionName "1.9"
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        versionCode 10
+        versionName "1.10"
     }
     buildTypes {
         release {
+            shrinkResources true
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
@@ -22,6 +22,15 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+    applicationVariants.all {
+        outputs.all {
+            outputFileName = "minimum-v${defaultConfig.versionName}.apk"
+        }
+    }
+}
+
+repositories {
+    mavenCentral()
 }
 
 dependencies {
@@ -30,6 +39,4 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${kotlin_version}"
 }
-repositories {
-    mavenCentral()
-}
+

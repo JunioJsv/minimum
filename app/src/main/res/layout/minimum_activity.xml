@@ -20,11 +20,10 @@
 
     <ListView
         android:id="@+id/apps_list_view"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:fastScrollEnabled="false"
+        android:fastScrollEnabled="true"
         android:headerDividersEnabled="false"
-        android:smoothScrollbar="true"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

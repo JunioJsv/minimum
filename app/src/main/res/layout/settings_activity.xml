@@ -10,67 +10,67 @@
 
         <TextView
             style="@style/settings_category"
-            android:text="@string/appearance" />
+            android:text="@string/appearance_category" />
 
-        <TextView
-            style="@style/settings_title"
-            android:text="@string/enable_dark_mode" />
-
-        <Switch
-            android:id="@+id/dark_mode"
-            style="@style/settings_subtitle"
-            android:text="@string/dark_mode_description" />
-
-        <TextView
-            android:id="@+id/textView"
-            style="@style/settings_category"
+        <LinearLayout
+            style="@style/settings_container"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/misc" />
+            android:layout_height="match_parent"
+            android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/textView2"
-            style="@style/settings_title"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/enable_fast_scroll" />
+            <TextView
+                style="@style/settings_title"
+                android:text="@string/dark_mode_title" />
 
-        <Switch
-            android:id="@+id/fast_scroll"
-            style="@style/settings_subtitle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/fast_scroll_description" />
+            <Switch
+                android:id="@+id/dark_mode"
+                style="@style/settings_subtitle"
+                android:text="@string/dark_mode_description" />
+        </LinearLayout>
 
         <TextView
             style="@style/settings_category"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/about" />
+            android:text="@string/about_category" />
 
-        <TextView
-            style="@style/settings_title"
+        <LinearLayout
+            style="@style/settings_container"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/app_name" />
+            android:layout_height="match_parent"
+            android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/version"
-            style="@style/settings_subtitle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            <TextView
+                style="@style/settings_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/app_name" />
 
-        <TextView
-            style="@style/settings_title"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/author_title" />
+            <TextView
+                android:id="@+id/version"
+                style="@style/settings_subtitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
 
-        <TextView
-            style="@style/settings_subtitle"
+        <LinearLayout
+            style="@style/settings_container"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/author" />
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <TextView
+                style="@style/settings_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/author_title" />
+
+            <TextView
+                style="@style/settings_subtitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/author_description" />
+        </LinearLayout>
 
     </LinearLayout>
 </ScrollView>
