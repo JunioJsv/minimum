@@ -21,9 +21,9 @@ import kotlinx.android.synthetic.main.minimum_activity.*
 import kotlinx.android.synthetic.main.search_header.view.*
 
 class MinimumActivity : AppCompatActivity() {
-    private var apps: ArrayList<App> = ArrayList()
-    private val filteredApps: ArrayList<App> = ArrayList()
-    private var adapter: Adapter = Adapter(this, apps)
+    private var applications: ArrayList<Application> = ArrayList()
+    private val filteredApplications: ArrayList<Application> = ArrayList()
+    private var applicationsAdapter: ApplicationsAdapter = ApplicationsAdapter(this, applications)
     private val broadcastReceiver: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             when (intent.action) {
@@ -40,8 +40,8 @@ class MinimumActivity : AppCompatActivity() {
                         application.apply {
                             loadLabel(packageManager).toString().also { label ->
                                 loadIcon(packageManager).also { icon ->
-                                    with(apps) {
-                                        add(App(label, icon, applicationIntent, packageName, true))
+                                    with(applications) {
+                                        add(Application(label, icon, applicationIntent, packageName, true))
                                         sort()
                                     }
                                 }
@@ -52,7 +52,7 @@ class MinimumActivity : AppCompatActivity() {
                 }
 
                 Intent.ACTION_PACKAGE_REMOVED -> {
-                    apps.removeByPackage(
+                    applications.removeByPackage(
                             intent.dataString!!.substring(8)
                     )
                     notifyAdapter(true)
@@ -68,64 +68,64 @@ class MinimumActivity : AppCompatActivity() {
             super.onCreate(savedInstanceState)
             setContentView(R.layout.minimum_activity)
 
-            apps_list_view.apply {
+            applications_view.apply {
                 addHeaderView(layoutInflater.inflate(
-                        R.layout.search_header, apps_list_view, false))
+                        R.layout.search_header, applications_view, false))
 
                 onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
-                    fun launchIntent(app: App): Intent =
-                            app.run {
-                                if (isNew) {
-                                    isNew = false
+                    fun launchIntent(application: Application): Intent =
+                            application.run {
+                                if (newlyInstalled) {
+                                    newlyInstalled = false
                                     notifyAdapter()
                                 }
                                 intent
                             }
 
-                    if (search_header.text.isNotEmpty() && position > 0)
-                        startActivity(launchIntent(filteredApps[position - 1]))
+                    if (search_header_view.text.isNotEmpty() && position > 0)
+                        startActivity(launchIntent(filteredApplications[position - 1]))
                     else if (position > 0)
-                        startActivity(launchIntent(apps[position - 1]))
+                        startActivity(launchIntent(applications[position - 1]))
                 }
 
                 onItemLongClickListener = AdapterView.OnItemLongClickListener { _, _, position, _ ->
-                    fun uninstallIntent(app: App): Intent =
+                    fun uninstallIntent(application: Application): Intent =
                             Intent(
                                     Intent.ACTION_DELETE,
-                                    Uri.parse("package:${app.packageName}")
+                                    Uri.parse("package:${application.packageName}")
                             )
 
-                    if (search_header.text.isNotEmpty() && position > 0)
-                        startActivity(uninstallIntent(filteredApps[position - 1]))
+                    if (search_header_view.text.isNotEmpty() && position > 0)
+                        startActivity(uninstallIntent(filteredApplications[position - 1]))
                     else if (position > 0) {
-                        startActivity(uninstallIntent(apps[position - 1]))
+                        startActivity(uninstallIntent(applications[position - 1]))
                     }
                     true
                 }
 
-                search_header.addTextChangedListener(object : TextWatcher {
+                search_header_view.addTextChangedListener(object : TextWatcher {
                     override fun afterTextChanged(p0: Editable?) {}
 
                     override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
 
                     override fun onTextChanged(string: CharSequence, start: Int, before: Int, count: Int) {
-                        filteredApps.clear()
+                        filteredApplications.clear()
                         if (string.isNotEmpty()) {
-                            apps.forEach { app ->
-                                if (app.label.contains(string, true)) filteredApps.add(app)
+                            applications.forEach { app ->
+                                if (app.label.contains(string, true)) filteredApplications.add(app)
                             }
-                            this@MinimumActivity.adapter.changeList(filteredApps)
-                        } else this@MinimumActivity.adapter.changeList(apps)
+                            this@MinimumActivity.applicationsAdapter.changeList(filteredApplications)
+                        } else this@MinimumActivity.applicationsAdapter.changeList(applications)
                         notifyAdapter()
                     }
                 })
             }
 
-            ApplicationManager.getAll(applicationContext) { apps ->
+            ApplicationsManager.getAll(applicationContext) { apps ->
                 runOnUiThread {
-                    this.apps.addAll(apps)
+                    this.applications.addAll(apps)
                     notifyAdapter()
-                    loading.visibility = View.GONE
+                    loading_view.visibility = View.GONE
                 }
             }
 
@@ -175,8 +175,8 @@ class MinimumActivity : AppCompatActivity() {
     }
 
     private fun notifyAdapter(clearSearch: Boolean = false) {
-        apps_list_view.adapter?.let { adapter.notifyDataSetChanged() }
-                ?: apps_list_view.also { it.adapter = adapter }
-        if (clearSearch) apps_list_view.search_header.text.clear()
+        applications_view.adapter?.let { applicationsAdapter.notifyDataSetChanged() }
+                ?: applications_view.also { it.adapter = applicationsAdapter }
+        if (clearSearch) applications_view.search_header_view.text.clear()
     }
 }

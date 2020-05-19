@@ -4,10 +4,10 @@ import android.content.Context
 import android.content.Intent
 import juniojsv.minimum.extension.sort
 
-object ApplicationManager {
-    fun getAll(context: Context, onFinished: (apps: ArrayList<App>) -> Unit) {
+object ApplicationsManager {
+    fun getAll(context: Context, onFinished: (applications: ArrayList<Application>) -> Unit) {
         Thread {
-            val apps = arrayListOf<App>()
+            val applications = arrayListOf<Application>()
             val packageManager = context.packageManager
 
             packageManager.getInstalledApplications(0).forEach { application ->
@@ -20,14 +20,14 @@ object ApplicationManager {
                     application.apply {
                         loadLabel(packageManager).toString().also { label ->
                             loadIcon(packageManager).also { icon ->
-                                apps.add(App(label, icon, intent, packageName))
+                                applications.add(Application(label, icon, intent, packageName))
                             }
                         }
                     }
                 }
             }
-            apps.sort()
-            onFinished(apps)
+            applications.sort()
+            onFinished(applications)
         }.start()
     }
 }

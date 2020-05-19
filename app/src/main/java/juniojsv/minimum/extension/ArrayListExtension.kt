@@ -1,9 +1,9 @@
 package juniojsv.minimum.extension
 
 import android.util.Log
-import juniojsv.minimum.App
+import juniojsv.minimum.Application
 
-fun ArrayList<App>.sort() {
+fun ArrayList<Application>.sort() {
     forEach { app ->
         if (!app.label[0].isUpperCase())
             app.label = app.label[0].toUpperCase() + app.label.substring(1)
@@ -13,8 +13,8 @@ fun ArrayList<App>.sort() {
     })
 }
 
-fun ArrayList<App>.removeByPackage(packageName : String) {
-    var target : App? = null
+fun ArrayList<Application>.removeByPackage(packageName : String) {
+    var target : Application? = null
     forEach { app ->
         if (app.packageName == packageName) target = app
     }
