@@ -2,14 +2,15 @@
     <string name="app_name">Minimum</string>
     <string name="dial_shortcut">Dial</string>
     <string name="camera_shortcut">Camera</string>
-    <string name="settings_shortcut">Settings</string>
+    <string name="preferences_shortcut">Preferences</string>
     <string name="appearance_category">Appearance</string>
     <string name="about_category">About</string>
     <string name="todo">TODO</string>
     <string name="version_title">Version</string>
     <string name="search">Search</string>
-    <string name="dark_mode_title">Enable dark mode</string>
+    <string name="dark_mode_title">Dark mode</string>
     <string name="dark_mode_description">Apply darker colors for more contrast</string>
+    <string name="accent_color_title">Accent color</string>
     <string name="take_pictures_with">Take pictures with</string>
     <string name="author_title">Author</string>
     <string name="author_description">Created by Jeovene Santos, Aka JunioJsv</string>

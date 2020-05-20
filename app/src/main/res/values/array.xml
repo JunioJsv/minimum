@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <array name="accent_colors">
+        <item>Default</item>
+        <item>Red</item>
+        <item>Green</item>
+        <item>Blue</item>
+    </array>
+    <array name="accent_colors_values">
+        <item>default</item>
+        <item>red</item>
+        <item>green</item>
+        <item>blue</item>
+    </array>
+</resources>

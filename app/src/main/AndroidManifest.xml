@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="juniojsv.minimum">
 
-    <uses-permission android:name="android.permission.REQUEST_DELETE_PACKAGES"/>
+    <uses-permission android:name="android.permission.REQUEST_DELETE_PACKAGES" />
 
     <application
         android:allowBackup="true"
@@ -13,12 +13,15 @@
         android:supportsRtl="true"
         android:theme="@style/light_mode"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".SettingsActivity" />
+        <activity
+            android:name=".PreferencesActivity"
+            android:label="@string/preferences_shortcut" />
         <activity
             android:name=".MinimumActivity"
             android:configChanges="orientation|screenSize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.HOME" />
                 <category android:name="android.intent.category.LAUNCHER" />
                 <category android:name="android.intent.category.DEFAULT" />

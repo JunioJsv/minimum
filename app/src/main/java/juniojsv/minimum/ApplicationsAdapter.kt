@@ -21,8 +21,8 @@ class ApplicationsAdapter(private val context: Context, private var applications
     }
 
     override fun getPositionForSection(sectionIndex: Int): Int {
-        return applications.find { app ->
-            app.label[0].toUpperCase() == sections[sectionIndex]
+        return applications.find { application ->
+            application.label[0].toUpperCase() == sections[sectionIndex]
         }?.let { applications.indexOf(it) } ?: return 0
     }
 

@@ -13,4 +13,5 @@
         android:hint="@string/search"
         android:importantForAutofill="no"
         android:inputType="textPersonName" />
+
 </LinearLayout>

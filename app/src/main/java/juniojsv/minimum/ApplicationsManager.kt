@@ -2,7 +2,6 @@ package juniojsv.minimum
 
 import android.content.Context
 import android.content.Intent
-import juniojsv.minimum.extension.sort
 
 object ApplicationsManager {
     fun getAll(context: Context, onFinished: (applications: ArrayList<Application>) -> Unit) {

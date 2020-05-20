@@ -3,9 +3,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/dial_shortcut"
-        app:showAsAction="ifRoom"
+        android:icon="@drawable/ic_phone_24dp"
         android:title="@string/dial_shortcut"
-        android:icon="@drawable/ic_phone_24dp" />
+        app:showAsAction="ifRoom" />
     <item
         android:id="@+id/camera_shortcut"
         android:icon="@drawable/ic_camera_24dp"
@@ -13,8 +13,8 @@
         android:visible="true"
         app:showAsAction="ifRoom" />
     <item
-        android:id="@+id/setting_shortcut"
-        app:showAsAction="ifRoom"
-        android:title="@string/settings_shortcut"
-        android:icon="@drawable/ic_settings_24dp" />
+        android:id="@+id/preferences_shortcut"
+        android:icon="@drawable/ic_settings_24dp"
+        android:title="@string/preferences_shortcut"
+        app:showAsAction="ifRoom" />
 </menu>

@@ -1,11 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="light_color_primary">#008577</color>
-    <color name="light_color_primary_dark">#00574B</color>
-    <color name="light_color_accent">#D81B60</color>
+    <color name="default_light_color_primary">#008577</color>
+    <color name="default_light_color_primary_dark">#00574B</color>
+    <color name="default_accent">#D81B60</color>
 
-    <color name="dark_color_primary">#2D3035</color>
-    <color name="dark_color_primary_dark">#26282C</color>
+    <color name="red_light_color_primary">#F44336</color>
+    <color name="red_light_color_primary_dark">#D32F2F</color>
+    <color name="red_accent">#EF5350</color>
+
+    <color name="green_light_color_primary">#4CAF50</color>
+    <color name="green_light_color_primary_dark">#388E3C</color>
+    <color name="green_accent">#66BB6A</color>
+
+    <color name="blue_light_color_primary">#2196F3</color>
+    <color name="blue_light_color_primary_dark">#1976D2</color>
+    <color name="blue_accent">#29B6F6</color>
+
+    <color name="default_dark_color_primary">#2D3035</color>
+    <color name="default_dark_color_primary_dark">#26282C</color>
     <color name="dark_color_window_background">#22252A</color>
     <color name="dark_text_color_primary">#EEEEEE</color>
     <color name="dark_text_color_secondary">#9E9E9E</color>

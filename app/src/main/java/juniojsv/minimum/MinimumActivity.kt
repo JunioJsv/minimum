@@ -1,9 +1,6 @@
 package juniojsv.minimum
 
-import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
+import android.content.*
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
@@ -14,11 +11,10 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.AdapterView
 import androidx.appcompat.app.AppCompatActivity
-import juniojsv.minimum.SettingsManager.Companion.KEY_DARK_MODE
-import juniojsv.minimum.extension.removeByPackage
-import juniojsv.minimum.extension.sort
+import androidx.preference.PreferenceManager
+import juniojsv.minimum.PreferencesActivity.Companion.registerActivity
 import kotlinx.android.synthetic.main.minimum_activity.*
-import kotlinx.android.synthetic.main.search_header.view.*
+import kotlinx.android.synthetic.main.search_header_view.view.*
 
 class MinimumActivity : AppCompatActivity() {
     private var applications: ArrayList<Application> = ArrayList()
@@ -60,84 +56,85 @@ class MinimumActivity : AppCompatActivity() {
             }
         }
     }
+    private lateinit var preferences: SharedPreferences
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        SettingsManager(this).also { settings ->
-            if (settings.getBoolean(KEY_DARK_MODE)) setTheme(R.style.dark_mode)
+        super.onCreate(savedInstanceState)
+        preferences = PreferenceManager.getDefaultSharedPreferences(applicationContext)
+        appearanceHandler(preferences)
+        setContentView(R.layout.minimum_activity)
+        registerActivity(this)
 
-            super.onCreate(savedInstanceState)
-            setContentView(R.layout.minimum_activity)
+        applications_view.apply {
+            addHeaderView(layoutInflater.inflate(
+                    R.layout.search_header_view, applications_view, false))
 
-            applications_view.apply {
-                addHeaderView(layoutInflater.inflate(
-                        R.layout.search_header, applications_view, false))
-
-                onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
-                    fun launchIntent(application: Application): Intent =
-                            application.run {
-                                if (newlyInstalled) {
-                                    newlyInstalled = false
-                                    notifyAdapter()
-                                }
-                                intent
+            onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
+                fun launchIntent(application: Application): Intent =
+                        application.run {
+                            if (newlyInstalled) {
+                                newlyInstalled = false
+                                notifyAdapter()
                             }
+                            intent
+                        }
 
-                    if (search_header_view.text.isNotEmpty() && position > 0)
-                        startActivity(launchIntent(filteredApplications[position - 1]))
-                    else if (position > 0)
-                        startActivity(launchIntent(applications[position - 1]))
-                }
-
-                onItemLongClickListener = AdapterView.OnItemLongClickListener { _, _, position, _ ->
-                    fun uninstallIntent(application: Application): Intent =
-                            Intent(
-                                    Intent.ACTION_DELETE,
-                                    Uri.parse("package:${application.packageName}")
-                            )
-
-                    if (search_header_view.text.isNotEmpty() && position > 0)
-                        startActivity(uninstallIntent(filteredApplications[position - 1]))
-                    else if (position > 0) {
-                        startActivity(uninstallIntent(applications[position - 1]))
-                    }
-                    true
-                }
-
-                search_header_view.addTextChangedListener(object : TextWatcher {
-                    override fun afterTextChanged(p0: Editable?) {}
-
-                    override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
-
-                    override fun onTextChanged(string: CharSequence, start: Int, before: Int, count: Int) {
-                        filteredApplications.clear()
-                        if (string.isNotEmpty()) {
-                            applications.forEach { app ->
-                                if (app.label.contains(string, true)) filteredApplications.add(app)
-                            }
-                            this@MinimumActivity.applicationsAdapter.changeList(filteredApplications)
-                        } else this@MinimumActivity.applicationsAdapter.changeList(applications)
-                        notifyAdapter()
-                    }
-                })
+                if (search_header_view.text.isNotEmpty() && position > 0)
+                    startActivity(launchIntent(filteredApplications[position - 1]))
+                else if (position > 0)
+                    startActivity(launchIntent(applications[position - 1]))
             }
 
-            ApplicationsManager.getAll(applicationContext) { apps ->
-                runOnUiThread {
-                    this.applications.addAll(apps)
+            onItemLongClickListener = AdapterView.OnItemLongClickListener { _, _, position, _ ->
+                fun uninstallIntent(application: Application): Intent =
+                        Intent(
+                                Intent.ACTION_DELETE,
+                                Uri.parse("package:${application.packageName}")
+                        )
+
+                if (search_header_view.text.isNotEmpty() && position > 0)
+                    startActivity(uninstallIntent(filteredApplications[position - 1]))
+                else if (position > 0) {
+                    startActivity(uninstallIntent(applications[position - 1]))
+                }
+                true
+            }
+
+            search_header_view.addTextChangedListener(object : TextWatcher {
+                override fun afterTextChanged(p0: Editable?) {}
+
+                override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+
+                override fun onTextChanged(string: CharSequence, start: Int, before: Int, count: Int) {
+                    filteredApplications.clear()
+                    if (string.isNotEmpty()) {
+                        applications.forEach { application ->
+                            if (application.label.contains(string, true)) filteredApplications.add(application)
+                        }
+                        this@MinimumActivity.applicationsAdapter.changeList(filteredApplications)
+                    } else this@MinimumActivity.applicationsAdapter.changeList(applications)
                     notifyAdapter()
-                    loading_view.visibility = View.GONE
                 }
-            }
-
-            registerReceiver(
-                    broadcastReceiver,
-                    IntentFilter().apply {
-                        addAction(Intent.ACTION_PACKAGE_ADDED)
-                        addAction(Intent.ACTION_PACKAGE_REMOVED)
-                        addDataScheme("package")
-                    }
-            )
+            })
         }
+
+        ApplicationsManager.getAll(applicationContext) { apps ->
+            runOnUiThread {
+                this.applications.addAll(apps)
+                notifyAdapter()
+                loading_view.visibility = View.GONE
+            }
+        }
+
+        registerReceiver(
+                broadcastReceiver,
+                IntentFilter().apply {
+                    addAction(Intent.ACTION_PACKAGE_ADDED)
+                    addAction(Intent.ACTION_PACKAGE_REMOVED)
+                    addDataScheme("package")
+                }
+        )
+
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -158,8 +155,8 @@ class MinimumActivity : AppCompatActivity() {
                         )
                 )
             }
-            R.id.setting_shortcut -> {
-                startActivity(Intent(this, SettingsActivity::class.java))
+            R.id.preferences_shortcut -> {
+                startActivity(Intent(this, PreferencesActivity::class.java))
             }
         }
         return super.onOptionsItemSelected(item)
