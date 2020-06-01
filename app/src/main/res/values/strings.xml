@@ -6,7 +6,6 @@
     <string name="appearance_category">Appearance</string>
     <string name="about_category">About</string>
     <string name="todo">TODO</string>
-    <string name="version_title">Version</string>
     <string name="search">Search</string>
     <string name="dark_mode_title">Dark mode</string>
     <string name="dark_mode_description">Apply darker colors for more contrast</string>

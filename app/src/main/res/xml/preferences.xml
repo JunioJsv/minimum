@@ -1,27 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-    <PreferenceCategory android:title="@string/appearance_category">
+    <PreferenceCategory
+        android:title="@string/appearance_category"
+        app:iconSpaceReserved="false">
         <SwitchPreferenceCompat
             android:defaultValue="false"
             android:key="dark_mode"
             android:summary="@string/dark_mode_description"
-            android:title="@string/dark_mode_title" />
+            android:title="@string/dark_mode_title"
+            app:iconSpaceReserved="false" />
         <ListPreference
             android:defaultValue="default"
             android:entries="@array/accent_colors"
             android:entryValues="@array/accent_colors_values"
             android:key="accent_color"
             android:title="@string/accent_color_title"
+            app:iconSpaceReserved="false"
             app:useSimpleSummaryProvider="true" />
     </PreferenceCategory>
-    <PreferenceCategory android:title="@string/about_category">
+    <PreferenceCategory
+        android:title="@string/about_category"
+        app:iconSpaceReserved="false">
         <Preference
             android:key="application_version"
-            android:title="@string/app_name" />
+            android:title="@string/app_name"
+            app:iconSpaceReserved="false" />
         <Preference
             android:summary="@string/author_description"
-            android:title="@string/author_title" />
+            android:title="@string/author_title"
+            app:iconSpaceReserved="false" />
     </PreferenceCategory>
 
 </PreferenceScreen>

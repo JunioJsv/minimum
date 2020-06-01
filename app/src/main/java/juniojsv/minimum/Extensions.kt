@@ -1,18 +1,13 @@
 package juniojsv.minimum
 
+import android.content.Intent
 import android.content.SharedPreferences
+import android.content.pm.ApplicationInfo
+import android.content.pm.PackageManager
+import android.graphics.Bitmap
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
-
-fun ArrayList<Application>.sort() {
-    forEach { application ->
-        if (!application.label[0].isUpperCase())
-            application.label = application.label[0].toUpperCase() + application.label.substring(1)
-    }
-    sortWith(Comparator { application, anotherApplication ->
-        application.label.compareTo(anotherApplication.label)
-    })
-}
+import androidx.core.graphics.drawable.toBitmap
 
 fun ArrayList<Application>.removeByPackage(packageName: String) {
     var target: Application? = null
@@ -34,7 +29,28 @@ fun AppCompatActivity.appearanceHandler(preferences: SharedPreferences) {
     }
 
     if (preferences.getBoolean("dark_mode", false))
-        accentColorHandler(R.style.dark_mode_red, R.style.dark_mode_green, R.style.dark_mode_blue, R.style.dark_mode)
+        accentColorHandler(
+                R.style.AppThemeDark_Red, R.style.AppThemeDark_Green, R.style.AppThemeDark_Blue, R.style.AppThemeDark)
     else
-        accentColorHandler(R.style.light_mode_red, R.style.light_mode_green, R.style.light_mode_blue, R.style.light_mode)
+        accentColorHandler(
+                R.style.AppThemeLight_Red, R.style.AppThemeLight_Green, R.style.AppThemeLight_Blue, R.style.AppThemeLight)
+}
+
+fun ApplicationInfo.toApplication(packageManager: PackageManager, iconSize: Int, isNew: Boolean = false): Application? {
+    with(packageManager) {
+        val intent = getLaunchIntentForPackage(packageName)
+        return if (intent != null && packageName != BuildConfig.APPLICATION_ID) {
+            with(intent) {
+                action = Intent.ACTION_MAIN
+                categories.add(Intent.CATEGORY_LAUNCHER)
+            }
+            Application(
+                    loadLabel(this).toString(),
+                    loadIcon(this).toBitmap(iconSize, iconSize, Bitmap.Config.ARGB_8888),
+                    intent,
+                    packageName,
+                    isNew
+            )
+        } else null
+    }
 }

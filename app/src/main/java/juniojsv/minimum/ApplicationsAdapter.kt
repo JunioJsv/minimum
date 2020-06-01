@@ -1,45 +1,68 @@
 package juniojsv.minimum
 
-import android.content.Context
+import android.view.LayoutInflater
 import android.view.View
-import android.view.View.inflate
 import android.view.ViewGroup
-import android.widget.BaseAdapter
-import android.widget.SectionIndexer
-import kotlinx.android.synthetic.main.application_view.view.*
+import androidx.recyclerview.widget.RecyclerView
+import kotlinx.android.synthetic.main.application.view.*
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
-class ApplicationsAdapter(private val context: Context, private var applications: ArrayList<Application>) : BaseAdapter(), SectionIndexer {
+class ApplicationsAdapter(private val applications: ArrayList<Application>, private val onHolderClick: OnHolderClick) : RecyclerView.Adapter<ApplicationsAdapter.ApplicationHolder>() {
+    private val showOnly = arrayListOf<Int>()
+    private var filtering = false
 
-    override fun getSections(): Array<Char> = Array(applications.size) { index ->
-        applications[index].label[0].toUpperCase()
-    }.toSet().toTypedArray()
-
-    override fun getSectionForPosition(position: Int): Int {
-        return sections.find { char ->
-            char == applications[position].label[0].toUpperCase()
-        }?.let { sections.indexOf(it) } ?: return 0
+    interface OnHolderClick {
+        fun onClick(application: Application, adapter: ApplicationsAdapter)
+        fun onLongClick(application: Application)
     }
 
-    override fun getPositionForSection(sectionIndex: Int): Int {
-        return applications.find { application ->
-            application.label[0].toUpperCase() == sections[sectionIndex]
-        }?.let { applications.indexOf(it) } ?: return 0
-    }
+    class ApplicationHolder(private val view: View, private val adapter: ApplicationsAdapter) : RecyclerView.ViewHolder(view) {
 
-    override fun getCount(): Int = applications.size
+        fun bind(application: Application, onHolderClick: OnHolderClick) {
+            with(view) {
+                mLabel.text = application.label
+                mIcon.setImageBitmap(application.icon)
+                mNew.visibility = if (application.isNew) View.VISIBLE else View.GONE
 
-    override fun getItem(position: Int): Application = applications[position]
-
-    override fun getItemId(position: Int): Long = applications.indexOf(applications[position]).toLong()
-
-    fun changeList(applications: ArrayList<Application>) {
-        this.applications = applications
-    }
-
-    override fun getView(position: Int, view: View?, parent: ViewGroup): View =
-            inflate(context, R.layout.application_view, null).apply {
-                icon_view.setImageDrawable(applications[position].icon)
-                label_view.text = applications[position].label
-                newly_installed_view.visibility = if (applications[position].newlyInstalled) View.VISIBLE else View.GONE
+                setOnClickListener {
+                    onHolderClick.onClick(application, adapter)
+                }
+                setOnLongClickListener {
+                    onHolderClick.onLongClick(application)
+                    true
+                }
             }
+        }
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ApplicationHolder {
+        return ApplicationHolder(
+                LayoutInflater
+                        .from(parent.context).inflate(R.layout.application, parent, false), this)
+    }
+
+    override fun getItemCount(): Int =
+            if (showOnly.isEmpty() && !filtering) applications.size else showOnly.size
+
+    override fun onBindViewHolder(holder: ApplicationHolder, position: Int) {
+        if (showOnly.isNotEmpty())
+            holder.bind(applications[showOnly[position]], onHolderClick)
+        else
+            holder.bind(applications[position], onHolderClick)
+    }
+
+    fun filterViews(string: String?, onFinished: (showOnly: ArrayList<Int>) -> Unit) = GlobalScope.launch {
+        showOnly.clear()
+        if (!string.isNullOrEmpty()) {
+            filtering = true
+            applications.forEachIndexed { index, application ->
+                if (application.label.contains(string, true))
+                    showOnly.add(index)
+            }
+        } else
+            filtering = false
+        onFinished(showOnly)
+    }
+
 }

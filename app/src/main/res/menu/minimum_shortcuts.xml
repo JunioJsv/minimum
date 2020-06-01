@@ -2,18 +2,18 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/dial_shortcut"
+        android:id="@+id/mDial"
         android:icon="@drawable/ic_phone_24dp"
         android:title="@string/dial_shortcut"
         app:showAsAction="ifRoom" />
     <item
-        android:id="@+id/camera_shortcut"
+        android:id="@+id/mCamera"
         android:icon="@drawable/ic_camera_24dp"
         android:title="@string/camera_shortcut"
         android:visible="true"
         app:showAsAction="ifRoom" />
     <item
-        android:id="@+id/preferences_shortcut"
+        android:id="@+id/mPreferences"
         android:icon="@drawable/ic_settings_24dp"
         android:title="@string/preferences_shortcut"
         app:showAsAction="ifRoom" />

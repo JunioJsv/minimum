@@ -1,12 +1,14 @@
 package juniojsv.minimum
 
 import android.content.Intent
-import android.graphics.drawable.Drawable
+import android.graphics.Bitmap
 
-data class Application(
+class Application(
         var label: String,
-        var icon: Drawable,
+        var icon: Bitmap,
         var intent: Intent,
         var packageName: String,
-        var newlyInstalled: Boolean = false
-)
+        var isNew: Boolean = false
+) : Comparable<Application> {
+    override fun compareTo(other: Application): Int = label.compareTo(other.label)
+}

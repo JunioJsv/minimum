@@ -3,6 +3,7 @@ package juniojsv.minimum
 import android.content.SharedPreferences
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.commit
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceManager
@@ -16,11 +17,9 @@ class PreferencesActivity : AppCompatActivity() {
         appearanceHandler(preferences)
         setContentView(R.layout.preferences_activity)
         registerActivity(this)
-        supportFragmentManager
-                .beginTransaction()
-                .replace(R.id.preference_fragment, PreferencesFragment())
-                .commit()
-
+        supportFragmentManager.commit {
+            replace(R.id.mPreference_fragment, PreferencesFragment())
+        }
     }
 
     override fun onResume() {

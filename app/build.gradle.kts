@@ -13,11 +13,14 @@ android {
     defaultConfig {
         applicationId = "juniojsv.minimum"
         versionCode = 12
-        versionName = "1.12"
+        versionName = "1.2.1"
         setMinSdkVersion(21)
         targetSdkVersion(29)
         resConfig("en")
         setProperty("archivesBaseName", "$applicationId-v$versionName")
+    }
+    kotlinOptions {
+        jvmTarget = "1.8"
     }
     buildTypes {
         getByName("release") {
@@ -26,6 +29,7 @@ android {
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
     }
+    buildToolsVersion = "29.0.3"
 }
 
 dependencies {
