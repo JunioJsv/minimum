@@ -7,8 +7,8 @@
         <SwitchPreferenceCompat
             android:defaultValue="false"
             android:key="dark_mode"
-            android:summary="@string/dark_mode_description"
-            android:title="@string/dark_mode_title"
+            android:summary="@string/dark_theme_summary"
+            android:title="@string/dark_theme_title"
             app:iconSpaceReserved="false" />
         <ListPreference
             android:defaultValue="default"
@@ -27,7 +27,15 @@
             android:title="@string/app_name"
             app:iconSpaceReserved="false" />
         <Preference
-            android:summary="@string/author_description"
+            android:summary="@string/licence_summary"
+            android:title="@string/licence_title"
+            app:iconSpaceReserved="false">
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:data="https://github.com/JunioJsv/minimum/blob/master/LICENSE" />
+        </Preference>
+        <Preference
+            android:summary="@string/author_summary"
             android:title="@string/author_title"
             app:iconSpaceReserved="false" />
     </PreferenceCategory>

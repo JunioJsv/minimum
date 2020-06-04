@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="dial_shortcut">Telefone</string>
+    <string name="camera_shortcut">Câmera</string>
+    <string name="preferences_shortcut">Preferências</string>
+    <string name="appearance_category">Aparência</string>
+    <string name="about_category">Sobre</string>
+    <string name="search">Buscar</string>
+    <string name="dark_theme_title">Tema escuro</string>
+    <string name="dark_theme_summary">Ativar tema escuro</string>
+    <string name="accent_color_title">Cor de destaque</string>
+    <string name="take_pictures_with">Tirar fotos com</string>
+    <string name="author_title">Autor</string>
+    <string name="author_summary">Criado por Jeovane Santos, Aka JunioJsv</string>
+    <string name="isNew_title">novo</string>
+    <string name="accent_color_default">Padão</string>
+    <string name="accent_color_red">Vermelho</string>
+    <string name="accent_color_green">Verde</string>
+    <string name="accent_color_blue">Azul</string>
+    <string name="version">Versão</string>
+    <string name="licence_title">Licença</string>
+</resources>

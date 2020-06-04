@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <array name="accent_colors">
-        <item>Default</item>
-        <item>Red</item>
-        <item>Green</item>
-        <item>Blue</item>
+        <item>@string/accent_color_default</item>
+        <item>@string/accent_color_red</item>
+        <item>@string/accent_color_green</item>
+        <item>@string/accent_color_blue</item>
     </array>
     <array name="accent_colors_values">
         <item>default</item>

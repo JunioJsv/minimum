@@ -35,7 +35,8 @@ class PreferencesActivity : AppCompatActivity() {
     class PreferencesFragment : PreferenceFragmentCompat() {
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
             setPreferencesFromResource(R.xml.preferences, rootKey)
-            findPreference<Preference>("application_version")?.summary = "Version ${BuildConfig.VERSION_NAME}"
+            findPreference<Preference>("application_version")?.summary =
+                    "${getString(R.string.version)} ${BuildConfig.VERSION_NAME}"
         }
     }
 

@@ -3,7 +3,7 @@
 ### Minimum is an Android application launcher aimed at optimization and practicality
 
     Implemented Features
-      + Night mode
+      + Dark theme
       + Quick search
       + Practical shortcuts
     

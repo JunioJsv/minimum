@@ -30,7 +30,7 @@
             android:paddingTop="2dp"
             android:paddingEnd="4dp"
             android:paddingBottom="2dp"
-            android:text="@string/newly_installed"
+            android:text="@string/isNew_title"
             android:textAllCaps="true"
             android:textColor="@android:color/background_light"
             android:textSize="10sp"

@@ -1,17 +1,24 @@
 <resources>
-    <string name="app_name">Minimum</string>
+    <string name="app_name" translatable="false">Minimum</string>
     <string name="dial_shortcut">Dial</string>
     <string name="camera_shortcut">Camera</string>
     <string name="preferences_shortcut">Preferences</string>
     <string name="appearance_category">Appearance</string>
     <string name="about_category">About</string>
-    <string name="todo">TODO</string>
+    <string name="todo" translatable="false">TODO</string>
     <string name="search">Search</string>
-    <string name="dark_mode_title">Dark mode</string>
-    <string name="dark_mode_description">Apply darker colors for more contrast</string>
+    <string name="dark_theme_title">Dark theme</string>
+    <string name="dark_theme_summary">Activate dark theme</string>
     <string name="accent_color_title">Accent color</string>
     <string name="take_pictures_with">Take pictures with</string>
     <string name="author_title">Author</string>
-    <string name="author_description">Created by Jeovene Santos, Aka JunioJsv</string>
-    <string name="newly_installed">new</string>
+    <string name="author_summary">Created by Jeovene Santos, Aka JunioJsv</string>
+    <string name="isNew_title">new</string>
+    <string name="accent_color_default">Default</string>
+    <string name="accent_color_red">Red</string>
+    <string name="accent_color_green">Green</string>
+    <string name="accent_color_blue">Blue</string>
+    <string name="version">Version</string>
+    <string name="licence_title">Licence</string>
+    <string name="licence_summary" translatable="false">MIT</string>
 </resources>

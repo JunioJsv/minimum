@@ -12,11 +12,11 @@ android {
     compileSdkVersion(29)
     defaultConfig {
         applicationId = "juniojsv.minimum"
-        versionCode = 12
-        versionName = "1.2.1"
+        versionCode = 13
+        versionName = "1.2.2"
         setMinSdkVersion(21)
         targetSdkVersion(29)
-        resConfig("en")
+        resConfigs("pt-rBr")
         setProperty("archivesBaseName", "$applicationId-v$versionName")
     }
     kotlinOptions {
