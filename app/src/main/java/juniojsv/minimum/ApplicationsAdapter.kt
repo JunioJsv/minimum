@@ -3,6 +3,7 @@ package juniojsv.minimum
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.application.view.*
 import kotlinx.coroutines.GlobalScope
@@ -11,6 +12,7 @@ import kotlinx.coroutines.launch
 class ApplicationsAdapter(private val applications: ArrayList<Application>, private val onHolderClick: OnHolderClick) : RecyclerView.Adapter<ApplicationsAdapter.ApplicationHolder>() {
     private val showOnly = arrayListOf<Int>()
     private var filtering = false
+    private var gridView = false
 
     interface OnHolderClick {
         fun onClick(application: Application, adapter: ApplicationsAdapter)
@@ -36,10 +38,17 @@ class ApplicationsAdapter(private val applications: ArrayList<Application>, priv
         }
     }
 
+    override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
+        super.onAttachedToRecyclerView(recyclerView)
+        if (recyclerView.layoutManager is GridLayoutManager) gridView = true
+    }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ApplicationHolder {
         return ApplicationHolder(
                 LayoutInflater
-                        .from(parent.context).inflate(R.layout.application, parent, false), this)
+                        .from(parent.context).inflate(
+                                if (gridView) R.layout.application_grid_variant
+                                else R.layout.application, parent, false), this)
     }
 
     override fun getItemCount(): Int =

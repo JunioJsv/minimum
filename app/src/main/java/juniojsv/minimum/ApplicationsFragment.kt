@@ -3,6 +3,8 @@ package juniojsv.minimum
 import android.content.Context
 import android.content.Intent
 import android.content.Intent.ACTION_DELETE
+import android.content.SharedPreferences
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -12,7 +14,9 @@ import android.view.View.VISIBLE
 import android.view.ViewGroup
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
+import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import juniojsv.minimum.ApplicationsHandler.Companion.DEFAULT_INTENT_FILTER
 import kotlinx.android.synthetic.main.applications_fragment.*
@@ -20,6 +24,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
 class ApplicationsFragment : Fragment(), ApplicationsHandler.Listener {
+    private lateinit var preferences: SharedPreferences
     private val applicationsHandler = ApplicationsHandler(this)
     private val applicationsAdapter = ApplicationsAdapter(applications, object : ApplicationsAdapter.OnHolderClick {
         override fun onClick(application: Application, adapter: ApplicationsAdapter) {
@@ -43,13 +48,19 @@ class ApplicationsFragment : Fragment(), ApplicationsHandler.Listener {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
+        preferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
         with(mApplications) {
+            if (preferences.getBoolean("grid_view", false)) {
+                layoutManager = GridLayoutManager(requireContext(), 4).apply {
+                    setPadding(0, 0, 0, (resources.displayMetrics.density * 16).toInt())
+                }
+            } else {
+                layoutManager = LinearLayoutManager(requireContext())
+                addItemDecoration(
+                        DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL))
+            }
             adapter = applicationsAdapter
-            layoutManager = LinearLayoutManager(requireContext())
             setHasFixedSize(true)
-            addItemDecoration(
-                    DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL))
-
             mSearch.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
                 override fun onQueryTextSubmit(query: String?): Boolean {
                     with(applicationsAdapter) {
@@ -126,7 +137,7 @@ class ApplicationsFragment : Fragment(), ApplicationsHandler.Listener {
             val iconSize = (context.resources.displayMetrics.density * 48).toInt()
             GlobalScope.launch {
                 context.packageManager?.apply {
-                    getInstalledApplications(0).forEach { info ->
+                    getInstalledApplications(PackageManager.GET_META_DATA).forEach { info ->
                         info.toApplication(this, iconSize)?.also { application ->
                             applications.add(application)
                         }

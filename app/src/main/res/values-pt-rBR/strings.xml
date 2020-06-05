@@ -19,4 +19,6 @@
     <string name="accent_color_blue">Azul</string>
     <string name="version">Versão</string>
     <string name="licence_title">Licença</string>
+    <string name="grid_view_title">Visualização em grade</string>
+    <string name="grid_view_summary">Ativar visualização em grade</string>
 </resources>

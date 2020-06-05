@@ -49,6 +49,8 @@ class PreferencesActivity : AppCompatActivity() {
                     "dark_mode", "accent_color" -> {
                         activities.forEach { activity -> activity.recreate() }
                     }
+                    "grid_view" ->
+                        activities.find { activity -> activity is MinimumActivity }?.recreate()
                 }
             }
         }

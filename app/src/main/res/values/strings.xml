@@ -21,4 +21,6 @@
     <string name="version">Version</string>
     <string name="licence_title">Licence</string>
     <string name="licence_summary" translatable="false">MIT</string>
+    <string name="grid_view_title">Grid view</string>
+    <string name="grid_view_summary">Activate grid view</string>
 </resources>
