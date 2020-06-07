@@ -29,7 +29,7 @@ android {
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
     }
-    buildToolsVersion = "29.0.3"
+    buildToolsVersion = "30.0.0-rc4"
 }
 
 dependencies {

@@ -18,14 +18,14 @@ import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
-import juniojsv.minimum.ApplicationsHandler.Companion.DEFAULT_INTENT_FILTER
+import juniojsv.minimum.ApplicationsEventHandler.Companion.DEFAULT_INTENT_FILTER
 import kotlinx.android.synthetic.main.applications_fragment.*
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
-class ApplicationsFragment : Fragment(), ApplicationsHandler.Listener {
+class ApplicationsFragment : Fragment(), ApplicationsEventHandler.Listener {
     private lateinit var preferences: SharedPreferences
-    private val applicationsHandler = ApplicationsHandler(this)
+    private val applicationsEventHandler = ApplicationsEventHandler(this)
     private val applicationsAdapter = ApplicationsAdapter(applications, object : ApplicationsAdapter.OnHolderClick {
         override fun onClick(application: Application, adapter: ApplicationsAdapter) {
             with(application) {
@@ -51,7 +51,7 @@ class ApplicationsFragment : Fragment(), ApplicationsHandler.Listener {
         preferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
         with(mApplications) {
             if (preferences.getBoolean("grid_view", false)) {
-                layoutManager = GridLayoutManager(requireContext(), 4).apply {
+                layoutManager = GridLayoutManager(requireContext(), preferences.getInt("grid_view_columns", 3)).apply {
                     setPadding(0, 0, 0, (resources.displayMetrics.density * 16).toInt())
                 }
             } else {
@@ -62,7 +62,7 @@ class ApplicationsFragment : Fragment(), ApplicationsHandler.Listener {
             adapter = applicationsAdapter
             setHasFixedSize(true)
             mSearch.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-                override fun onQueryTextSubmit(query: String?): Boolean {
+                fun queryHandler(query: String?): Boolean {
                     with(applicationsAdapter) {
                         filterViews(query) {
                             activity?.runOnUiThread {
@@ -73,16 +73,8 @@ class ApplicationsFragment : Fragment(), ApplicationsHandler.Listener {
                     return true
                 }
 
-                override fun onQueryTextChange(newText: String?): Boolean {
-                    with(applicationsAdapter) {
-                        filterViews(newText) {
-                            activity?.runOnUiThread {
-                                notifyDataSetChanged()
-                            }
-                        }
-                    }
-                    return true
-                }
+                override fun onQueryTextSubmit(query: String?): Boolean = queryHandler(query)
+                override fun onQueryTextChange(newText: String?): Boolean = queryHandler(newText)
             })
         }
 
@@ -99,12 +91,12 @@ class ApplicationsFragment : Fragment(), ApplicationsHandler.Listener {
             mLoading.visibility = GONE
         }
 
-        activity?.registerReceiver(applicationsHandler, DEFAULT_INTENT_FILTER)
+        activity?.registerReceiver(applicationsEventHandler, DEFAULT_INTENT_FILTER)
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        activity?.unregisterReceiver(applicationsHandler)
+        activity?.unregisterReceiver(applicationsEventHandler)
     }
 
     override fun onApplicationAdded(intent: Intent) {

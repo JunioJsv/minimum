@@ -21,4 +21,5 @@
     <string name="licence_title">Licença</string>
     <string name="grid_view_title">Visualização em grade</string>
     <string name="grid_view_summary">Ativar visualização em grade</string>
+    <string name="grid_view_columns_title">Número de colunas na grade</string>
 </resources>

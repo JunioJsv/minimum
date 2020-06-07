@@ -23,4 +23,5 @@
     <string name="licence_summary" translatable="false">MIT</string>
     <string name="grid_view_title">Grid view</string>
     <string name="grid_view_summary">Activate grid view</string>
+    <string name="grid_view_columns_title">Grid columns count</string>
 </resources>

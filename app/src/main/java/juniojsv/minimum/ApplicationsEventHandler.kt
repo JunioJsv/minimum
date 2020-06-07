@@ -5,7 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 
-class ApplicationsHandler(private val listener: Listener) : BroadcastReceiver() {
+class ApplicationsEventHandler(private val listener: Listener) : BroadcastReceiver() {
     interface Listener {
         fun onApplicationAdded(intent: Intent)
         fun onApplicationRemoved(intent: Intent)
