@@ -37,6 +37,7 @@
                 android:id="@+id/mApplications"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:nestedScrollingEnabled="false"
                 tools:listitem="@layout/application" />
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>

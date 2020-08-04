@@ -18,64 +18,34 @@ import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import juniojsv.minimum.ApplicationsEventHandler.Companion.DEFAULT_INTENT_FILTER
 import kotlinx.android.synthetic.main.applications_fragment.*
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
-class ApplicationsFragment : Fragment(), ApplicationsEventHandler.Listener {
+class ApplicationsFragment : Fragment(), ApplicationsEventHandler.Listener, ApplicationsAdapter.OnHolderClick, SearchView.OnQueryTextListener {
     private lateinit var preferences: SharedPreferences
     private val applicationsEventHandler = ApplicationsEventHandler(this)
-    private val applicationsAdapter = ApplicationsAdapter(applications, object : ApplicationsAdapter.OnHolderClick {
-        override fun onClick(application: Application, adapter: ApplicationsAdapter) {
-            with(application) {
-                activity?.startActivity(intent)
-                if (isNew) {
-                    isNew = false
-                    adapter.notifyDataSetChanged()
-                }
-            }
-        }
+    private val applicationsAdapter = ApplicationsAdapter(applications, this)
 
-        override fun onLongClick(application: Application) {
-            activity?.startActivity(
-                    Intent(ACTION_DELETE, Uri.parse("package:${application.packageName}")))
-        }
-    })
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        preferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
+        activity?.registerReceiver(applicationsEventHandler, DEFAULT_INTENT_FILTER)
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
             inflater.inflate(R.layout.applications_fragment, container, false)
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        preferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
-        with(mApplications) {
-            if (preferences.getBoolean("grid_view", false)) {
-                layoutManager = GridLayoutManager(requireContext(), preferences.getInt("grid_view_columns", 3)).apply {
-                    setPadding(0, 0, 0, (resources.displayMetrics.density * 16).toInt())
-                }
-            } else {
-                layoutManager = LinearLayoutManager(requireContext())
-                addItemDecoration(
-                        DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL))
-            }
+
+        mApplications.apply {
+            mSearch.setOnQueryTextListener(this@ApplicationsFragment)
+            layoutManager = buildLayoutManager(this)
             adapter = applicationsAdapter
             setHasFixedSize(true)
-            mSearch.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-                fun queryHandler(query: String?): Boolean {
-                    with(applicationsAdapter) {
-                        filterViews(query) {
-                            activity?.runOnUiThread {
-                                notifyDataSetChanged()
-                            }
-                        }
-                    }
-                    return true
-                }
-
-                override fun onQueryTextSubmit(query: String?): Boolean = queryHandler(query)
-                override fun onQueryTextChange(newText: String?): Boolean = queryHandler(newText)
-            })
         }
 
         if (applications.isEmpty()) {
@@ -91,8 +61,29 @@ class ApplicationsFragment : Fragment(), ApplicationsEventHandler.Listener {
             mLoading.visibility = GONE
         }
 
-        activity?.registerReceiver(applicationsEventHandler, DEFAULT_INTENT_FILTER)
     }
+
+    private fun queryHandler(query: String?): Boolean =
+            applicationsAdapter.run {
+                filterViews(query) {
+                    activity?.runOnUiThread {
+                        notifyDataSetChanged()
+                    }
+                }
+                true
+            }
+
+    private fun buildLayoutManager(listView: RecyclerView): RecyclerView.LayoutManager {
+        return if (preferences.getBoolean("grid_view", false)) {
+            listView.setPadding(0, 0, 0, 16.toDpi(requireContext()))
+            GridLayoutManager(requireContext(), preferences.getInt("grid_view_columns", 3))
+        } else {
+            listView.addItemDecoration(
+                    DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL))
+            LinearLayoutManager(requireContext())
+        }
+    }
+
 
     override fun onDestroy() {
         super.onDestroy()
@@ -100,11 +91,10 @@ class ApplicationsFragment : Fragment(), ApplicationsEventHandler.Listener {
     }
 
     override fun onApplicationAdded(intent: Intent) {
-        val iconSize = (resources.displayMetrics.density * 48).toInt()
         val packageManager = requireContext().packageManager
         val info = packageManager
                 .getApplicationInfo(intent.dataString?.split(":")?.get(1) ?: "null", 0)
-        info.toApplication(packageManager, iconSize, true)?.let { application ->
+        info.toApplication(packageManager, 48.toDpi(requireContext()), true)?.let { application ->
             applications.add(application)
             applications.sort()
             if (!mSearch.query.isNullOrEmpty())
@@ -123,14 +113,32 @@ class ApplicationsFragment : Fragment(), ApplicationsEventHandler.Listener {
             applicationsAdapter.notifyDataSetChanged()
     }
 
+    override fun onClick(application: Application, adapter: ApplicationsAdapter) {
+        application.apply {
+            activity?.startActivity(intent)
+            if (isNew) {
+                isNew = false
+                adapter.notifyDataSetChanged()
+            }
+        }
+    }
+
+    override fun onLongClick(application: Application) {
+        activity?.startActivity(
+                Intent(ACTION_DELETE, Uri.parse("package:${application.packageName}")))
+    }
+
+    override fun onQueryTextSubmit(query: String?): Boolean = queryHandler(query)
+
+    override fun onQueryTextChange(newText: String?): Boolean = queryHandler(newText)
+
     companion object {
         private val applications = arrayListOf<Application>()
         private fun getInstalledApplications(context: Context, onFinished: () -> Unit) {
-            val iconSize = (context.resources.displayMetrics.density * 48).toInt()
             GlobalScope.launch {
                 context.packageManager?.apply {
                     getInstalledApplications(PackageManager.GET_META_DATA).forEach { info ->
-                        info.toApplication(this, iconSize)?.also { application ->
+                        info.toApplication(this, 48.toDpi(context))?.also { application ->
                             applications.add(application)
                         }
                     }

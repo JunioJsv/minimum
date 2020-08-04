@@ -1,5 +1,6 @@
 package juniojsv.minimum
 
+import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.ApplicationInfo
@@ -54,3 +55,6 @@ fun ApplicationInfo.toApplication(packageManager: PackageManager, iconSize: Int,
         } else null
     }
 }
+
+fun Number.toDpi(context: Context): Int =
+        (context.resources.displayMetrics.density * this.toInt()).toInt()
