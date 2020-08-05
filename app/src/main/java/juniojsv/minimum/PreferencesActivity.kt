@@ -1,35 +1,45 @@
 package juniojsv.minimum
 
+import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.commit
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceManager
 
-class PreferencesActivity : AppCompatActivity() {
+class PreferencesActivity : AppCompatActivity(), PreferencesEventHandler.Listener {
     private lateinit var preferences: SharedPreferences
+    private val preferencesHandler = PreferencesHandler(this)
+    private val preferencesEventHandler = PreferencesEventHandler(this)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         preferences = PreferenceManager.getDefaultSharedPreferences(applicationContext)
         appearanceHandler(preferences)
         setContentView(R.layout.preferences_activity)
-        registerActivity(this)
         supportFragmentManager.commit {
             replace(R.id.mPreference_fragment, PreferencesFragment())
         }
+        LocalBroadcastManager.getInstance(this)
+                .registerReceiver(preferencesEventHandler, PreferencesEventHandler.DEFAULT_INTENT_FILTER)
     }
 
     override fun onResume() {
         super.onResume()
-        preferences.registerOnSharedPreferenceChangeListener(PreferencesHandler)
+        preferences.registerOnSharedPreferenceChangeListener(preferencesHandler)
     }
 
     override fun onPause() {
         super.onPause()
-        preferences.unregisterOnSharedPreferenceChangeListener(PreferencesHandler)
+        preferences.unregisterOnSharedPreferenceChangeListener(preferencesHandler)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(preferencesEventHandler)
     }
 
     class PreferencesFragment : PreferenceFragmentCompat() {
@@ -40,25 +50,9 @@ class PreferencesActivity : AppCompatActivity() {
         }
     }
 
-    companion object {
-        private val activities = mutableListOf<AppCompatActivity>()
-
-        private object PreferencesHandler : SharedPreferences.OnSharedPreferenceChangeListener {
-            override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String) {
-                when (key) {
-                    "dark_mode", "accent_color" -> {
-                        activities.forEach { activity -> activity.recreate() }
-                    }
-                    "grid_view", "grid_view_columns" ->
-                        activities.find { activity -> activity is MinimumActivity }?.recreate()
-                }
-            }
-        }
-
-        fun registerActivity(activity: AppCompatActivity) {
-            activities.find { registered -> activity.localClassName == registered.localClassName }?.let { target ->
-                activities[activities.indexOf(target)] = activity
-            } ?: activities.add(activity)
+    override fun onForceRecreate(intent: Intent) {
+        when (intent.getStringExtra("activity")) {
+            "preferences", "all" -> recreate()
         }
     }
 }

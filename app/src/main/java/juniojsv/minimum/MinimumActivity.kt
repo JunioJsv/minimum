@@ -8,21 +8,23 @@ import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.commit
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.preference.PreferenceManager
-import juniojsv.minimum.PreferencesActivity.Companion.registerActivity
 
-class MinimumActivity : AppCompatActivity() {
+class MinimumActivity : AppCompatActivity(), PreferencesEventHandler.Listener {
     private lateinit var preferences: SharedPreferences
+    private val preferencesEventHandler = PreferencesEventHandler(this)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         preferences = PreferenceManager.getDefaultSharedPreferences(applicationContext)
         appearanceHandler(preferences)
         setContentView(R.layout.minimum_activity)
-        registerActivity(this)
         supportFragmentManager.commit {
             replace(R.id.mApplicationsFragment, ApplicationsFragment())
         }
+        LocalBroadcastManager.getInstance(this)
+                .registerReceiver(preferencesEventHandler, PreferencesEventHandler.DEFAULT_INTENT_FILTER)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -47,8 +49,20 @@ class MinimumActivity : AppCompatActivity() {
         return super.onOptionsItemSelected(item)
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        LocalBroadcastManager.getInstance(this)
+                .unregisterReceiver(preferencesEventHandler)
+    }
+
     override fun onBackPressed() {
         // Nothings
+    }
+
+    override fun onForceRecreate(intent: Intent) {
+        when (intent.getStringExtra("activity")) {
+            "minimum", "all" -> recreate()
+        }
     }
 
 }
