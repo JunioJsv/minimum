@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -10,6 +11,20 @@
         android:id="@+id/mContainer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/mFavorite"
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:layout_gravity="top|end"
+            android:layout_margin="4dp"
+            android:background="@drawable/new_background"
+            android:backgroundTint="?colorAccent"
+            android:contentDescription="@string/todo"
+            android:elevation="2dp"
+            android:padding="1dp"
+            android:tint="@android:color/background_light"
+            app:srcCompat="@drawable/ic_baseline_star_24" />
 
         <ImageView
             android:id="@+id/mIcon"

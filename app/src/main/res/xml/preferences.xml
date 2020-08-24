@@ -40,7 +40,11 @@
         <Preference
             android:key="application_version"
             android:title="@string/app_name"
-            app:iconSpaceReserved="false" />
+            app:iconSpaceReserved="false">
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:data="https://github.com/JunioJsv/minimum" />
+        </Preference>
         <Preference
             android:summary="@string/licence_summary"
             android:title="@string/licence_title"
@@ -52,7 +56,11 @@
         <Preference
             android:summary="@string/author_summary"
             android:title="@string/author_title"
-            app:iconSpaceReserved="false" />
+            app:iconSpaceReserved="false">
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:data="https://github.com/JunioJsv" />
+        </Preference>
     </PreferenceCategory>
 
 </PreferenceScreen>

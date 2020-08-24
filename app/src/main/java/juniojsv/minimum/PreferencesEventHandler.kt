@@ -6,16 +6,12 @@ import android.content.Intent
 import android.content.IntentFilter
 
 class PreferencesEventHandler(private val listener: Listener) : BroadcastReceiver() {
-
     interface Listener {
-        fun onForceRecreate(intent: Intent)
+        fun onPreferenceEvent(intent: Intent)
     }
 
-    override fun onReceive(context: Context?, intent: Intent) {
-        when (intent.action) {
-            ACTION_FORCE_RECREATE -> listener.onForceRecreate(intent)
-        }
-    }
+    override fun onReceive(context: Context?, intent: Intent) =
+            listener.onPreferenceEvent(intent)
 
     companion object {
         val DEFAULT_INTENT_FILTER = IntentFilter().apply {

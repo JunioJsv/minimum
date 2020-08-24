@@ -24,4 +24,12 @@
     <string name="grid_view_title">Grid view</string>
     <string name="grid_view_summary">Activate grid view</string>
     <string name="grid_view_columns_title">Grid columns count</string>
+    <string name="action_uninstall">Uninstall</string>
+    <string name="action_information">Information</string>
+    <string name="action_add_bookmark">Add to bookmarks</string>
+    <string name="action_remove_bookmark">Remove from bookmarks</string>
+    <string name="applications">Applications</string>
+    <string name="all_applications">All applications</string>
+    <string name="only_bookmarks">Only bookmarks</string>
+    <string name="expose">Expose</string>
 </resources>

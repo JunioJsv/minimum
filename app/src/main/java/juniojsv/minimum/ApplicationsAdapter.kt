@@ -11,27 +11,29 @@ import kotlinx.coroutines.launch
 
 class ApplicationsAdapter(private val applications: ArrayList<Application>, private val onHolderClick: OnHolderClick) : RecyclerView.Adapter<ApplicationsAdapter.ApplicationHolder>() {
     private val showOnly = arrayListOf<Int>()
-    private var filtering = false
     private var gridView = false
+    private var showOnlyFiltered = false
+    private var showOnlyBookmarks = false
 
     interface OnHolderClick {
-        fun onClick(application: Application, adapter: ApplicationsAdapter)
-        fun onLongClick(application: Application)
+        fun onClick(application: Application, adapter: ApplicationsAdapter, position: Int)
+        fun onLongClick(application: Application, position: Int)
     }
 
     class ApplicationHolder(private val view: View, private val adapter: ApplicationsAdapter) : RecyclerView.ViewHolder(view) {
 
-        fun bind(application: Application, onHolderClick: OnHolderClick) {
+        fun bind(application: Application, index: Int, onHolderClick: OnHolderClick) {
             with(view) {
                 mLabel.text = application.label
                 mIcon.setImageBitmap(application.icon)
                 mNew.visibility = if (application.isNew) View.VISIBLE else View.GONE
+                mFavorite.visibility = if (application.isFavorite) View.VISIBLE else View.GONE
 
                 setOnClickListener {
-                    onHolderClick.onClick(application, adapter)
+                    onHolderClick.onClick(application, adapter, index)
                 }
                 setOnLongClickListener {
-                    onHolderClick.onLongClick(application)
+                    onHolderClick.onLongClick(application, index)
                     true
                 }
             }
@@ -52,26 +54,41 @@ class ApplicationsAdapter(private val applications: ArrayList<Application>, priv
     }
 
     override fun getItemCount(): Int =
-            if (showOnly.isEmpty() && !filtering) applications.size else showOnly.size
+            if (showOnly.isEmpty() && !showOnlyFiltered) applications.size else showOnly.size
 
     override fun onBindViewHolder(holder: ApplicationHolder, position: Int) {
-        if (showOnly.isNotEmpty())
-            holder.bind(applications[showOnly[position]], onHolderClick)
-        else
-            holder.bind(applications[position], onHolderClick)
+        val positionHandler = if (showOnly.isNotEmpty()) showOnly[position] else position
+        holder.bind(applications[positionHandler], position, onHolderClick)
     }
 
-    fun filterViews(string: String?, onFinished: (showOnly: ArrayList<Int>) -> Unit) = GlobalScope.launch {
+    fun filterViews(string: String? = null, onFinished: (showOnly: ArrayList<Int>) -> Unit) = GlobalScope.launch {
         showOnly.clear()
-        if (!string.isNullOrEmpty()) {
-            filtering = true
+        if (showOnlyBookmarks && string.isNullOrEmpty()) {
+            showOnlyFiltered = true
+            applications.forEachIndexed { index, application ->
+                if (application.isFavorite)
+                    showOnly.add(index)
+            }
+        }
+        else if (showOnlyBookmarks && !string.isNullOrEmpty()) {
+            showOnlyFiltered = true
+            applications.forEachIndexed { index, application ->
+                if (application.label.contains(string, true) && application.isFavorite)
+                    showOnly.add(index)
+            }
+        }
+        else if (!string.isNullOrEmpty()) {
+            showOnlyFiltered = true
             applications.forEachIndexed { index, application ->
                 if (application.label.contains(string, true))
                     showOnly.add(index)
             }
         } else
-            filtering = false
+            showOnlyFiltered = false
         onFinished(showOnly)
     }
 
+    fun setShowOnlyBookmarks(value: Boolean) {
+        showOnlyBookmarks = value
+    }
 }

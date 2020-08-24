@@ -8,7 +8,8 @@ class Application(
         var icon: Bitmap,
         var intent: Intent,
         var packageName: String,
-        var isNew: Boolean = false
+        var isNew: Boolean = false,
+        var isFavorite: Boolean = false
 ) : Comparable<Application> {
     override fun compareTo(other: Application): Int = label.compareTo(other.label)
 }

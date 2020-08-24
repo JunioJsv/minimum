@@ -10,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.commit
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.preference.PreferenceManager
+import juniojsv.minimum.PreferencesEventHandler.Companion.ACTION_FORCE_RECREATE
 
 class MinimumActivity : AppCompatActivity(), PreferencesEventHandler.Listener {
     private lateinit var preferences: SharedPreferences
@@ -59,9 +60,13 @@ class MinimumActivity : AppCompatActivity(), PreferencesEventHandler.Listener {
         // Nothings
     }
 
-    override fun onForceRecreate(intent: Intent) {
-        when (intent.getStringExtra("activity")) {
-            "minimum", "all" -> recreate()
+    override fun onPreferenceEvent(intent: Intent) {
+        when (intent.action) {
+            ACTION_FORCE_RECREATE -> {
+                val value = intent.getStringExtra("activity")
+                if (value == "all" || value == "minimum")
+                    recreate()
+            }
         }
     }
 

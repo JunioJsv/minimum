@@ -2,16 +2,16 @@ package juniojsv.minimum
 
 import android.content.Context
 import android.content.Intent
-import android.content.Intent.ACTION_DELETE
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
-import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.View.GONE
 import android.view.View.VISIBLE
 import android.view.ViewGroup
+import androidx.appcompat.widget.PopupMenu
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.preference.PreferenceManager
@@ -24,7 +24,7 @@ import kotlinx.android.synthetic.main.applications_fragment.*
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
-class ApplicationsFragment : Fragment(), ApplicationsEventHandler.Listener, ApplicationsAdapter.OnHolderClick, SearchView.OnQueryTextListener {
+class ApplicationsFragment : Fragment(), ApplicationsEventHandler.Listener, ApplicationsAdapter.OnHolderClick, SearchView.OnQueryTextListener, PopupMenu.OnMenuItemClickListener {
     private lateinit var preferences: SharedPreferences
     private val applicationsEventHandler = ApplicationsEventHandler(this)
     private val applicationsAdapter = ApplicationsAdapter(applications, this)
@@ -41,11 +41,24 @@ class ApplicationsFragment : Fragment(), ApplicationsEventHandler.Listener, Appl
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
+        mSearch.setOnQueryTextListener(this)
+
         mApplications.apply {
-            mSearch.setOnQueryTextListener(this@ApplicationsFragment)
             layoutManager = buildLayoutManager(this)
             adapter = applicationsAdapter
             setHasFixedSize(true)
+        }
+
+        mApplicationsShowOptions.setOnClickListener { view ->
+            PopupMenu(requireContext(), view).also { popup ->
+                popup.menu.apply {
+                    addSubMenu(getString(R.string.expose)).apply {
+                        add(0, 1, 0, getString(R.string.all_applications))
+                        add(0, 2, 1, getString(R.string.only_bookmarks))
+                    }
+                }
+                popup.setOnMenuItemClickListener(this)
+            }.show()
         }
 
         if (applications.isEmpty()) {
@@ -98,9 +111,15 @@ class ApplicationsFragment : Fragment(), ApplicationsEventHandler.Listener, Appl
             applications.add(application)
             applications.sort()
             if (!mSearch.query.isNullOrEmpty())
-                mSearch.setQuery(null, true)
-            else
-                applicationsAdapter.notifyDataSetChanged()
+                mSearch.setQuery(null, false)
+
+            applicationsAdapter.apply {
+                filterViews {
+                    activity?.runOnUiThread {
+                        notifyDataSetChanged()
+                    }
+                }
+            }
         }
     }
 
@@ -108,38 +127,77 @@ class ApplicationsFragment : Fragment(), ApplicationsEventHandler.Listener, Appl
         applications.removeByPackage(intent.dataString?.split(":")?.get(1) ?: "null")
         applications.sort()
         if (!mSearch.query.isNullOrEmpty())
-            mSearch.setQuery(null, true)
-        else
-            applicationsAdapter.notifyDataSetChanged()
-    }
+            mSearch.setQuery(null, false)
 
-    override fun onClick(application: Application, adapter: ApplicationsAdapter) {
-        application.apply {
-            activity?.startActivity(intent)
-            if (isNew) {
-                isNew = false
-                adapter.notifyDataSetChanged()
+        applicationsAdapter.apply {
+            filterViews {
+                activity?.runOnUiThread {
+                    notifyDataSetChanged()
+                }
             }
         }
     }
 
-    override fun onLongClick(application: Application) {
-        activity?.startActivity(
-                Intent(ACTION_DELETE, Uri.parse("package:${application.packageName}")))
+    override fun onClick(application: Application, adapter: ApplicationsAdapter, position: Int) {
+        application.apply {
+            activity?.startActivity(intent)
+            if (isNew) {
+                isNew = false
+                adapter.notifyItemChanged(position)
+            }
+        }
+    }
+
+    override fun onLongClick(application: Application, position: Int) {
+        ApplicationActionsDialog(application, applicationsAdapter, position)
+                .show(parentFragmentManager, "ApplicationActions")
     }
 
     override fun onQueryTextSubmit(query: String?): Boolean = queryHandler(query)
 
     override fun onQueryTextChange(newText: String?): Boolean = queryHandler(newText)
 
+    override fun onMenuItemClick(item: MenuItem): Boolean {
+        when (item.itemId) {
+            1 ->
+                applicationsAdapter.apply {
+                    if (!mSearch.query.isNullOrEmpty())
+                        mSearch.setQuery(null, false)
+                    setShowOnlyBookmarks(false)
+                    filterViews {
+                        activity?.runOnUiThread {
+                            notifyDataSetChanged()
+                        }
+                    }
+                }
+            2 ->
+                applicationsAdapter.apply {
+                    if (!mSearch.query.isNullOrEmpty())
+                        mSearch.setQuery(null, false)
+                    setShowOnlyBookmarks(true)
+                    filterViews {
+                        activity?.runOnUiThread {
+                            notifyDataSetChanged()
+                        }
+                    }
+                }
+        }
+        return true
+    }
+
     companion object {
         private val applications = arrayListOf<Application>()
         private fun getInstalledApplications(context: Context, onFinished: () -> Unit) {
+            val favorites = PreferenceManager
+                    .getDefaultSharedPreferences(context).getStringSet("favorites", setOf())
+
             GlobalScope.launch {
                 context.packageManager?.apply {
                     getInstalledApplications(PackageManager.GET_META_DATA).forEach { info ->
                         info.toApplication(this, 48.toDpi(context))?.also { application ->
-                            applications.add(application)
+                            applications.add(application.apply {
+                                isFavorite = favorites?.contains(packageName) ?: false
+                            })
                         }
                     }
                 }

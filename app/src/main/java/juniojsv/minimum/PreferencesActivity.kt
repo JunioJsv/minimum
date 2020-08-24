@@ -50,9 +50,13 @@ class PreferencesActivity : AppCompatActivity(), PreferencesEventHandler.Listene
         }
     }
 
-    override fun onForceRecreate(intent: Intent) {
-        when (intent.getStringExtra("activity")) {
-            "preferences", "all" -> recreate()
+    override fun onPreferenceEvent(intent: Intent) {
+        when (intent.action) {
+            PreferencesEventHandler.ACTION_FORCE_RECREATE -> {
+                val value = intent.getStringExtra("activity")
+                if (value == "all" || value == "preferences")
+                    recreate()
+            }
         }
     }
 }
