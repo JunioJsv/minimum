@@ -1,6 +1,7 @@
 package juniojsv.minimum
 
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.SharedPreferences
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
@@ -9,6 +10,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceManager
+import juniojsv.minimum.PreferencesEventHandler.Companion.ACTION_FORCE_RECREATE
 
 class PreferencesActivity : AppCompatActivity(), PreferencesEventHandler.Listener {
     private lateinit var preferences: SharedPreferences
@@ -24,7 +26,7 @@ class PreferencesActivity : AppCompatActivity(), PreferencesEventHandler.Listene
             replace(R.id.mPreference_fragment, PreferencesFragment())
         }
         LocalBroadcastManager.getInstance(this)
-                .registerReceiver(preferencesEventHandler, PreferencesEventHandler.DEFAULT_INTENT_FILTER)
+                .registerReceiver(preferencesEventHandler, IntentFilter(ACTION_FORCE_RECREATE))
     }
 
     override fun onResume() {
@@ -52,7 +54,7 @@ class PreferencesActivity : AppCompatActivity(), PreferencesEventHandler.Listene
 
     override fun onPreferenceEvent(intent: Intent) {
         when (intent.action) {
-            PreferencesEventHandler.ACTION_FORCE_RECREATE -> {
+            ACTION_FORCE_RECREATE -> {
                 val value = intent.getStringExtra("activity")
                 if (value == "all" || value == "preferences")
                     recreate()

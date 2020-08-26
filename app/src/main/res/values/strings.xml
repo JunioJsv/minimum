@@ -30,6 +30,6 @@
     <string name="action_remove_bookmark">Remove from bookmarks</string>
     <string name="applications">Applications</string>
     <string name="all_applications">All applications</string>
-    <string name="only_bookmarks">Only bookmarks</string>
+    <string name="only_favorites">Only favorites</string>
     <string name="expose">Expose</string>
 </resources>

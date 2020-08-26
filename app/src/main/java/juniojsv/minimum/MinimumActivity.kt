@@ -1,6 +1,7 @@
 package juniojsv.minimum
 
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.provider.MediaStore
@@ -25,7 +26,7 @@ class MinimumActivity : AppCompatActivity(), PreferencesEventHandler.Listener {
             replace(R.id.mApplicationsFragment, ApplicationsFragment())
         }
         LocalBroadcastManager.getInstance(this)
-                .registerReceiver(preferencesEventHandler, PreferencesEventHandler.DEFAULT_INTENT_FILTER)
+                .registerReceiver(preferencesEventHandler, IntentFilter(ACTION_FORCE_RECREATE))
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

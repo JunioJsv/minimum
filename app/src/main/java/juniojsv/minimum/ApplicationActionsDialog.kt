@@ -1,6 +1,5 @@
 package juniojsv.minimum
 
-import android.app.AlertDialog
 import android.app.Dialog
 import android.content.Intent
 import android.content.Intent.ACTION_DELETE
@@ -8,11 +7,12 @@ import android.content.SharedPreferences
 import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatDialogFragment
 import androidx.core.content.edit
-import androidx.fragment.app.DialogFragment
 import androidx.preference.PreferenceManager
 
-class ApplicationActionsDialog(private val application: Application, private val adapter: ApplicationsAdapter, private val position: Int) : DialogFragment() {
+class ApplicationActionsDialog(private val application: Application, private val adapter: ApplicationsAdapter, private val position: Int) : AppCompatDialogFragment() {
     private lateinit var preferences: SharedPreferences
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {

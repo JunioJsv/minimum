@@ -5,6 +5,7 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
@@ -13,6 +14,8 @@ import android.view.View.VISIBLE
 import android.view.ViewGroup
 import androidx.appcompat.widget.PopupMenu
 import androidx.appcompat.widget.SearchView
+import androidx.core.app.ActivityCompat
+import androidx.core.app.ActivityOptionsCompat
 import androidx.fragment.app.Fragment
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.DividerItemDecoration
@@ -21,18 +24,20 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import juniojsv.minimum.ApplicationsEventHandler.Companion.DEFAULT_INTENT_FILTER
 import kotlinx.android.synthetic.main.applications_fragment.*
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 
 class ApplicationsFragment : Fragment(), ApplicationsEventHandler.Listener, ApplicationsAdapter.OnHolderClick, SearchView.OnQueryTextListener, PopupMenu.OnMenuItemClickListener {
     private lateinit var preferences: SharedPreferences
+    private lateinit var packageManager: PackageManager
     private val applicationsEventHandler = ApplicationsEventHandler(this)
     private val applicationsAdapter = ApplicationsAdapter(applications, this)
+    private var queryChangedDebounceJob: Job? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         preferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
-        activity?.registerReceiver(applicationsEventHandler, DEFAULT_INTENT_FILTER)
+        packageManager = requireContext().packageManager
+        requireActivity().registerReceiver(applicationsEventHandler, DEFAULT_INTENT_FILTER)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
@@ -50,11 +55,11 @@ class ApplicationsFragment : Fragment(), ApplicationsEventHandler.Listener, Appl
         }
 
         mApplicationsShowOptions.setOnClickListener { view ->
-            PopupMenu(requireContext(), view).also { popup ->
+            PopupMenu(requireActivity(), view).also { popup ->
                 popup.menu.apply {
                     addSubMenu(getString(R.string.expose)).apply {
-                        add(0, 1, 0, getString(R.string.all_applications))
-                        add(0, 2, 1, getString(R.string.only_bookmarks))
+                        add(0, MENU_ID_ALL_APPLICATIONS, 0, getString(R.string.all_applications))
+                        add(0, MENU_ID_ONLY_BOOKMARKS, 1, getString(R.string.only_favorites))
                     }
                 }
                 popup.setOnMenuItemClickListener(this)
@@ -63,11 +68,9 @@ class ApplicationsFragment : Fragment(), ApplicationsEventHandler.Listener, Appl
 
         if (applications.isEmpty()) {
             getInstalledApplications(requireContext()) {
-                activity?.runOnUiThread {
-                    applicationsAdapter.notifyDataSetChanged()
-                    mApplicationsContainer.visibility = VISIBLE
-                    mLoading.visibility = GONE
-                }
+                applicationsAdapter.notifyDataSetChanged()
+                mApplicationsContainer.visibility = VISIBLE
+                mLoading.visibility = GONE
             }
         } else {
             mApplicationsContainer.visibility = VISIBLE
@@ -75,16 +78,6 @@ class ApplicationsFragment : Fragment(), ApplicationsEventHandler.Listener, Appl
         }
 
     }
-
-    private fun queryHandler(query: String?): Boolean =
-            applicationsAdapter.run {
-                filterViews(query) {
-                    activity?.runOnUiThread {
-                        notifyDataSetChanged()
-                    }
-                }
-                true
-            }
 
     private fun buildLayoutManager(listView: RecyclerView): RecyclerView.LayoutManager {
         return if (preferences.getBoolean("grid_view", false)) {
@@ -100,11 +93,10 @@ class ApplicationsFragment : Fragment(), ApplicationsEventHandler.Listener, Appl
 
     override fun onDestroy() {
         super.onDestroy()
-        activity?.unregisterReceiver(applicationsEventHandler)
+        requireActivity().unregisterReceiver(applicationsEventHandler)
     }
 
     override fun onApplicationAdded(intent: Intent) {
-        val packageManager = requireContext().packageManager
         val info = packageManager
                 .getApplicationInfo(intent.dataString?.split(":")?.get(1) ?: "null", 0)
         info.toApplication(packageManager, 48.toDpi(requireContext()), true)?.let { application ->
@@ -114,11 +106,8 @@ class ApplicationsFragment : Fragment(), ApplicationsEventHandler.Listener, Appl
                 mSearch.setQuery(null, false)
 
             applicationsAdapter.apply {
-                filterViews {
-                    activity?.runOnUiThread {
-                        notifyDataSetChanged()
-                    }
-                }
+                setFilterQuery(String())
+                filterViews()
             }
         }
     }
@@ -130,80 +119,129 @@ class ApplicationsFragment : Fragment(), ApplicationsEventHandler.Listener, Appl
             mSearch.setQuery(null, false)
 
         applicationsAdapter.apply {
-            filterViews {
-                activity?.runOnUiThread {
-                    notifyDataSetChanged()
+            setFilterQuery(String())
+            filterViews()
+        }
+    }
+
+    override fun onApplicationIsChanged(intent: Intent) {
+        GlobalScope.launch {
+            val size = 48.toDpi(requireContext())
+            intent.getStringArrayExtra(Intent.EXTRA_CHANGED_COMPONENT_NAME_LIST)?.forEach { packageName ->
+                try {
+                    val info = packageManager.getApplicationInfo(packageName, PackageManager.GET_META_DATA)
+                    if (info.enabled) {
+                        val favorites = PreferenceManager
+                                .getDefaultSharedPreferences(context).getStringSet("favorites", setOf())
+                        applications.add(info.toApplication(packageManager, size, true)!!.apply {
+                            isFavorite = favorites?.contains(packageName) ?: false
+                        })
+                    } else {
+                        applications.removeByPackage(packageName)
+                    }
+
+                    applications.sort()
+
+                    if (!mSearch.query.isNullOrEmpty())
+                        withContext(Dispatchers.Main) {
+                            mSearch.setQuery(null, false)
+                        }
+
+                    applicationsAdapter.apply {
+                        setFilterQuery(String())
+                        filterViews()
+                    }
+
+                } catch (e: PackageManager.NameNotFoundException) {
+                    Log.e("onApplicationIsChanged", "Not found $packageName")
                 }
             }
         }
+
     }
 
-    override fun onClick(application: Application, adapter: ApplicationsAdapter, position: Int) {
+    override fun onClick(application: Application, view: View, position: Int) {
         application.apply {
-            activity?.startActivity(intent)
+            ActivityCompat.startActivity(requireActivity(), intent, ActivityOptionsCompat
+                    .makeThumbnailScaleUpAnimation(view, application.icon, 0, 0).toBundle())
             if (isNew) {
                 isNew = false
-                adapter.notifyItemChanged(position)
+                applicationsAdapter.notifyItemChanged(position)
             }
         }
     }
 
-    override fun onLongClick(application: Application, position: Int) {
+    override fun onLongClick(application: Application, view: View, position: Int) {
         ApplicationActionsDialog(application, applicationsAdapter, position)
                 .show(parentFragmentManager, "ApplicationActions")
     }
 
-    override fun onQueryTextSubmit(query: String?): Boolean = queryHandler(query)
+    override fun onQueryTextSubmit(query: String): Boolean {
+        applicationsAdapter.apply {
+            setFilterQuery(query)
+            filterViews()
+        }
 
-    override fun onQueryTextChange(newText: String?): Boolean = queryHandler(newText)
+        return true
+    }
+
+    override fun onQueryTextChange(newText: String): Boolean {
+        queryChangedDebounceJob?.cancel()
+
+        queryChangedDebounceJob = GlobalScope.launch {
+            delay(350L)
+            onQueryTextSubmit(newText)
+        }
+
+        return true
+    }
 
     override fun onMenuItemClick(item: MenuItem): Boolean {
         when (item.itemId) {
-            1 ->
+            MENU_ID_ALL_APPLICATIONS ->
                 applicationsAdapter.apply {
                     if (!mSearch.query.isNullOrEmpty())
                         mSearch.setQuery(null, false)
                     setShowOnlyBookmarks(false)
-                    filterViews {
-                        activity?.runOnUiThread {
-                            notifyDataSetChanged()
-                        }
-                    }
+                    filterViews()
                 }
-            2 ->
+            MENU_ID_ONLY_BOOKMARKS ->
                 applicationsAdapter.apply {
                     if (!mSearch.query.isNullOrEmpty())
                         mSearch.setQuery(null, false)
                     setShowOnlyBookmarks(true)
-                    filterViews {
-                        activity?.runOnUiThread {
-                            notifyDataSetChanged()
-                        }
-                    }
+                    filterViews()
                 }
         }
+
         return true
     }
 
     companion object {
-        private val applications = arrayListOf<Application>()
-        private fun getInstalledApplications(context: Context, onFinished: () -> Unit) {
-            val favorites = PreferenceManager
-                    .getDefaultSharedPreferences(context).getStringSet("favorites", setOf())
+        private val applications = ArrayList<Application>()
+        private const val MENU_ID_ALL_APPLICATIONS = 1
+        private const val MENU_ID_ONLY_BOOKMARKS = 2
 
-            GlobalScope.launch {
-                context.packageManager?.apply {
-                    getInstalledApplications(PackageManager.GET_META_DATA).forEach { info ->
-                        info.toApplication(this, 48.toDpi(context))?.also { application ->
-                            applications.add(application.apply {
-                                isFavorite = favorites?.contains(packageName) ?: false
-                            })
+        private fun getInstalledApplications(context: Context, onFinished: () -> Unit) =
+                GlobalScope.launch {
+                    val preferences = PreferenceManager
+                            .getDefaultSharedPreferences(context)
+                    val favorites = preferences.getStringSet("favorites", setOf())
+
+                    context.packageManager?.apply {
+                        getInstalledApplications(PackageManager.GET_META_DATA).forEach { info ->
+                            info.toApplication(this, 48.toDpi(context))?.also { application ->
+                                applications.add(application.apply {
+                                    isFavorite = favorites?.contains(packageName) ?: false
+                                })
+                            }
                         }
                     }
+                    applications.sort()
+                    withContext(Dispatchers.Main) {
+                        onFinished()
+                    }
                 }
-                applications.sort()
-                onFinished()
-            }
-        }
+
     }
 }
