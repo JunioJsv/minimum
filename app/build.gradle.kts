@@ -35,4 +35,5 @@ android {
 dependencies {
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
     implementation("androidx.preference:preference-ktx:1.1.1")
+    implementation("com.jmedeisis:draglinearlayout:1.1.0")
 }

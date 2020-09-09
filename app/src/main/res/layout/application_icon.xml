@@ -15,23 +15,19 @@
         android:scaleType="fitXY"
         tools:srcCompat="@mipmap/ic_launcher" />
 
-    <TextView
+    <ImageView
         android:id="@+id/mNew"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="18dp"
+        android:layout_height="18dp"
+        android:layout_gravity="top|start"
         android:layout_margin="4dp"
-        android:background="@drawable/new_background"
+        android:background="@drawable/tag_background"
+        android:backgroundTint="?colorAccent"
+        android:contentDescription="@string/todo"
         android:elevation="2dp"
-        android:paddingStart="4dp"
-        android:paddingTop="2dp"
-        android:paddingEnd="4dp"
-        android:paddingBottom="2dp"
-        android:text="@string/isNew_title"
-        android:textAllCaps="true"
-        android:textColor="@android:color/background_light"
-        android:textSize="10sp"
-        android:textStyle="bold"
-        tools:ignore="SmallSp" />
+        android:padding="1dp"
+        android:tint="@android:color/background_light"
+        app:srcCompat="@drawable/ic_baseline_new_releases_24" />
 
     <ImageView
         android:id="@+id/mFavorite"
@@ -39,7 +35,7 @@
         android:layout_height="18dp"
         android:layout_gravity="top|end"
         android:layout_margin="4dp"
-        android:background="@drawable/new_background"
+        android:background="@drawable/tag_background"
         android:backgroundTint="?colorAccent"
         android:contentDescription="@string/todo"
         android:elevation="2dp"

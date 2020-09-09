@@ -8,10 +8,14 @@ import android.provider.MediaStore
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.commit
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.FragmentStatePagerAdapter
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.preference.PreferenceManager
+import androidx.viewpager.widget.ViewPager
 import juniojsv.minimum.PreferencesEventHandler.Companion.ACTION_FORCE_RECREATE
+import kotlinx.android.synthetic.main.minimum_activity.*
 
 class MinimumActivity : AppCompatActivity(), PreferencesEventHandler.Listener {
     private lateinit var preferences: SharedPreferences
@@ -22,9 +26,12 @@ class MinimumActivity : AppCompatActivity(), PreferencesEventHandler.Listener {
         preferences = PreferenceManager.getDefaultSharedPreferences(applicationContext)
         appearanceHandler(preferences)
         setContentView(R.layout.minimum_activity)
-        supportFragmentManager.commit {
-            replace(R.id.mApplicationsFragment, ApplicationsFragment())
+
+        mPages.apply {
+            adapter = MinimumPages(supportFragmentManager)
+            setPageTransformer(true, MinimumPages.DEFAULT_PAGE_TRANSFORMER)
         }
+
         LocalBroadcastManager.getInstance(this)
                 .registerReceiver(preferencesEventHandler, IntentFilter(ACTION_FORCE_RECREATE))
     }
@@ -67,6 +74,38 @@ class MinimumActivity : AppCompatActivity(), PreferencesEventHandler.Listener {
                 val value = intent.getStringExtra("activity")
                 if (value == "all" || value == "minimum")
                     recreate()
+            }
+        }
+    }
+
+    private class MinimumPages(fragmentManager: FragmentManager) : FragmentStatePagerAdapter(fragmentManager, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
+        val fragments: Array<Fragment> = arrayOf(ApplicationsFragment(), WidgetsFragment())
+
+        override fun getCount(): Int = fragments.size
+
+        override fun getItem(position: Int): Fragment = fragments[position]
+
+        companion object {
+            val DEFAULT_PAGE_TRANSFORMER = ViewPager.PageTransformer { page, position ->
+                page.apply {
+                    val pageWidth = width
+                    when {
+                        position < -1 -> {
+                            alpha = 0f
+                        }
+                        position <= 0 -> {
+                            alpha = 1f
+                            translationX = 0f
+                        }
+                        position <= 1 -> {
+                            alpha = 1 - position
+                            translationX = pageWidth * -position
+                        }
+                        else -> {
+                            alpha = 0f
+                        }
+                    }
+                }
             }
         }
     }
