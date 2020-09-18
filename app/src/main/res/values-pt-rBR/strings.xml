@@ -29,4 +29,6 @@
     <string name="all_applications">Todos aplicativos</string>
     <string name="only_favorites">Apenas favoritos</string>
     <string name="expose">Exibir</string>
+    <string name="add_widget">Adicionar widget</string>
+    <string name="change_wallpaper">Alterar wallpaper</string>
 </resources>
