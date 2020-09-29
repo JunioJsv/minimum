@@ -9,6 +9,7 @@ import android.appwidget.AppWidgetManager
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
+import android.content.SharedPreferences
 import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.os.Build.VERSION.SDK_INT
 import android.os.Bundle
@@ -16,21 +17,33 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.app.ActivityCompat
+import androidx.core.content.edit
 import androidx.fragment.app.Fragment
+import androidx.preference.PreferenceManager
 import kotlinx.android.synthetic.main.widgets_fragment.*
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 class WidgetsFragment : Fragment(), DialogInterface.OnClickListener, WidgetContainer.Listener {
+    private lateinit var preferences: SharedPreferences
     private lateinit var widgets: AppWidgetManager
     private lateinit var widgetHost: AppWidgetHost
     private lateinit var applicationContext: Context
     private val actions = WidgetsActionsDialog(this)
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        applicationContext = requireContext().applicationContext
+        preferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
+        widgets = AppWidgetManager.getInstance(applicationContext)
+        widgetHost = AppWidgetHost(applicationContext, HOST_ID)
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
             inflater.inflate(R.layout.widgets_fragment, container, false)
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        applicationContext = requireContext().applicationContext
 
         if (SDK_INT >= 26 && ActivityCompat.checkSelfPermission(applicationContext, READ_EXTERNAL_STORAGE) != PERMISSION_GRANTED) {
             requestPermissions(arrayOf(READ_EXTERNAL_STORAGE), REQUEST_PERMISSIONS)
@@ -44,8 +57,9 @@ class WidgetsFragment : Fragment(), DialogInterface.OnClickListener, WidgetConta
 
         mWidgets.setContainerScrollView(mScrollWidgets)
 
-        widgets = AppWidgetManager.getInstance(applicationContext)
-        widgetHost = AppWidgetHost(applicationContext, HOST_ID)
+        preferences.getStringSet("widgets", setOf())?.forEach { data ->
+            attachWidget(Intent.parseUri(data, 0))
+        }
     }
 
     private fun setUpWallpaper() =
@@ -93,8 +107,21 @@ class WidgetsFragment : Fragment(), DialogInterface.OnClickListener, WidgetConta
     }
 
     override fun onRemove(container: WidgetContainer) {
-        widgetHost.deleteAppWidgetId(container.widget.appWidgetId)
+        val id = container.widget.appWidgetId
+        widgetHost.deleteAppWidgetId(id)
         mWidgets.removeDragView(container)
+
+        GlobalScope.launch {
+            val widgets = preferences.getStringSet("widgets", setOf())
+                    ?.filter {
+                        Intent.parseUri(it, 0)?.extras
+                                ?.getInt(AppWidgetManager.EXTRA_APPWIDGET_ID, -1) ?: -1 != id
+                    }?.toSet()
+
+            preferences.edit(commit = true) {
+                putStringSet("widgets", widgets)
+            }
+        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -111,6 +138,13 @@ class WidgetsFragment : Fragment(), DialogInterface.OnClickListener, WidgetConta
                                 putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, id)
                             }, ATTACH_WIDGET)
                         } else attachWidget(data!!)
+
+                        GlobalScope.launch {
+                            val widgets = preferences.getStringSet("widgets", setOf())
+                            preferences.edit(commit = true) {
+                                putStringSet("widgets", widgets?.plus(data!!.toUri(0)))
+                            }
+                        }
                     }
                     ATTACH_WIDGET -> {
                         attachWidget(data!!)

@@ -37,7 +37,7 @@ class ApplicationsFragment : Fragment(), ApplicationsEventHandler.Listener, Appl
         super.onCreate(savedInstanceState)
         preferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
         packageManager = requireContext().packageManager
-        requireActivity().registerReceiver(applicationsEventHandler, DEFAULT_INTENT_FILTER)
+        context?.applicationContext?.registerReceiver(applicationsEventHandler, DEFAULT_INTENT_FILTER)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
@@ -93,7 +93,7 @@ class ApplicationsFragment : Fragment(), ApplicationsEventHandler.Listener, Appl
 
     override fun onDestroy() {
         super.onDestroy()
-        requireActivity().unregisterReceiver(applicationsEventHandler)
+        context?.applicationContext?.unregisterReceiver(applicationsEventHandler)
     }
 
     override fun onApplicationAdded(intent: Intent) {

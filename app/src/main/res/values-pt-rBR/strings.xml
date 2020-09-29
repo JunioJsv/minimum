@@ -31,4 +31,5 @@
     <string name="expose">Exibir</string>
     <string name="add_widget">Adicionar widget</string>
     <string name="change_wallpaper">Alterar wallpaper</string>
+    <string name="remove">Remover</string>
 </resources>
