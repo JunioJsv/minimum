@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="dialog_corner_radius">8dp</dimen>
-    <dimen name="icon_size">48dp</dimen>
+    <dimen name="dp48">48dp</dimen>
+    <dimen name="dp16">16dp</dimen>
+    <dimen name="dp8">8dp</dimen>
 </resources>

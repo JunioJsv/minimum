@@ -1,23 +1,17 @@
 package juniojsv.minimum
 
-import android.content.Intent
-import android.content.IntentFilter
 import android.content.SharedPreferences
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.commit
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceManager
-import juniojsv.minimum.PreferencesEventHandler.Companion.ACTION_FORCE_RECREATE
 import juniojsv.minimum.databinding.PreferencesActivityBinding
 
-class PreferencesActivity : AppCompatActivity(), PreferencesEventHandler.Listener {
+class PreferencesActivity : AppCompatActivity(), PreferencesHandler.OnPreferenceChangeListener {
     private lateinit var binding: PreferencesActivityBinding
     private lateinit var preferences: SharedPreferences
-    private val preferencesHandler = PreferencesHandler(this)
-    private val preferencesEventHandler = PreferencesEventHandler(this)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,40 +25,48 @@ class PreferencesActivity : AppCompatActivity(), PreferencesEventHandler.Listene
             replace(R.id.mPreference_fragment, PreferencesFragment())
         }
 
-        LocalBroadcastManager.getInstance(this)
-                .registerReceiver(preferencesEventHandler, IntentFilter(ACTION_FORCE_RECREATE))
+        PreferencesHandler.addListener(this)
     }
 
     override fun onResume() {
         super.onResume()
-        preferences.registerOnSharedPreferenceChangeListener(preferencesHandler)
+        preferences.registerOnSharedPreferenceChangeListener(PreferencesHandler)
     }
 
     override fun onPause() {
         super.onPause()
-        preferences.unregisterOnSharedPreferenceChangeListener(preferencesHandler)
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(preferencesEventHandler)
+        preferences.unregisterOnSharedPreferenceChangeListener(PreferencesHandler)
     }
 
     class PreferencesFragment : PreferenceFragmentCompat() {
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
             setPreferencesFromResource(R.xml.preferences, rootKey)
-            findPreference<Preference>("application_version")?.summary =
+            findPreference<Preference>(APPLICATION_VERSION)?.summary =
                     "${getString(R.string.version)} ${BuildConfig.VERSION_NAME}"
         }
     }
 
-    override fun onPreferenceEvent(intent: Intent) {
-        when (intent.action) {
-            ACTION_FORCE_RECREATE -> {
-                val value = intent.getStringExtra("activity")
-                if (value == "all" || value == "preferences")
-                    recreate()
+    override fun onDestroy() {
+        super.onDestroy()
+        PreferencesHandler.removeListener(this)
+    }
+
+    override fun onPreferenceChange(key: String) {
+        when(key) {
+            DARK_MODE, ACCENT_COLOR -> {
+                recreate()
             }
         }
+    }
+
+    companion object Keys {
+        const val GRID_VIEW = "grid_view"
+        const val GRID_VIEW_COLUMNS = "grid_view_columns"
+        const val DARK_MODE = "dark_mode"
+        const val ACCENT_COLOR = "accent_color"
+        const val ACCENT_COLOR_RED = "red"
+        const val ACCENT_COLOR_GREEN = "green"
+        const val ACCENT_COLOR_BLUE = "blue"
+        const val APPLICATION_VERSION = "application_version"
     }
 }

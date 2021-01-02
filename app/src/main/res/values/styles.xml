@@ -6,7 +6,7 @@
         <item name="colorPrimaryDark">@color/default_light_color_primary_dark</item>
         <item name="colorAccent">@color/default_accent</item>
 
-        <item name="dialogCornerRadius">@dimen/dialog_corner_radius</item>
+        <item name="dialogCornerRadius">@dimen/dp8</item>
         <item name="android:colorControlNormal">?colorAccent</item>
     </style>
 
@@ -18,7 +18,7 @@
         <item name="android:windowBackground">@color/dark_color_window_background</item>
         <item name="colorBackgroundFloating">@color/dark_color_window_background</item>
 
-        <item name="dialogCornerRadius">@dimen/dialog_corner_radius</item>
+        <item name="dialogCornerRadius">@dimen/dp8</item>
         <item name="android:colorControlNormal">?colorAccent</item>
     </style>
 

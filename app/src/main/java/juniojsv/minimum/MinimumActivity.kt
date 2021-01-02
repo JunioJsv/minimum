@@ -1,7 +1,6 @@
 package juniojsv.minimum
 
 import android.content.Intent
-import android.content.IntentFilter
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.provider.MediaStore
@@ -11,16 +10,17 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentStatePagerAdapter
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.preference.PreferenceManager
 import androidx.viewpager.widget.ViewPager
-import juniojsv.minimum.PreferencesEventHandler.Companion.ACTION_FORCE_RECREATE
+import juniojsv.minimum.PreferencesActivity.Keys.ACCENT_COLOR
+import juniojsv.minimum.PreferencesActivity.Keys.DARK_MODE
+import juniojsv.minimum.PreferencesActivity.Keys.GRID_VIEW
+import juniojsv.minimum.PreferencesActivity.Keys.GRID_VIEW_COLUMNS
 import juniojsv.minimum.databinding.MinimumActivityBinding
 
-class MinimumActivity : AppCompatActivity(), PreferencesEventHandler.Listener {
+class MinimumActivity : AppCompatActivity(), PreferencesHandler.OnPreferenceChangeListener {
     private lateinit var binding: MinimumActivityBinding
     private lateinit var preferences: SharedPreferences
-    private val preferencesEventHandler = PreferencesEventHandler(this)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,8 +35,7 @@ class MinimumActivity : AppCompatActivity(), PreferencesEventHandler.Listener {
             setPageTransformer(true, MinimumPages.DEFAULT_PAGE_TRANSFORMER)
         }
 
-        LocalBroadcastManager.getInstance(this)
-                .registerReceiver(preferencesEventHandler, IntentFilter(ACTION_FORCE_RECREATE))
+        PreferencesHandler.addListener(this)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -63,20 +62,18 @@ class MinimumActivity : AppCompatActivity(), PreferencesEventHandler.Listener {
 
     override fun onDestroy() {
         super.onDestroy()
-        LocalBroadcastManager.getInstance(this)
-                .unregisterReceiver(preferencesEventHandler)
+
+        PreferencesHandler.removeListener(this)
     }
 
     override fun onBackPressed() {
         // Nothings
     }
 
-    override fun onPreferenceEvent(intent: Intent) {
-        when (intent.action) {
-            ACTION_FORCE_RECREATE -> {
-                val value = intent.getStringExtra("activity")
-                if (value == "all" || value == "minimum")
-                    recreate()
+    override fun onPreferenceChange(key: String) {
+        when(key) {
+            DARK_MODE, ACCENT_COLOR, GRID_VIEW, GRID_VIEW_COLUMNS -> {
+                recreate()
             }
         }
     }

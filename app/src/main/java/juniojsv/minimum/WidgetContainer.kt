@@ -19,7 +19,7 @@ class WidgetContainer(context: Context, val widget: AppWidgetHostView, private v
         background = resources.getDrawable(R.drawable.widget_background, null)
         addView(widget.apply {
             layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT).apply {
-                val value = 8.toDpi(context)
+                val value = resources.getDimensionPixelSize(R.dimen.dp8)
                 marginStart = value
                 marginEnd = value
             }

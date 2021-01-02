@@ -41,7 +41,7 @@ class ApplicationsFragment : Fragment(), ApplicationsEventHandler.Listener, Appl
         requireContext().registerReceiver(applicationsEventHandler, DEFAULT_INTENT_FILTER)
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = ApplicationsFragmentBinding.inflate(inflater)
         return binding.root
     }
@@ -88,9 +88,16 @@ class ApplicationsFragment : Fragment(), ApplicationsEventHandler.Listener, Appl
 
     private val preferenceLayoutManager: RecyclerView.LayoutManager
         get() {
-            return if (preferences.getBoolean("grid_view", false)) {
-                binding.mApplications.setPadding(0, 0, 0, 16.toDpi(requireContext()))
-                GridLayoutManager(requireContext(), preferences.getInt("grid_view_columns", 3))
+            return if (preferences.getBoolean(PreferencesActivity.GRID_VIEW, false)) {
+                with(binding.mApplications) {
+                    if (itemDecorationCount > 0) {
+                        removeItemDecorationAt(0)
+                    }
+                    setPadding(0, 0, 0,
+                            resources.getDimensionPixelSize(R.dimen.dp16))
+                }
+                GridLayoutManager(requireContext(),
+                        preferences.getInt(PreferencesActivity.GRID_VIEW_COLUMNS, 3))
             } else {
                 binding.mApplications.addItemDecoration(
                         DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL))
@@ -103,7 +110,7 @@ class ApplicationsFragment : Fragment(), ApplicationsEventHandler.Listener, Appl
         get() {
             val favorites = preferences.getStringSet("favorites", setOf())
             val applications = arrayListOf<Application>()
-            val iconSize = resources.getDimension(R.dimen.icon_size).toInt()
+            val iconSize = resources.getDimensionPixelSize(R.dimen.dp48)
 
             with(requireContext().packageManager) {
                 getInstalledApplications(PackageManager.GET_META_DATA).forEach { info ->
@@ -122,7 +129,7 @@ class ApplicationsFragment : Fragment(), ApplicationsEventHandler.Listener, Appl
 
     override fun onApplicationAdded(intent: Intent) {
         launch {
-            val iconSize = resources.getDimension(R.dimen.icon_size).toInt()
+            val iconSize = resources.getDimensionPixelSize(R.dimen.dp48)
 
             with(requireContext().packageManager) {
                 val info = getApplicationInfo(
