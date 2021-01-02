@@ -8,7 +8,7 @@
       + Practical shortcuts
     
 ```Kotlin 
-    public val Kotlin = Love("<3")
+    public val kotlin = Love("<3")
 ```
 _please help the project with pull request or simply giving feedback on an issue_
 <p align="center">Created by Jeovane Santos, Aka JunioJsv</p>

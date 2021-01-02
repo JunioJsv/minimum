@@ -5,7 +5,9 @@
     android:layout_height="wrap_content"
     android:background="?selectableItemBackground">
 
-    <include layout="@layout/application_icon" />
+    <include
+        android:id="@+id/mIncludeApplicationIcon"
+        layout="@layout/application_icon" />
 
     <TextView
         android:id="@+id/mLabel"
@@ -13,7 +15,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_marginTop="24dp"
-        android:layout_toEndOf="@+id/mContainer"
+        android:layout_toEndOf="@+id/mIncludeApplicationIcon"
         tools:text="@string/app_name" />
 
 </RelativeLayout>

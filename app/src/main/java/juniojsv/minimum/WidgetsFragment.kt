@@ -20,11 +20,12 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.edit
 import androidx.fragment.app.Fragment
 import androidx.preference.PreferenceManager
-import kotlinx.android.synthetic.main.widgets_fragment.*
+import juniojsv.minimum.databinding.WidgetsFragmentBinding
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
 class WidgetsFragment : Fragment(), DialogInterface.OnClickListener, WidgetContainer.Listener {
+    private lateinit var binding: WidgetsFragmentBinding
     private lateinit var preferences: SharedPreferences
     private lateinit var widgets: AppWidgetManager
     private lateinit var widgetHost: AppWidgetHost
@@ -39,8 +40,10 @@ class WidgetsFragment : Fragment(), DialogInterface.OnClickListener, WidgetConta
         widgetHost = AppWidgetHost(applicationContext, HOST_ID)
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
-            inflater.inflate(R.layout.widgets_fragment, container, false)
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        binding = WidgetsFragmentBinding.inflate(inflater)
+        return binding.root
+    }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
@@ -51,11 +54,11 @@ class WidgetsFragment : Fragment(), DialogInterface.OnClickListener, WidgetConta
             setUpWallpaper()
         }
 
-        mEditActions.setOnClickListener {
+        binding.mEditActions.setOnClickListener {
             actions.show(parentFragmentManager, "WidgetsActions")
         }
 
-        mWidgets.setContainerScrollView(mScrollWidgets)
+        binding.mWidgets.setContainerScrollView(binding.mScrollWidgets)
 
         preferences.getStringSet("widgets", setOf())?.forEach { data ->
             attachWidget(Intent.parseUri(data, 0))
@@ -63,7 +66,7 @@ class WidgetsFragment : Fragment(), DialogInterface.OnClickListener, WidgetConta
     }
 
     private fun setUpWallpaper() =
-            mWallpaper.setImageDrawable(WallpaperManager.getInstance(applicationContext).drawable)
+            binding.mWallpaper.setImageDrawable(WallpaperManager.getInstance(applicationContext).drawable)
 
     override fun onStart() {
         super.onStart()
@@ -94,7 +97,7 @@ class WidgetsFragment : Fragment(), DialogInterface.OnClickListener, WidgetConta
 
         if (widget != null) {
             val container = WidgetContainer(requireContext(), widget, this)
-            mWidgets.addDragView(container, container)
+            binding.mWidgets.addDragView(container, container)
         }
     }
 
@@ -109,7 +112,7 @@ class WidgetsFragment : Fragment(), DialogInterface.OnClickListener, WidgetConta
     override fun onRemove(container: WidgetContainer) {
         val id = container.widget.appWidgetId
         widgetHost.deleteAppWidgetId(id)
-        mWidgets.removeDragView(container)
+        binding.mWidgets.removeDragView(container)
 
         GlobalScope.launch {
             val widgets = preferences.getStringSet("widgets", setOf())

@@ -15,9 +15,10 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.preference.PreferenceManager
 import androidx.viewpager.widget.ViewPager
 import juniojsv.minimum.PreferencesEventHandler.Companion.ACTION_FORCE_RECREATE
-import kotlinx.android.synthetic.main.minimum_activity.*
+import juniojsv.minimum.databinding.MinimumActivityBinding
 
 class MinimumActivity : AppCompatActivity(), PreferencesEventHandler.Listener {
+    private lateinit var binding: MinimumActivityBinding
     private lateinit var preferences: SharedPreferences
     private val preferencesEventHandler = PreferencesEventHandler(this)
 
@@ -25,9 +26,11 @@ class MinimumActivity : AppCompatActivity(), PreferencesEventHandler.Listener {
         super.onCreate(savedInstanceState)
         preferences = PreferenceManager.getDefaultSharedPreferences(applicationContext)
         appearanceHandler(preferences)
-        setContentView(R.layout.minimum_activity)
 
-        mPages.apply {
+        binding = MinimumActivityBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        binding.mPages.apply {
             adapter = MinimumPages(supportFragmentManager)
             setPageTransformer(true, MinimumPages.DEFAULT_PAGE_TRANSFORMER)
         }

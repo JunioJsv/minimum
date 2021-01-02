@@ -11,8 +11,10 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceManager
 import juniojsv.minimum.PreferencesEventHandler.Companion.ACTION_FORCE_RECREATE
+import juniojsv.minimum.databinding.PreferencesActivityBinding
 
 class PreferencesActivity : AppCompatActivity(), PreferencesEventHandler.Listener {
+    private lateinit var binding: PreferencesActivityBinding
     private lateinit var preferences: SharedPreferences
     private val preferencesHandler = PreferencesHandler(this)
     private val preferencesEventHandler = PreferencesEventHandler(this)
@@ -21,10 +23,14 @@ class PreferencesActivity : AppCompatActivity(), PreferencesEventHandler.Listene
         super.onCreate(savedInstanceState)
         preferences = PreferenceManager.getDefaultSharedPreferences(applicationContext)
         appearanceHandler(preferences)
-        setContentView(R.layout.preferences_activity)
+
+        binding = PreferencesActivityBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
         supportFragmentManager.commit {
             replace(R.id.mPreference_fragment, PreferencesFragment())
         }
+
         LocalBroadcastManager.getInstance(this)
                 .registerReceiver(preferencesEventHandler, IntentFilter(ACTION_FORCE_RECREATE))
     }

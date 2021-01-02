@@ -3,10 +3,11 @@ package juniojsv.minimum
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import kotlinx.android.synthetic.main.application_icon.view.*
-import kotlinx.android.synthetic.main.application_list_variant.view.*
+import juniojsv.minimum.databinding.ApplicationGridVariantBinding
+import juniojsv.minimum.databinding.ApplicationListVariantBinding
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -22,21 +23,46 @@ class ApplicationsAdapter(private val applications: ArrayList<Application>, priv
         fun onLongClick(application: Application, view: View, position: Int)
     }
 
-    class ApplicationHolder(private val view: View) : RecyclerView.ViewHolder(view) {
+    abstract class ApplicationHolder(view: View) : RecyclerView.ViewHolder(view) {
+        abstract fun bind(application: Application, index: Int, onHolderClick: OnHolderClick)
+    }
 
-        fun bind(application: Application, index: Int, onHolderClick: OnHolderClick) {
-            with(view) {
+    private class GridVariant(private val binding: ApplicationGridVariantBinding) : ApplicationHolder(binding.root) {
+        override fun bind(application: Application, index: Int, onHolderClick: OnHolderClick) {
+            with(binding) {
                 mLabel.text = application.label
-                mIcon.setImageBitmap(application.icon)
-                mNew.visibility = if (application.isNew) View.VISIBLE else View.GONE
-                mFavorite.visibility = if (application.isFavorite) View.VISIBLE else View.GONE
-
-                setOnClickListener {
-                    onHolderClick.onClick(application, this, index)
+                mIncludeApplicationIcon.apply {
+                    mIcon.setImageBitmap(application.icon)
+                    mNew.visibility = if (application.isNew) View.VISIBLE else View.GONE
+                    mFavorite.visibility = if (application.isFavorite) View.VISIBLE else View.GONE
+                }
+                root.setOnClickListener {
+                    onHolderClick.onClick(application, it, index)
                 }
 
-                setOnLongClickListener {
-                    onHolderClick.onLongClick(application, this, index)
+                root.setOnLongClickListener {
+                    onHolderClick.onLongClick(application, it, index)
+                    true
+                }
+            }
+        }
+    }
+
+    private class ListVariant(private val binding: ApplicationListVariantBinding) : ApplicationHolder(binding.root) {
+        override fun bind(application: Application, index: Int, onHolderClick: OnHolderClick) {
+            with(binding) {
+                mLabel.text = application.label
+                mIncludeApplicationIcon.apply {
+                    mIcon.setImageBitmap(application.icon)
+                    mNew.visibility = if (application.isNew) View.VISIBLE else View.GONE
+                    mFavorite.visibility = if (application.isFavorite) View.VISIBLE else View.GONE
+                }
+                root.setOnClickListener {
+                    onHolderClick.onClick(application, it, index)
+                }
+
+                root.setOnLongClickListener {
+                    onHolderClick.onLongClick(application, it, index)
                     true
                 }
             }
@@ -44,10 +70,12 @@ class ApplicationsAdapter(private val applications: ArrayList<Application>, priv
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ApplicationHolder {
-        return ApplicationHolder(LayoutInflater.from(parent.context)
-                .inflate(if ((parent as RecyclerView).layoutManager is GridLayoutManager)
-                    R.layout.application_grid_variant
-                else R.layout.application_list_variant, parent, false))
+        return when ((parent as RecyclerView).layoutManager) {
+            is GridLayoutManager -> GridVariant(ApplicationGridVariantBinding
+                    .inflate(LayoutInflater.from(parent.context), parent, false))
+            else -> ListVariant(ApplicationListVariantBinding
+                    .inflate(LayoutInflater.from(parent.context), parent, false))
+        }
     }
 
     override fun getItemCount(): Int =

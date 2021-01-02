@@ -23,10 +23,11 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import juniojsv.minimum.ApplicationsEventHandler.Companion.DEFAULT_INTENT_FILTER
-import kotlinx.android.synthetic.main.applications_fragment.*
+import juniojsv.minimum.databinding.ApplicationsFragmentBinding
 import kotlinx.coroutines.*
 
 class ApplicationsFragment : Fragment(), ApplicationsEventHandler.Listener, ApplicationsAdapter.OnHolderClick, SearchView.OnQueryTextListener, PopupMenu.OnMenuItemClickListener {
+    private lateinit var binding: ApplicationsFragmentBinding
     private lateinit var preferences: SharedPreferences
     private lateinit var packageManager: PackageManager
     private val applicationsEventHandler = ApplicationsEventHandler(this)
@@ -40,21 +41,23 @@ class ApplicationsFragment : Fragment(), ApplicationsEventHandler.Listener, Appl
         context?.applicationContext?.registerReceiver(applicationsEventHandler, DEFAULT_INTENT_FILTER)
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
-            inflater.inflate(R.layout.applications_fragment, container, false)
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        binding = ApplicationsFragmentBinding.inflate(inflater)
+        return binding.root
+    }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
-        mSearch.setOnQueryTextListener(this)
+        binding.mSearch.setOnQueryTextListener(this)
 
-        mApplications.apply {
+        binding.mApplications.apply {
             layoutManager = buildLayoutManager(this)
             adapter = applicationsAdapter
             setHasFixedSize(true)
         }
 
-        mApplicationsShowOptions.setOnClickListener { view ->
+        binding.mApplicationsShowOptions.setOnClickListener { view ->
             PopupMenu(requireActivity(), view).also { popup ->
                 popup.menu.apply {
                     addSubMenu(getString(R.string.expose)).apply {
@@ -69,12 +72,12 @@ class ApplicationsFragment : Fragment(), ApplicationsEventHandler.Listener, Appl
         if (applications.isEmpty()) {
             getInstalledApplications(requireContext()) {
                 applicationsAdapter.notifyDataSetChanged()
-                mApplicationsContainer.visibility = VISIBLE
-                mLoading.visibility = GONE
+                binding.mApplicationsContainer.visibility = VISIBLE
+                binding.mLoading.visibility = GONE
             }
         } else {
-            mApplicationsContainer.visibility = VISIBLE
-            mLoading.visibility = GONE
+            binding.mApplicationsContainer.visibility = VISIBLE
+            binding.mLoading.visibility = GONE
         }
 
     }
@@ -102,8 +105,8 @@ class ApplicationsFragment : Fragment(), ApplicationsEventHandler.Listener, Appl
         info.toApplication(packageManager, 48.toDpi(requireContext()), true)?.let { application ->
             applications.add(application)
             applications.sort()
-            if (!mSearch.query.isNullOrEmpty())
-                mSearch.setQuery(null, false)
+            if (!binding.mSearch.query.isNullOrEmpty())
+                binding.mSearch.setQuery(null, false)
 
             applicationsAdapter.apply {
                 setFilterQuery(String())
@@ -115,8 +118,8 @@ class ApplicationsFragment : Fragment(), ApplicationsEventHandler.Listener, Appl
     override fun onApplicationRemoved(intent: Intent) {
         applications.removeByPackage(intent.dataString?.split(":")?.get(1) ?: "null")
         applications.sort()
-        if (!mSearch.query.isNullOrEmpty())
-            mSearch.setQuery(null, false)
+        if (!binding.mSearch.query.isNullOrEmpty())
+            binding.mSearch.setQuery(null, false)
 
         applicationsAdapter.apply {
             setFilterQuery(String())
@@ -142,9 +145,9 @@ class ApplicationsFragment : Fragment(), ApplicationsEventHandler.Listener, Appl
 
                     applications.sort()
 
-                    if (!mSearch.query.isNullOrEmpty())
+                    if (!binding.mSearch.query.isNullOrEmpty())
                         withContext(Dispatchers.Main) {
-                            mSearch.setQuery(null, false)
+                            binding.mSearch.setQuery(null, false)
                         }
 
                     applicationsAdapter.apply {
@@ -200,15 +203,15 @@ class ApplicationsFragment : Fragment(), ApplicationsEventHandler.Listener, Appl
         when (item.itemId) {
             MENU_ID_ALL_APPLICATIONS ->
                 applicationsAdapter.apply {
-                    if (!mSearch.query.isNullOrEmpty())
-                        mSearch.setQuery(null, false)
+                    if (!binding.mSearch.query.isNullOrEmpty())
+                        binding.mSearch.setQuery(null, false)
                     setShowOnlyBookmarks(false)
                     filterViews()
                 }
             MENU_ID_ONLY_BOOKMARKS ->
                 applicationsAdapter.apply {
-                    if (!mSearch.query.isNullOrEmpty())
-                        mSearch.setQuery(null, false)
+                    if (!binding.mSearch.query.isNullOrEmpty())
+                        binding.mSearch.setQuery(null, false)
                     setShowOnlyBookmarks(true)
                     filterViews()
                 }

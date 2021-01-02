@@ -1,7 +1,6 @@
 plugins {
     id("com.android.application")
     id("kotlin-android")
-    id("kotlin-android-extensions")
 }
 
 repositories {
@@ -9,13 +8,13 @@ repositories {
 }
 
 android {
-    compileSdkVersion(29)
+    compileSdkVersion(30)
     defaultConfig {
         applicationId = "juniojsv.minimum"
         versionCode = 13
         versionName = "1.2.2"
         setMinSdkVersion(21)
-        targetSdkVersion(29)
+        targetSdkVersion(30)
         resConfigs("pt-rBr")
         setProperty("archivesBaseName", "$applicationId-v$versionName")
     }
@@ -29,7 +28,10 @@ android {
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
     }
-    buildToolsVersion = "30.0.0"
+    buildFeatures {
+        viewBinding = true
+    }
+    buildToolsVersion = "30.0.3"
 }
 
 dependencies {
