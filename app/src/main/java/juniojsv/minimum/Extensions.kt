@@ -37,24 +37,5 @@ fun AppCompatActivity.appearanceHandler(preferences: SharedPreferences) {
                 R.style.AppThemeLight_Red, R.style.AppThemeLight_Green, R.style.AppThemeLight_Blue, R.style.AppThemeLight)
 }
 
-fun ApplicationInfo.toApplication(packageManager: PackageManager, iconSize: Int, isNew: Boolean = false): Application? {
-    with(packageManager) {
-        val intent = getLaunchIntentForPackage(packageName)
-        return if (intent != null && packageName != BuildConfig.APPLICATION_ID) {
-            with(intent) {
-                action = Intent.ACTION_MAIN
-                categories.add(Intent.CATEGORY_LAUNCHER)
-            }
-            Application(
-                    loadLabel(this).toString(),
-                    loadIcon(this).toBitmap(iconSize, iconSize, Bitmap.Config.ARGB_8888),
-                    intent,
-                    packageName,
-                    isNew
-            )
-        } else null
-    }
-}
-
 fun Number.toDpi(context: Context): Int =
         (context.resources.displayMetrics.density * this.toInt()).toInt()

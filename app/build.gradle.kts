@@ -11,8 +11,8 @@ android {
     compileSdkVersion(30)
     defaultConfig {
         applicationId = "juniojsv.minimum"
-        versionCode = 13
-        versionName = "1.2.2"
+        versionCode = 130
+        versionName = "1.3.0"
         setMinSdkVersion(21)
         targetSdkVersion(30)
         resConfigs("pt-rBr")

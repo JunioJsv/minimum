@@ -1,16 +1,20 @@
 package juniojsv.minimum
 
 import android.content.Intent
+import android.content.pm.ApplicationInfo
+import android.content.pm.PackageInfo
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import androidx.core.graphics.drawable.toBitmap
 
-class Application(
-        var label: String,
-        var icon: Bitmap,
-        var intent: Intent,
-        var packageName: String,
-        var isNew: Boolean = false,
-        var isFavorite: Boolean = false
-) : Comparable<Application> {
+class Application(info: ApplicationInfo, packageManager: PackageManager, iconSize: Int, var isNew: Boolean = false) : Comparable<Application> {
+
+    val label: String = info.loadLabel(packageManager) as String
+    val icon: Bitmap = info.loadIcon(packageManager).toBitmap(iconSize, iconSize)
+    val packageName: String = info.packageName
+    val intent: Intent = packageManager.getLaunchIntentForPackage(packageName) ?: Intent()
+    var isFavorite: Boolean = false
+
     override fun compareTo(other: Application): Int = label.compareTo(other.label)
 
     override fun hashCode(): Int {
