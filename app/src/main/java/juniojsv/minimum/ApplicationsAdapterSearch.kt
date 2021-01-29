@@ -8,6 +8,8 @@ class ApplicationsAdapterSearch(private val applicationsAdapter: ApplicationsAda
     val showOnly = arrayListOf<Int>()
     private var lastQuery = String()
 
+    val isSeeking: Boolean get() = showOnly.isNotEmpty()
+
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.IO + Job()
 

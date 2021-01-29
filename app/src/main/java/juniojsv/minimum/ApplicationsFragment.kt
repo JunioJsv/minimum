@@ -1,21 +1,17 @@
 package juniojsv.minimum
 
 import android.annotation.SuppressLint
-import android.app.SearchManager
-import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.util.Log
-import android.view.*
+import android.view.LayoutInflater
+import android.view.View
 import android.view.View.GONE
 import android.view.View.VISIBLE
-import androidx.appcompat.widget.PopupMenu
-import androidx.appcompat.widget.SearchView
+import android.view.ViewGroup
 import androidx.core.app.ActivityCompat
 import androidx.core.app.ActivityOptionsCompat
-import androidx.core.view.MenuItemCompat
 import androidx.fragment.app.Fragment
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.DividerItemDecoration
@@ -27,7 +23,7 @@ import juniojsv.minimum.databinding.ApplicationsFragmentBinding
 import kotlinx.coroutines.*
 import kotlin.coroutines.CoroutineContext
 
-class ApplicationsFragment : Fragment(), ApplicationsEventHandler.Listener, ApplicationHolder.OnHolderClick, CoroutineScope {
+class ApplicationsFragment : Fragment(), ApplicationsEventHandler.Listener, ApplicationAdapterHolder.OnHolderClick, CoroutineScope {
     private lateinit var binding: ApplicationsFragmentBinding
     private lateinit var preferences: SharedPreferences
 
@@ -142,6 +138,12 @@ class ApplicationsFragment : Fragment(), ApplicationsEventHandler.Listener, Appl
                     break
                 }
             }
+            withContext(Dispatchers.Main) {
+                with(applicationsAdapter.searchHandler) {
+                    if (isSeeking)
+                        notifyDataSetChanged()
+                }
+            }
         }
     }
 
@@ -154,6 +156,12 @@ class ApplicationsFragment : Fragment(), ApplicationsEventHandler.Listener, Appl
                         applicationsAdapter.notifyItemRemoved(index)
                     }
                     break
+                }
+            }
+            withContext(Dispatchers.Main) {
+                with(applicationsAdapter.searchHandler) {
+                    if (isSeeking)
+                        notifyDataSetChanged()
                 }
             }
         }

@@ -38,4 +38,5 @@ dependencies {
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
     implementation("androidx.preference:preference-ktx:1.1.1")
     implementation("com.jmedeisis:draglinearlayout:1.1.0")
+    debugImplementation("com.squareup.leakcanary:leakcanary-android:2.6")
 }
