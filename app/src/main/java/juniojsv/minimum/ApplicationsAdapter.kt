@@ -3,15 +3,10 @@ package juniojsv.minimum
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.view.isVisible
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import juniojsv.minimum.databinding.ApplicationGridVariantBinding
 import juniojsv.minimum.databinding.ApplicationListVariantBinding
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 abstract class ApplicationHolder(view: View) : RecyclerView.ViewHolder(view) {
     interface OnHolderClick {
@@ -29,7 +24,6 @@ private class GridVariant(private val binding: ApplicationGridVariantBinding) : 
             mIncludeApplicationIcon.apply {
                 mIcon.setImageBitmap(application.icon)
                 mNew.visibility = if (application.isNew) View.VISIBLE else View.GONE
-                mFavorite.visibility = if (application.isFavorite) View.VISIBLE else View.GONE
             }
             root.setOnClickListener {
                 onHolderClick.onClick(application, it, index)
@@ -50,7 +44,6 @@ private class ListVariant(private val binding: ApplicationListVariantBinding) : 
             mIncludeApplicationIcon.apply {
                 mIcon.setImageBitmap(application.icon)
                 mNew.visibility = if (application.isNew) View.VISIBLE else View.GONE
-                mFavorite.visibility = if (application.isFavorite) View.VISIBLE else View.GONE
             }
             root.setOnClickListener {
                 onHolderClick.onClick(application, it, index)
@@ -65,6 +58,11 @@ private class ListVariant(private val binding: ApplicationListVariantBinding) : 
 }
 
 class ApplicationsAdapter(private val applications: ArrayList<Application>, private val onHolderClick: ApplicationHolder.OnHolderClick) : RecyclerView.Adapter<ApplicationHolder>() {
+    val searchHandler = ApplicationsAdapterSearch(this, applications)
+
+    init {
+        setHasStableIds(true)
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ApplicationHolder {
         return when ((parent as RecyclerView).layoutManager) {
@@ -75,9 +73,26 @@ class ApplicationsAdapter(private val applications: ArrayList<Application>, priv
         }
     }
 
-    override fun getItemCount(): Int = applications.size
+    override fun getItemCount(): Int = when {
+        searchHandler.showOnly.isNotEmpty()
+                && searchHandler.showOnly[0] == ApplicationsAdapterSearch.NOT_FOUND -> 0
+        searchHandler.showOnly.isNotEmpty() -> searchHandler.showOnly.size
+        else -> applications.size
+    }
+
+    override fun getItemId(position: Int): Long {
+
+        val positionHandler = if (searchHandler.showOnly.isNotEmpty())
+            searchHandler.showOnly[position] else position
+
+        return applications[positionHandler].hashCode().toLong()
+    }
 
     override fun onBindViewHolder(holder: ApplicationHolder, position: Int) {
-        holder.bind(applications[position], position, onHolderClick)
+
+        val positionHandler = if (searchHandler.showOnly.isNotEmpty())
+            searchHandler.showOnly[position] else position
+
+        holder.bind(applications[positionHandler], position, onHolderClick)
     }
 }

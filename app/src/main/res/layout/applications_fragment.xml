@@ -26,34 +26,17 @@
             android:visibility="gone"
             tools:visibility="visible">
 
-            <androidx.appcompat.widget.SearchView
-                android:id="@+id/mSearch"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:iconifiedByDefault="false"
-                app:queryBackground="@android:color/transparent"
-                app:queryHint="@string/search" />
-
-            <View
-                android:id="@+id/mDivider"
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginEnd="8dp"
-                android:layout_marginBottom="8dp"
-                android:background="?android:attr/listDivider" />
-
             <androidx.coordinatorlayout.widget.CoordinatorLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingStart="16dp"
-                android:paddingEnd="16dp"
-                android:paddingBottom="8dp">
+                android:paddingEnd="16dp">
 
                 <ImageView
                     android:id="@+id/mApplicationsIcon"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
                     android:contentDescription="@string/todo"
                     android:src="@drawable/ic_baseline_apps_24" />
 
@@ -66,18 +49,25 @@
                     android:textColor="?android:textColorSecondary"
                     android:textStyle="bold"
                     app:layout_anchor="@id/mApplicationsIcon"
-                    app:layout_anchorGravity="start|center" />
+                    app:layout_anchorGravity="start|center_vertical" />
 
-                <ImageButton
-                    android:id="@+id/mApplicationsShowOptions"
+                <androidx.appcompat.widget.SearchView
+                    android:id="@+id/mSearch"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="end|center"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:contentDescription="@string/todo"
-                    android:src="@drawable/ic_baseline_more_vert_24" />
+                    app:queryBackground="@android:color/transparent" />
 
             </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+            <View
+                android:id="@+id/mDivider"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginBottom="8dp"
+                android:background="?android:attr/listDivider" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/mApplications"

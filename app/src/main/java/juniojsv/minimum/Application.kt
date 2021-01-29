@@ -12,7 +12,6 @@ class Application(info: ApplicationInfo, packageManager: PackageManager, iconSiz
     val icon: Bitmap = info.loadIcon(packageManager).toBitmap(iconSize, iconSize)
     val packageName: String = info.packageName
     val intent: Intent = packageManager.getLaunchIntentForPackage(packageName) ?: Intent()
-    var isFavorite: Boolean = false
 
     override fun compareTo(other: Application): Int = label.compareTo(other.label)
 
@@ -22,7 +21,6 @@ class Application(info: ApplicationInfo, packageManager: PackageManager, iconSiz
         result = 31 * result + intent.hashCode()
         result = 31 * result + packageName.hashCode()
         result = 31 * result + isNew.hashCode()
-        result = 31 * result + isFavorite.hashCode()
         return result
     }
 
@@ -37,7 +35,6 @@ class Application(info: ApplicationInfo, packageManager: PackageManager, iconSiz
         if (intent != other.intent) return false
         if (packageName != other.packageName) return false
         if (isNew != other.isNew) return false
-        if (isFavorite != other.isFavorite) return false
 
         return true
     }

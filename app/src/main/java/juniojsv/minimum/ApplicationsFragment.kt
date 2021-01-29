@@ -1,18 +1,21 @@
 package juniojsv.minimum
 
 import android.annotation.SuppressLint
+import android.app.SearchManager
+import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
+import android.util.Log
+import android.view.*
 import android.view.View.GONE
 import android.view.View.VISIBLE
-import android.view.ViewGroup
 import androidx.appcompat.widget.PopupMenu
+import androidx.appcompat.widget.SearchView
 import androidx.core.app.ActivityCompat
 import androidx.core.app.ActivityOptionsCompat
+import androidx.core.view.MenuItemCompat
 import androidx.fragment.app.Fragment
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.DividerItemDecoration
@@ -52,33 +55,26 @@ class ApplicationsFragment : Fragment(), ApplicationsEventHandler.Listener, Appl
         binding.mApplications.apply {
             layoutManager = preferenceLayoutManager
             adapter = applicationsAdapter
-            setHasFixedSize(true)
         }
 
-        binding.mApplicationsShowOptions.setOnClickListener { view ->
-            PopupMenu(requireActivity(), view).also { popup ->
-                popup.menu.apply {
-                    addSubMenu(getString(R.string.expose)).apply {
-                        add(0, MENU_ID_ALL_APPLICATIONS, 0, getString(R.string.all_applications))
-                        add(0, MENU_ID_ONLY_BOOKMARKS, 1, getString(R.string.only_favorites))
-                    }
-                }
-                popup.setOnMenuItemClickListener { item ->
-                    when (item.itemId) {
-                        MENU_ID_ALL_APPLICATIONS -> {
-                        }
-                        MENU_ID_ONLY_BOOKMARKS -> {
-                        }
-                    }
-                    true
-                }
-            }.show()
+        with(binding.mSearch) {
+            maxWidth = Int.MAX_VALUE
+            setOnQueryTextListener(applicationsAdapter.searchHandler)
+            setOnSearchClickListener {
+                binding.mApplicationsTitle.visibility = GONE
+                binding.mApplicationsIcon.visibility = GONE
+            }
+            setOnCloseListener {
+                binding.mApplicationsTitle.visibility = VISIBLE
+                binding.mApplicationsIcon.visibility = VISIBLE
+                false
+            }
         }
 
         launch {
             applications.addAll(installedApplications)
-            applicationsAdapter.notifyDataSetChanged()
             launch(Dispatchers.Main) {
+                applicationsAdapter.notifyDataSetChanged()
                 binding.mApplicationsContainer.visibility = VISIBLE
                 binding.mLoading.visibility = GONE
             }
@@ -108,7 +104,6 @@ class ApplicationsFragment : Fragment(), ApplicationsEventHandler.Listener, Appl
     private val installedApplications: ArrayList<Application>
         @SuppressLint("QueryPermissionsNeeded")
         get() {
-            val favorites = preferences.getStringSet("favorites", setOf())
             val applications = arrayListOf<Application>()
             val iconSize = resources.getDimensionPixelSize(R.dimen.dp48)
 
@@ -117,7 +112,6 @@ class ApplicationsFragment : Fragment(), ApplicationsEventHandler.Listener, Appl
                     val intent = getLaunchIntentForPackage(info.packageName)
                     if (intent != null && info.packageName != BuildConfig.APPLICATION_ID) {
                         val application = Application(info, this, iconSize)
-                        application.isFavorite = favorites?.contains(info.packageName) ?: false
                         applications.add(application)
                     }
                 }
@@ -142,7 +136,9 @@ class ApplicationsFragment : Fragment(), ApplicationsEventHandler.Listener, Appl
 
             for (index in 0..applications.size) {
                 if (applications[index].packageName == intent.data?.encodedSchemeSpecificPart) {
-                    applicationsAdapter.notifyItemInserted(index)
+                    launch(Dispatchers.Main) {
+                        applicationsAdapter.notifyItemInserted(index)
+                    }
                     break
                 }
             }
@@ -154,7 +150,9 @@ class ApplicationsFragment : Fragment(), ApplicationsEventHandler.Listener, Appl
             for (index in 0..applications.size) {
                 if (applications[index].packageName == intent.data?.encodedSchemeSpecificPart) {
                     applications.removeAt(index)
-                    applicationsAdapter.notifyItemRemoved(index)
+                    launch(Dispatchers.Main) {
+                        applicationsAdapter.notifyItemRemoved(index)
+                    }
                     break
                 }
             }
@@ -170,23 +168,20 @@ class ApplicationsFragment : Fragment(), ApplicationsEventHandler.Listener, Appl
 
             if (isNew) {
                 isNew = false
-                applicationsAdapter.notifyItemChanged(position)
+                launch(Dispatchers.Main) {
+                    applicationsAdapter.notifyItemChanged(position)
+                }
             }
         }
     }
 
     override fun onLongClick(application: Application, view: View, position: Int) {
-        ApplicationActionsDialog(application, applicationsAdapter, position)
+        ApplicationActionsDialog(application, position)
                 .show(parentFragmentManager, "ApplicationActions")
     }
 
     override fun onDestroy() {
         super.onDestroy()
         requireContext().unregisterReceiver(applicationsEventHandler)
-    }
-
-    companion object {
-        private const val MENU_ID_ALL_APPLICATIONS = 1
-        private const val MENU_ID_ONLY_BOOKMARKS = 2
     }
 }
