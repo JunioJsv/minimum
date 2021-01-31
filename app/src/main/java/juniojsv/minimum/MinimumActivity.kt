@@ -33,6 +33,11 @@ class MinimumActivity : AppCompatActivity(), PreferencesHandler.OnPreferenceChan
         binding.mPages.apply {
             adapter = MinimumPages(supportFragmentManager)
             setPageTransformer(true, MinimumPages.DEFAULT_PAGE_TRANSFORMER)
+            addOnPageChangeListener(object : ViewPager.SimpleOnPageChangeListener() {
+                override fun onPageSelected(position: Int) {
+                    binding.mPageIndicator.setSelectedPage(position)
+                }
+            })
         }
 
         PreferencesHandler.addListener(this)
@@ -62,8 +67,8 @@ class MinimumActivity : AppCompatActivity(), PreferencesHandler.OnPreferenceChan
 
     override fun onDestroy() {
         super.onDestroy()
-
         PreferencesHandler.removeListener(this)
+        binding.mPages.clearOnPageChangeListeners()
     }
 
     override fun onBackPressed() {
@@ -71,7 +76,7 @@ class MinimumActivity : AppCompatActivity(), PreferencesHandler.OnPreferenceChan
     }
 
     override fun onPreferenceChange(key: String) {
-        when(key) {
+        when (key) {
             DARK_MODE, ACCENT_COLOR, GRID_VIEW, GRID_VIEW_COLUMNS -> {
                 recreate()
             }

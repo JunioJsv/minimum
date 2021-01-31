@@ -9,7 +9,7 @@ import android.provider.Settings
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatDialogFragment
 
-class ApplicationActionsDialog(private val application: Application, private val position: Int) : AppCompatDialogFragment() {
+class ApplicationActionsDialog(private val application: Application) : AppCompatDialogFragment() {
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         return activity?.let {

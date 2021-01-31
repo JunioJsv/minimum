@@ -33,7 +33,7 @@
         android:background="@drawable/fab_background"
         android:contentDescription="@string/todo"
         android:elevation="4dp"
-        android:src="@drawable/ic_baseline_edit_24"
+        android:src="@drawable/ic_twotone_app_registration_24"
         android:tint="@android:color/white" />
 
 </FrameLayout>

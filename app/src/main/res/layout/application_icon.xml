@@ -17,8 +17,8 @@
 
     <ImageView
         android:id="@+id/mNew"
-        android:layout_width="18dp"
-        android:layout_height="18dp"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
         android:layout_gravity="top|start"
         android:layout_margin="4dp"
         android:background="@drawable/tag_background"
@@ -27,6 +27,6 @@
         android:elevation="2dp"
         android:padding="1dp"
         android:tint="@android:color/background_light"
-        app:srcCompat="@drawable/ic_baseline_new_releases_24" />
+        app:srcCompat="@drawable/ic_twotone_new_releases_24" />
 
 </FrameLayout>

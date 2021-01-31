@@ -1,6 +1,6 @@
 package juniojsv.minimum
 
-import android.annotation.SuppressLint
+import android.animation.LayoutTransition
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
@@ -53,16 +53,16 @@ class ApplicationsFragment : Fragment(), ApplicationsEventHandler.Listener, Appl
             adapter = applicationsAdapter
         }
 
+        binding.mSearchBar.layoutTransition = LayoutTransition()
+
         with(binding.mSearch) {
             maxWidth = Int.MAX_VALUE
             setOnQueryTextListener(applicationsAdapter.searchHandler)
             setOnSearchClickListener {
                 binding.mApplicationsTitle.visibility = GONE
-                binding.mApplicationsIcon.visibility = GONE
             }
             setOnCloseListener {
                 binding.mApplicationsTitle.visibility = VISIBLE
-                binding.mApplicationsIcon.visibility = VISIBLE
                 false
             }
         }
@@ -80,25 +80,22 @@ class ApplicationsFragment : Fragment(), ApplicationsEventHandler.Listener, Appl
 
     private val preferenceLayoutManager: RecyclerView.LayoutManager
         get() {
-            return if (preferences.getBoolean(PreferencesActivity.GRID_VIEW, false)) {
-                with(binding.mApplications) {
+            with(binding.mApplications) {
+                return if (preferences.getBoolean(PreferencesActivity.GRID_VIEW, false)) {
                     if (itemDecorationCount > 0) {
                         removeItemDecorationAt(0)
                     }
-                    setPadding(0, 0, 0,
-                            resources.getDimensionPixelSize(R.dimen.dp16))
+                    GridLayoutManager(requireContext(),
+                            preferences.getInt(PreferencesActivity.GRID_VIEW_COLUMNS, 3))
+                } else {
+                    binding.mApplications.addItemDecoration(
+                            DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL))
+                    LinearLayoutManager(requireContext())
                 }
-                GridLayoutManager(requireContext(),
-                        preferences.getInt(PreferencesActivity.GRID_VIEW_COLUMNS, 3))
-            } else {
-                binding.mApplications.addItemDecoration(
-                        DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL))
-                LinearLayoutManager(requireContext())
             }
         }
 
     private val installedApplications: ArrayList<Application>
-        @SuppressLint("QueryPermissionsNeeded")
         get() {
             val applications = arrayListOf<Application>()
             val iconSize = resources.getDimensionPixelSize(R.dimen.dp48)
@@ -132,16 +129,15 @@ class ApplicationsFragment : Fragment(), ApplicationsEventHandler.Listener, Appl
 
             for (index in 0..applications.size) {
                 if (applications[index].packageName == intent.data?.encodedSchemeSpecificPart) {
-                    launch(Dispatchers.Main) {
-                        applicationsAdapter.notifyItemInserted(index)
+                    with(applicationsAdapter.searchHandler) {
+                        withContext(Dispatchers.Main) {
+                            if (isSeeking)
+                                notifyDataSetChanged()
+                            else
+                                applicationsAdapter.notifyItemInserted(index)
+                        }
                     }
                     break
-                }
-            }
-            withContext(Dispatchers.Main) {
-                with(applicationsAdapter.searchHandler) {
-                    if (isSeeking)
-                        notifyDataSetChanged()
                 }
             }
         }
@@ -152,16 +148,15 @@ class ApplicationsFragment : Fragment(), ApplicationsEventHandler.Listener, Appl
             for (index in 0..applications.size) {
                 if (applications[index].packageName == intent.data?.encodedSchemeSpecificPart) {
                     applications.removeAt(index)
-                    launch(Dispatchers.Main) {
-                        applicationsAdapter.notifyItemRemoved(index)
+                    with(applicationsAdapter.searchHandler) {
+                        withContext(Dispatchers.Main) {
+                            if (isSeeking)
+                                notifyDataSetChanged()
+                            else
+                                applicationsAdapter.notifyItemInserted(index)
+                        }
                     }
                     break
-                }
-            }
-            withContext(Dispatchers.Main) {
-                with(applicationsAdapter.searchHandler) {
-                    if (isSeeking)
-                        notifyDataSetChanged()
                 }
             }
         }
@@ -183,9 +178,19 @@ class ApplicationsFragment : Fragment(), ApplicationsEventHandler.Listener, Appl
         }
     }
 
-    override fun onLongClick(application: Application, view: View, position: Int) {
-        ApplicationActionsDialog(application, position)
-                .show(parentFragmentManager, "ApplicationActions")
+    override fun onLongClick(application: Application, view: View, position: Int) =
+            ApplicationActionsDialog(application)
+                    .show(parentFragmentManager, "ApplicationActions")
+
+
+    override fun onStop() {
+        super.onStop()
+        with(binding.mSearch) {
+            if (!isIconified) {
+                onActionViewCollapsed()
+                isIconified = true
+            }
+        }
     }
 
     override fun onDestroy() {
