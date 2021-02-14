@@ -1,4 +1,4 @@
-package juniojsv.minimum
+package juniojsv.minimum.applications
 
 import androidx.appcompat.widget.SearchView
 import kotlinx.coroutines.*

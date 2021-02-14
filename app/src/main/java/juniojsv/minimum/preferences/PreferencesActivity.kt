@@ -1,4 +1,4 @@
-package juniojsv.minimum
+package juniojsv.minimum.preferences
 
 import android.content.SharedPreferences
 import android.os.Bundle
@@ -7,6 +7,9 @@ import androidx.fragment.app.commit
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceManager
+import juniojsv.minimum.BuildConfig
+import juniojsv.minimum.R
+import juniojsv.minimum.appearanceHandler
 import juniojsv.minimum.databinding.PreferencesActivityBinding
 
 class PreferencesActivity : AppCompatActivity(), PreferencesHandler.OnPreferenceChangeListener {

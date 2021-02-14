@@ -1,4 +1,4 @@
-package juniojsv.minimum
+package juniojsv.minimum.applications
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -7,7 +7,7 @@ import androidx.recyclerview.widget.RecyclerView
 import juniojsv.minimum.databinding.ApplicationGridVariantBinding
 import juniojsv.minimum.databinding.ApplicationListVariantBinding
 
-class ApplicationsAdapter(private val applications: ArrayList<Application>, private val onHolderClick: ApplicationAdapterHolder.OnHolderClick) : RecyclerView.Adapter<ApplicationAdapterHolder>() {
+class ApplicationsAdapter(private val applications: ArrayList<Application>, private val holderListener: ApplicationAdapterHolder.HolderListener) : RecyclerView.Adapter<ApplicationAdapterHolder>() {
     val searchHandler = ApplicationsAdapterSearch(this, applications)
 
     init {
@@ -43,6 +43,6 @@ class ApplicationsAdapter(private val applications: ArrayList<Application>, priv
         val positionHandler = if (searchHandler.showOnly.isNotEmpty())
             searchHandler.showOnly[position] else position
 
-        holder.bind(applications[positionHandler], position, onHolderClick)
+        holder.bind(applications[positionHandler], position, holderListener)
     }
 }

@@ -2,6 +2,7 @@ package juniojsv.minimum
 
 import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
+import juniojsv.minimum.preferences.PreferencesActivity
 
 fun AppCompatActivity.appearanceHandler(preferences: SharedPreferences) {
     fun accentColorHandler(red: Int, green: Int, blue: Int, default: Int) {

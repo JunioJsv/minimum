@@ -18,7 +18,7 @@
         android:theme="@style/AppThemeLight"
         tools:ignore="GoogleAppIndexingWarning">
         <activity
-            android:name=".PreferencesActivity"
+            android:name=".preferences.PreferencesActivity"
             android:label="@string/preferences_shortcut" />
         <activity
             android:name=".MinimumActivity"

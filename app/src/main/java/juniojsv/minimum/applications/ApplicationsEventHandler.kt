@@ -1,4 +1,4 @@
-package juniojsv.minimum
+package juniojsv.minimum.applications
 
 import android.content.BroadcastReceiver
 import android.content.Context

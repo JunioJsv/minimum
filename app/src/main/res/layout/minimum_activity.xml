@@ -12,7 +12,7 @@
 
     </androidx.viewpager.widget.ViewPager>
 
-    <juniojsv.minimum.MinimumPageIndicator
+    <juniojsv.minimum.MinimumPagesIndicator
         android:id="@+id/mPageIndicator"
         android:layout_width="wrap_content"
         android:padding="8dp"

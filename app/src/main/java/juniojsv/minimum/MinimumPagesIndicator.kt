@@ -7,7 +7,7 @@ import android.view.View
 import android.widget.FrameLayout
 import juniojsv.minimum.databinding.MinimumPageIndicatorViewBinding
 
-class MinimumPageIndicator(context: Context, attr: AttributeSet) : FrameLayout(context, attr) {
+class MinimumPagesIndicator(context: Context, attr: AttributeSet) : FrameLayout(context, attr) {
     private var binding = MinimumPageIndicatorViewBinding.inflate(LayoutInflater.from(context))
 
     init {

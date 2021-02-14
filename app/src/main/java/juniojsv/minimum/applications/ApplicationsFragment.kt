@@ -1,4 +1,4 @@
-package juniojsv.minimum
+package juniojsv.minimum.applications
 
 import android.animation.LayoutTransition
 import android.content.Intent
@@ -18,12 +18,15 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import juniojsv.minimum.ApplicationsEventHandler.Companion.DEFAULT_INTENT_FILTER
+import juniojsv.minimum.BuildConfig
+import juniojsv.minimum.preferences.PreferencesActivity
+import juniojsv.minimum.R
+import juniojsv.minimum.applications.ApplicationsEventHandler.Companion.DEFAULT_INTENT_FILTER
 import juniojsv.minimum.databinding.ApplicationsFragmentBinding
 import kotlinx.coroutines.*
 import kotlin.coroutines.CoroutineContext
 
-class ApplicationsFragment : Fragment(), ApplicationsEventHandler.Listener, ApplicationAdapterHolder.OnHolderClick, CoroutineScope {
+class ApplicationsFragment : Fragment(), ApplicationsEventHandler.Listener, ApplicationAdapterHolder.HolderListener, CoroutineScope {
     private lateinit var binding: ApplicationsFragmentBinding
     private lateinit var preferences: SharedPreferences
 
@@ -153,7 +156,7 @@ class ApplicationsFragment : Fragment(), ApplicationsEventHandler.Listener, Appl
                             if (isSeeking)
                                 notifyDataSetChanged()
                             else
-                                applicationsAdapter.notifyItemInserted(index)
+                                applicationsAdapter.notifyItemRemoved(index)
                         }
                     }
                     break

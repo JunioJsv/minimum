@@ -1,4 +1,4 @@
-package juniojsv.minimum
+package juniojsv.minimum.applications
 
 import android.app.Dialog
 import android.content.Intent
@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.provider.Settings
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatDialogFragment
+import juniojsv.minimum.R
 
 class ApplicationActionsDialog(private val application: Application) : AppCompatDialogFragment() {
 

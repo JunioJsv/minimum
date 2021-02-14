@@ -7,16 +7,15 @@ import android.provider.MediaStore
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
-import androidx.fragment.app.FragmentStatePagerAdapter
 import androidx.preference.PreferenceManager
 import androidx.viewpager.widget.ViewPager
-import juniojsv.minimum.PreferencesActivity.Keys.ACCENT_COLOR
-import juniojsv.minimum.PreferencesActivity.Keys.DARK_MODE
-import juniojsv.minimum.PreferencesActivity.Keys.GRID_VIEW
-import juniojsv.minimum.PreferencesActivity.Keys.GRID_VIEW_COLUMNS
 import juniojsv.minimum.databinding.MinimumActivityBinding
+import juniojsv.minimum.preferences.PreferencesActivity
+import juniojsv.minimum.preferences.PreferencesActivity.Keys.ACCENT_COLOR
+import juniojsv.minimum.preferences.PreferencesActivity.Keys.DARK_MODE
+import juniojsv.minimum.preferences.PreferencesActivity.Keys.GRID_VIEW
+import juniojsv.minimum.preferences.PreferencesActivity.Keys.GRID_VIEW_COLUMNS
+import juniojsv.minimum.preferences.PreferencesHandler
 
 class MinimumActivity : AppCompatActivity(), PreferencesHandler.OnPreferenceChangeListener {
     private lateinit var binding: MinimumActivityBinding
@@ -82,37 +81,4 @@ class MinimumActivity : AppCompatActivity(), PreferencesHandler.OnPreferenceChan
             }
         }
     }
-
-    private class MinimumPages(fragmentManager: FragmentManager) : FragmentStatePagerAdapter(fragmentManager, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
-        val fragments: Array<Fragment> = arrayOf(ApplicationsFragment(), WidgetsFragment())
-
-        override fun getCount(): Int = fragments.size
-
-        override fun getItem(position: Int): Fragment = fragments[position]
-
-        companion object {
-            val DEFAULT_PAGE_TRANSFORMER = ViewPager.PageTransformer { page, position ->
-                page.apply {
-                    val pageWidth = width
-                    when {
-                        position < -1 -> {
-                            alpha = 0f
-                        }
-                        position <= 0 -> {
-                            alpha = 1f
-                            translationX = 0f
-                        }
-                        position <= 1 -> {
-                            alpha = 1 - position
-                            translationX = pageWidth * -position
-                        }
-                        else -> {
-                            alpha = 0f
-                        }
-                    }
-                }
-            }
-        }
-    }
-
 }

@@ -1,4 +1,4 @@
-package juniojsv.minimum
+package juniojsv.minimum.preferences
 
 import android.content.SharedPreferences
 

@@ -10,19 +10,15 @@
         android:contentDescription="@string/todo"
         android:scaleType="centerCrop" />
 
-    <ScrollView
-        android:id="@+id/mScrollWidgets"
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-
-        <com.jmedeisis.draglinearlayout.DragLinearLayout
+        <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/mWidgets"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
+            android:layout_height="match_parent"
             android:paddingBottom="104dp" />
-
-    </ScrollView>
+    </androidx.core.widget.NestedScrollView>
 
     <ImageButton
         android:id="@+id/mEditActions"
