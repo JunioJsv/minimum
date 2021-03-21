@@ -1,15 +1,18 @@
 package juniojsv.minimum.applications
 
+import android.content.Context
 import android.content.Intent
 import android.content.pm.ApplicationInfo
-import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import androidx.core.graphics.drawable.toBitmap
+import juniojsv.minimum.R
 
-class Application(info: ApplicationInfo, packageManager: PackageManager, iconSize: Int, var isNew: Boolean = false) : Comparable<Application> {
+class Application(context: Context, info: ApplicationInfo, var isNew: Boolean = false) : Comparable<Application> {
 
+    private val packageManager = context.packageManager
+    private val size = context.resources.getDimensionPixelSize(R.dimen.dp48)
     val label: String = info.loadLabel(packageManager) as String
-    val icon: Bitmap = info.loadIcon(packageManager).toBitmap(iconSize, iconSize)
+    val icon: Bitmap = info.loadIcon(packageManager).toBitmap(size, size)
     val packageName: String = info.packageName
     val intent: Intent = packageManager.getLaunchIntentForPackage(packageName) ?: Intent()
 
