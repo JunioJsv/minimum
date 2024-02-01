@@ -10,13 +10,13 @@ repositories {
 }
 
 android {
-    compileSdkVersion(31)
+    compileSdkVersion(33)
     defaultConfig {
         applicationId = "juniojsv.minimum"
-        versionCode = 130
+        versionCode = 131
         versionName = "1.3.0"
         setMinSdkVersion(21)
-        targetSdkVersion(31)
+        targetSdkVersion(33)
         resConfigs("pt-rBr")
         setProperty("archivesBaseName", "$applicationId-v$versionName")
     }
