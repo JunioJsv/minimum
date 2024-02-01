@@ -1,16 +1,22 @@
-package juniojsv.minimum
+package juniojsv.minimum.features.applications
 
+import android.content.Context
 import android.content.Intent
+import android.content.pm.ApplicationInfo
 import android.graphics.Bitmap
+import androidx.core.graphics.drawable.toBitmap
+import juniojsv.minimum.R
 
-class Application(
-        var label: String,
-        var icon: Bitmap,
-        var intent: Intent,
-        var packageName: String,
-        var isNew: Boolean = false,
-        var isFavorite: Boolean = false
-) : Comparable<Application> {
+class Application(context: Context, info: ApplicationInfo, var isNew: Boolean = false) :
+    Comparable<Application> {
+
+    private val packageManager = context.packageManager
+    private val size = context.resources.getDimensionPixelSize(R.dimen.dp48)
+    val label: String = info.loadLabel(packageManager) as String
+    val icon: Bitmap = info.loadIcon(packageManager).toBitmap(size, size)
+    val packageName: String = info.packageName
+    val intent: Intent = packageManager.getLaunchIntentForPackage(packageName) ?: Intent()
+
     override fun compareTo(other: Application): Int = label.compareTo(other.label)
 
     override fun hashCode(): Int {
@@ -19,7 +25,6 @@ class Application(
         result = 31 * result + intent.hashCode()
         result = 31 * result + packageName.hashCode()
         result = 31 * result + isNew.hashCode()
-        result = 31 * result + isFavorite.hashCode()
         return result
     }
 
@@ -34,7 +39,6 @@ class Application(
         if (intent != other.intent) return false
         if (packageName != other.packageName) return false
         if (isNew != other.isNew) return false
-        if (isFavorite != other.isFavorite) return false
 
         return true
     }

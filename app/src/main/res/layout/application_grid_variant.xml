@@ -6,15 +6,17 @@
     android:background="?selectableItemBackgroundBorderless"
     android:gravity="center_horizontal">
 
-    <include layout="@layout/application_icon" />
+    <include
+        android:id="@+id/mIncludeApplicationIcon"
+        layout="@layout/application_icon" />
 
     <TextView
         android:id="@+id/mLabel"
         android:layout_width="match_parent"
         android:layout_height="36dp"
-        android:layout_below="@+id/mContainer"
-        android:layout_alignStart="@+id/mContainer"
-        android:layout_alignEnd="@+id/mContainer"
+        android:layout_below="@+id/mIncludeApplicationIcon"
+        android:layout_alignStart="@+id/mIncludeApplicationIcon"
+        android:layout_alignEnd="@+id/mIncludeApplicationIcon"
         android:layout_marginStart="0dp"
         android:layout_marginTop="0dp"
         android:layout_marginEnd="0dp"

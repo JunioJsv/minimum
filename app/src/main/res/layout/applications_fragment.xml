@@ -26,64 +26,51 @@
             android:visibility="gone"
             tools:visibility="visible">
 
-            <androidx.appcompat.widget.SearchView
-                android:id="@+id/mSearch"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:iconifiedByDefault="false"
-                app:queryBackground="@android:color/transparent"
-                app:queryHint="@string/search" />
-
-            <View
-                android:id="@+id/mDivider"
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginStart="8dp"
-                android:layout_marginEnd="8dp"
-                android:layout_marginBottom="8dp"
-                android:background="?android:attr/listDivider" />
-
-            <androidx.coordinatorlayout.widget.CoordinatorLayout
+            <FrameLayout
+                android:id="@+id/mSearchBar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingStart="16dp"
-                android:paddingEnd="16dp"
-                android:paddingBottom="8dp">
-
-                <ImageView
-                    android:id="@+id/mApplicationsIcon"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:contentDescription="@string/todo"
-                    android:src="@drawable/ic_baseline_apps_24" />
+                android:paddingEnd="16dp">
 
                 <TextView
                     android:id="@+id/mApplicationsTitle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="32dp"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginStart="8dp"
+                    android:drawableStart="@drawable/ic_baseline_apps_24"
+                    android:drawablePadding="8dp"
+                    android:gravity="center_vertical"
                     android:text="@string/applications"
                     android:textColor="?android:textColorSecondary"
-                    android:textStyle="bold"
-                    app:layout_anchor="@id/mApplicationsIcon"
-                    app:layout_anchorGravity="start|center" />
+                    android:textStyle="bold" />
 
-                <ImageButton
-                    android:id="@+id/mApplicationsShowOptions"
+                <androidx.appcompat.widget.SearchView
+                    android:id="@+id/mSearch"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="end|center"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:contentDescription="@string/todo"
-                    android:src="@drawable/ic_baseline_more_vert_24" />
+                    android:layout_gravity="end|center_vertical"
+                    app:queryBackground="@android:color/transparent" />
 
-            </androidx.coordinatorlayout.widget.CoordinatorLayout>
+            </FrameLayout>
+
+            <View
+                android:id="@+id/mDivider"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_gravity="center"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginBottom="8dp"
+                android:background="?android:attr/listDivider" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/mApplications"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:nestedScrollingEnabled="false"
+                android:paddingBottom="48dp"
                 tools:listitem="@layout/application_list_variant" />
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
