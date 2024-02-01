@@ -1,6 +1,7 @@
-package juniojsv.minimum.applications
+package juniojsv.minimum.features.applications
 
 import android.animation.LayoutTransition
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
@@ -18,14 +19,17 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import juniojsv.minimum.preferences.PreferencesActivity
-import juniojsv.minimum.R
-import juniojsv.minimum.applications.ApplicationsEventHandler.Companion.DEFAULT_INTENT_FILTER
 import juniojsv.minimum.databinding.ApplicationsFragmentBinding
-import kotlinx.coroutines.*
+import juniojsv.minimum.features.preferences.PreferencesActivity
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlin.coroutines.CoroutineContext
 
-class ApplicationsFragment : Fragment(), ApplicationsEventHandler.Listener, ApplicationAdapterHolder.HolderListener, CoroutineScope {
+class ApplicationsFragment : Fragment(), ApplicationsEventHandler.Listener,
+    ApplicationAdapterHolder.HolderListener, CoroutineScope {
     private lateinit var binding: ApplicationsFragmentBinding
     private lateinit var preferences: SharedPreferences
 
@@ -36,13 +40,21 @@ class ApplicationsFragment : Fragment(), ApplicationsEventHandler.Listener, Appl
     private val job = Job()
     override val coroutineContext: CoroutineContext = Dispatchers.IO + job
 
+    @SuppressLint("UnspecifiedRegisterReceiverFlag")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         preferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
-        requireContext().registerReceiver(eventHandler, DEFAULT_INTENT_FILTER)
+        requireContext().registerReceiver(
+            eventHandler,
+            ApplicationsEventHandler.DEFAULT_INTENT_FILTER,
+        )
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
         binding = ApplicationsFragmentBinding.inflate(inflater)
         return binding.root
     }
@@ -52,7 +64,8 @@ class ApplicationsFragment : Fragment(), ApplicationsEventHandler.Listener, Appl
 
         launch {
             controller = Applications.getInstance(requireContext())
-            applicationsAdapter = ApplicationsAdapter(controller.applications, this@ApplicationsFragment)
+            applicationsAdapter =
+                ApplicationsAdapter(controller.applications, this@ApplicationsFragment)
 
             withContext(Dispatchers.Main) {
                 binding.mApplications.apply {
@@ -87,11 +100,14 @@ class ApplicationsFragment : Fragment(), ApplicationsEventHandler.Listener, Appl
                     if (itemDecorationCount > 0) {
                         removeItemDecorationAt(0)
                     }
-                    GridLayoutManager(requireContext(),
-                            preferences.getInt(PreferencesActivity.GRID_VIEW_COLUMNS, 3))
+                    GridLayoutManager(
+                        requireContext(),
+                        preferences.getInt(PreferencesActivity.GRID_VIEW_COLUMNS, 3)
+                    )
                 } else {
                     binding.mApplications.addItemDecoration(
-                            DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL))
+                        DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL)
+                    )
                     LinearLayoutManager(requireContext())
                 }
             }
@@ -99,15 +115,14 @@ class ApplicationsFragment : Fragment(), ApplicationsEventHandler.Listener, Appl
 
     override fun onApplicationAdded(intent: Intent) {
         launch {
-            val iconSize = resources.getDimensionPixelSize(R.dimen.dp48)
-
             controller.apply {
                 with(requireContext().packageManager) {
                     val info = getApplicationInfo(
-                            intent.data!!.encodedSchemeSpecificPart,
-                            PackageManager.GET_META_DATA)
+                        intent.data!!.encodedSchemeSpecificPart,
+                        PackageManager.GET_META_DATA
+                    )
 
-                    addApplication(Application(requireContext(), info, true))
+                    onAddApplication(Application(requireContext(), info, true))
                 }
 
                 for (index in 0..applications.size) {
@@ -132,7 +147,7 @@ class ApplicationsFragment : Fragment(), ApplicationsEventHandler.Listener, Appl
             controller.apply {
                 for (index in 0..applications.size) {
                     if (applications[index].packageName == intent.data?.encodedSchemeSpecificPart) {
-                        removeApplicationAt(index)
+                        onRemoveApplicationAt(index)
                         with(applicationsAdapter.searchHandler) {
                             withContext(Dispatchers.Main) {
                                 if (isSeeking)
@@ -152,8 +167,16 @@ class ApplicationsFragment : Fragment(), ApplicationsEventHandler.Listener, Appl
 
     override fun onClick(application: Application, view: View, position: Int) {
         application.apply {
-            ActivityCompat.startActivity(requireActivity(), intent, ActivityOptionsCompat
-                    .makeThumbnailScaleUpAnimation(view, application.icon, 0, 0).toBundle())
+            try {
+                ActivityCompat.startActivity(
+                    requireActivity(), intent, ActivityOptionsCompat
+                        .makeThumbnailScaleUpAnimation(
+                            view, application.icon, 0, 0
+                        ).toBundle()
+                )
+            } catch (_: Throwable) {
+            }
+
 
             if (isNew) {
                 isNew = false
@@ -165,8 +188,8 @@ class ApplicationsFragment : Fragment(), ApplicationsEventHandler.Listener, Appl
     }
 
     override fun onLongClick(application: Application, view: View, position: Int) =
-            ApplicationActionsDialog(application)
-                    .show(parentFragmentManager, "ApplicationActions")
+        ApplicationActionsDialog(application)
+            .show(parentFragmentManager, "ApplicationActions")
 
 
     override fun onStop() {

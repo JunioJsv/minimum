@@ -11,11 +11,4 @@
         tools:showIn="@layout/applications_fragment">
 
     </androidx.viewpager.widget.ViewPager>
-
-    <juniojsv.minimum.MinimumPagesIndicator
-        android:id="@+id/mPageIndicator"
-        android:layout_width="wrap_content"
-        android:padding="8dp"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|center_horizontal" />
 </FrameLayout>

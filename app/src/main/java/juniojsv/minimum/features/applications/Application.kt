@@ -1,4 +1,4 @@
-package juniojsv.minimum.applications
+package juniojsv.minimum.features.applications
 
 import android.content.Context
 import android.content.Intent
@@ -7,7 +7,8 @@ import android.graphics.Bitmap
 import androidx.core.graphics.drawable.toBitmap
 import juniojsv.minimum.R
 
-class Application(context: Context, info: ApplicationInfo, var isNew: Boolean = false) : Comparable<Application> {
+class Application(context: Context, info: ApplicationInfo, var isNew: Boolean = false) :
+    Comparable<Application> {
 
     private val packageManager = context.packageManager
     private val size = context.resources.getDimensionPixelSize(R.dimen.dp48)

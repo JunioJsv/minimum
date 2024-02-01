@@ -1,10 +1,18 @@
-package juniojsv.minimum.applications
+package juniojsv.minimum.features.applications
 
 import androidx.appcompat.widget.SearchView
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlin.coroutines.CoroutineContext
 
-class ApplicationsAdapterSearch(private val applicationsAdapter: ApplicationsAdapter, private val applications: ArrayList<Application>) : SearchView.OnQueryTextListener, CoroutineScope {
+class ApplicationsAdapterSearch(
+    private val applicationsAdapter: ApplicationsAdapter,
+    private val applications: ArrayList<Application>
+) : SearchView.OnQueryTextListener, CoroutineScope {
     val showOnly = arrayListOf<Int>()
     private var lastQuery = String()
 
@@ -13,7 +21,7 @@ class ApplicationsAdapterSearch(private val applicationsAdapter: ApplicationsAda
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.IO + Job()
 
-    var debounceSearchJob: Job? = null
+    private var debounceSearchJob: Job? = null
 
     private fun applyFilter(query: String) {
         showOnly.clear()

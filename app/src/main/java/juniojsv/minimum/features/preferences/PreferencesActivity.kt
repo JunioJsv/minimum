@@ -1,4 +1,4 @@
-package juniojsv.minimum.preferences
+package juniojsv.minimum.features.preferences
 
 import android.content.SharedPreferences
 import android.os.Bundle
@@ -45,7 +45,7 @@ class PreferencesActivity : AppCompatActivity(), PreferencesHandler.OnPreference
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
             setPreferencesFromResource(R.xml.preferences, rootKey)
             findPreference<Preference>(APPLICATION_VERSION)?.summary =
-                    "${getString(R.string.version)} ${BuildConfig.VERSION_NAME}"
+                "${getString(R.string.version)} ${BuildConfig.VERSION_NAME}"
         }
     }
 
@@ -55,7 +55,7 @@ class PreferencesActivity : AppCompatActivity(), PreferencesHandler.OnPreference
     }
 
     override fun onPreferenceChange(key: String) {
-        when(key) {
+        when (key) {
             DARK_MODE, ACCENT_COLOR -> {
                 recreate()
             }

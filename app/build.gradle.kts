@@ -1,3 +1,5 @@
+@file:Suppress("UnstableApiUsage")
+
 plugins {
     id("com.android.application")
     id("kotlin-android")
@@ -8,13 +10,13 @@ repositories {
 }
 
 android {
-    compileSdkVersion(30)
+    compileSdkVersion(31)
     defaultConfig {
         applicationId = "juniojsv.minimum"
         versionCode = 130
         versionName = "1.3.0"
         setMinSdkVersion(21)
-        targetSdkVersion(30)
+        targetSdkVersion(31)
         resConfigs("pt-rBr")
         setProperty("archivesBaseName", "$applicationId-v$versionName")
     }
@@ -38,5 +40,4 @@ android {
 dependencies {
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
     implementation("androidx.preference:preference-ktx:1.1.1")
-    debugImplementation("com.squareup.leakcanary:leakcanary-android:2.6")
 }

@@ -2,7 +2,7 @@ package juniojsv.minimum
 
 import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
-import juniojsv.minimum.preferences.PreferencesActivity
+import juniojsv.minimum.features.preferences.PreferencesActivity
 
 fun AppCompatActivity.appearanceHandler(preferences: SharedPreferences) {
     fun accentColorHandler(red: Int, green: Int, blue: Int, default: Int) {
@@ -16,8 +16,16 @@ fun AppCompatActivity.appearanceHandler(preferences: SharedPreferences) {
 
     if (preferences.getBoolean(PreferencesActivity.DARK_MODE, false))
         accentColorHandler(
-                R.style.AppThemeDark_Red, R.style.AppThemeDark_Green, R.style.AppThemeDark_Blue, R.style.AppThemeDark)
+            R.style.AppThemeDark_Red,
+            R.style.AppThemeDark_Green,
+            R.style.AppThemeDark_Blue,
+            R.style.AppThemeDark
+        )
     else
         accentColorHandler(
-                R.style.AppThemeLight_Red, R.style.AppThemeLight_Green, R.style.AppThemeLight_Blue, R.style.AppThemeLight)
+            R.style.AppThemeLight_Red,
+            R.style.AppThemeLight_Green,
+            R.style.AppThemeLight_Blue,
+            R.style.AppThemeLight
+        )
 }

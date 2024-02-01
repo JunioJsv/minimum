@@ -4,8 +4,8 @@
     package="juniojsv.minimum">
 
     <uses-permission android:name="android.permission.REQUEST_DELETE_PACKAGES" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES"
+    <uses-permission
+        android:name="android.permission.QUERY_ALL_PACKAGES"
         tools:ignore="QueryAllPackagesPermission" />
 
     <application
@@ -18,12 +18,14 @@
         android:theme="@style/AppThemeLight"
         tools:ignore="GoogleAppIndexingWarning">
         <activity
-            android:name=".preferences.PreferencesActivity"
+            android:name=".features.preferences.PreferencesActivity"
+            android:exported="false"
             android:label="@string/preferences_shortcut" />
         <activity
             android:name=".MinimumActivity"
             android:configChanges="orientation|screenSize"
             android:excludeFromRecents="true"
+            android:exported="true"
             android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

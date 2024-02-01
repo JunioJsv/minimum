@@ -1,9 +1,8 @@
-package juniojsv.minimum.applications
+package juniojsv.minimum.features.applications
 
 import android.content.Context
 import android.content.pm.PackageManager
 import juniojsv.minimum.BuildConfig
-import juniojsv.minimum.R
 
 
 object Applications {
@@ -28,16 +27,16 @@ object Applications {
             }
         }
 
-        fun addApplication(application: Application) = applications.apply {
+        fun onAddApplication(application: Application) = applications.apply {
             add(application)
             sort()
         }
 
-        fun removeApplication(application: Application) = applications.apply {
+        fun onRemoveApplication(application: Application) = applications.apply {
             remove(application)
         }
 
-        fun removeApplicationAt(index: Int) = applications.apply {
+        fun onRemoveApplicationAt(index: Int) = applications.apply {
             removeAt(index)
         }
     }

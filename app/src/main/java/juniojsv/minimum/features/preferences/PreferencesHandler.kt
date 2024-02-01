@@ -1,4 +1,4 @@
-package juniojsv.minimum.preferences
+package juniojsv.minimum.features.preferences
 
 import android.content.SharedPreferences
 
@@ -16,7 +16,7 @@ object PreferencesHandler : SharedPreferences.OnSharedPreferenceChangeListener {
     fun removeAllListeners() = listeners.clear()
 
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String) =
-            listeners.forEach {
-                it.onPreferenceChange(key)
-            }
+        listeners.forEach {
+            it.onPreferenceChange(key)
+        }
 }

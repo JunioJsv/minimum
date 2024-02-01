@@ -1,4 +1,4 @@
-package juniojsv.minimum.applications
+package juniojsv.minimum.features.applications
 
 import android.app.Dialog
 import android.content.Intent
@@ -16,17 +16,29 @@ class ApplicationActionsDialog(private val application: Application) : AppCompat
         return activity?.let {
             AlertDialog.Builder(it).apply {
                 setTitle(application.label)
-                setItems(arrayOf(
+                setItems(
+                    arrayOf(
                         getString(R.string.action_information),
-                        getString(R.string.action_uninstall))) { _, index ->
+                        getString(R.string.action_uninstall)
+                    )
+                ) { _, index ->
                     when (index) {
                         0 -> {
-                            activity?.startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
-                                    Uri.parse("package:${application.packageName}")))
+                            activity?.startActivity(
+                                Intent(
+                                    Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                                    Uri.parse("package:${application.packageName}")
+                                )
+                            )
                         }
+
                         1 -> {
-                            activity?.startActivity(Intent(ACTION_DELETE,
-                                    Uri.parse("package:${application.packageName}")))
+                            activity?.startActivity(
+                                Intent(
+                                    ACTION_DELETE,
+                                    Uri.parse("package:${application.packageName}")
+                                )
+                            )
                         }
                     }
                 }

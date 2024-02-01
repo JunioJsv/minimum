@@ -10,12 +10,12 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.PreferenceManager
 import androidx.viewpager.widget.ViewPager
 import juniojsv.minimum.databinding.MinimumActivityBinding
-import juniojsv.minimum.preferences.PreferencesActivity
-import juniojsv.minimum.preferences.PreferencesActivity.Keys.ACCENT_COLOR
-import juniojsv.minimum.preferences.PreferencesActivity.Keys.DARK_MODE
-import juniojsv.minimum.preferences.PreferencesActivity.Keys.GRID_VIEW
-import juniojsv.minimum.preferences.PreferencesActivity.Keys.GRID_VIEW_COLUMNS
-import juniojsv.minimum.preferences.PreferencesHandler
+import juniojsv.minimum.features.preferences.PreferencesActivity
+import juniojsv.minimum.features.preferences.PreferencesActivity.Keys.ACCENT_COLOR
+import juniojsv.minimum.features.preferences.PreferencesActivity.Keys.DARK_MODE
+import juniojsv.minimum.features.preferences.PreferencesActivity.Keys.GRID_VIEW
+import juniojsv.minimum.features.preferences.PreferencesActivity.Keys.GRID_VIEW_COLUMNS
+import juniojsv.minimum.features.preferences.PreferencesHandler
 
 class MinimumActivity : AppCompatActivity(), PreferencesHandler.OnPreferenceChangeListener {
     private lateinit var binding: MinimumActivityBinding
@@ -33,9 +33,7 @@ class MinimumActivity : AppCompatActivity(), PreferencesHandler.OnPreferenceChan
             adapter = MinimumPages(supportFragmentManager)
             setPageTransformer(true, MinimumPages.DEFAULT_PAGE_TRANSFORMER)
             addOnPageChangeListener(object : ViewPager.SimpleOnPageChangeListener() {
-                override fun onPageSelected(position: Int) {
-                    binding.mPageIndicator.setSelectedPage(position)
-                }
+                override fun onPageSelected(position: Int) {}
             })
         }
 
@@ -51,13 +49,15 @@ class MinimumActivity : AppCompatActivity(), PreferencesHandler.OnPreferenceChan
         when (item.itemId) {
             R.id.mDial ->
                 startActivity(Intent(Intent.ACTION_DIAL))
+
             R.id.mCamera ->
                 startActivity(
-                        Intent.createChooser(
-                                Intent(MediaStore.INTENT_ACTION_STILL_IMAGE_CAMERA),
-                                getString(R.string.take_pictures_with)
-                        )
+                    Intent.createChooser(
+                        Intent(MediaStore.INTENT_ACTION_STILL_IMAGE_CAMERA),
+                        getString(R.string.take_pictures_with)
+                    )
                 )
+
             R.id.mPreferences ->
                 startActivity(Intent(this, PreferencesActivity::class.java))
         }
