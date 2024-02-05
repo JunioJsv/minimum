@@ -14,7 +14,7 @@ android {
         minSdk = 21
         targetSdk = 33
         compileSdk = 33
-        versionCode = 132
+        versionCode = 133
         versionName = "1.4.0"
         setProperty("archivesBaseName", "$applicationId-v$versionName")
     }
