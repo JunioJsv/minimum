@@ -17,7 +17,6 @@ android {
         versionName = "1.3.0"
         setMinSdkVersion(21)
         targetSdkVersion(33)
-        resConfigs("pt-rBr")
         setProperty("archivesBaseName", "$applicationId-v$versionName")
     }
     kotlinOptions {
@@ -28,7 +27,10 @@ android {
         getByName("release") {
             isMinifyEnabled = true
             isShrinkResources = true
-            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
         }
     }
     buildFeatures {

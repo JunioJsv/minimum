@@ -7,16 +7,16 @@
     android:gravity="center_horizontal">
 
     <include
-        android:id="@+id/mIncludeApplicationIcon"
+        android:id="@+id/include_application_icon"
         layout="@layout/application_icon" />
 
     <TextView
-        android:id="@+id/mLabel"
+        android:id="@+id/label"
         android:layout_width="match_parent"
         android:layout_height="36dp"
-        android:layout_below="@+id/mIncludeApplicationIcon"
-        android:layout_alignStart="@+id/mIncludeApplicationIcon"
-        android:layout_alignEnd="@+id/mIncludeApplicationIcon"
+        android:layout_below="@+id/include_application_icon"
+        android:layout_alignStart="@+id/include_application_icon"
+        android:layout_alignEnd="@+id/include_application_icon"
         android:layout_marginStart="0dp"
         android:layout_marginTop="0dp"
         android:layout_marginEnd="0dp"

@@ -7,7 +7,7 @@
     tools:context=".MinimumActivity">
 
     <ProgressBar
-        android:id="@+id/mLoading"
+        android:id="@+id/loading"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
@@ -19,7 +19,7 @@
         android:scrollbars="vertical">
 
         <LinearLayout
-            android:id="@+id/mApplicationsContainer"
+            android:id="@+id/applications_container"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical"
@@ -27,14 +27,12 @@
             tools:visibility="visible">
 
             <FrameLayout
-                android:id="@+id/mSearchBar"
+                android:id="@+id/search_bar"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingStart="16dp"
-                android:paddingEnd="16dp">
+                android:layout_height="wrap_content">
 
                 <TextView
-                    android:id="@+id/mApplicationsTitle"
+                    android:id="@+id/search_title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
@@ -47,7 +45,7 @@
                     android:textStyle="bold" />
 
                 <androidx.appcompat.widget.SearchView
-                    android:id="@+id/mSearch"
+                    android:id="@+id/search_icon_button"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="end|center_vertical"
@@ -56,17 +54,14 @@
             </FrameLayout>
 
             <View
-                android:id="@+id/mDivider"
+                android:id="@+id/search_divider"
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:layout_gravity="center"
-                android:layout_marginStart="8dp"
-                android:layout_marginEnd="8dp"
-                android:layout_marginBottom="8dp"
                 android:background="?android:attr/listDivider" />
 
             <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/mApplications"
+                android:id="@+id/applications"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:nestedScrollingEnabled="false"

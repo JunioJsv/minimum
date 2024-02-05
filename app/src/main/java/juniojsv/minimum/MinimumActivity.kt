@@ -15,29 +15,27 @@ import juniojsv.minimum.features.preferences.PreferencesActivity.Keys.ACCENT_COL
 import juniojsv.minimum.features.preferences.PreferencesActivity.Keys.DARK_MODE
 import juniojsv.minimum.features.preferences.PreferencesActivity.Keys.GRID_VIEW
 import juniojsv.minimum.features.preferences.PreferencesActivity.Keys.GRID_VIEW_COLUMNS
-import juniojsv.minimum.features.preferences.PreferencesHandler
 
-class MinimumActivity : AppCompatActivity(), PreferencesHandler.OnPreferenceChangeListener {
+class MinimumActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceChangeListener {
     private lateinit var binding: MinimumActivityBinding
     private lateinit var preferences: SharedPreferences
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         preferences = PreferenceManager.getDefaultSharedPreferences(applicationContext)
+        preferences.registerOnSharedPreferenceChangeListener(this)
         appearanceHandler(preferences)
 
         binding = MinimumActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.mPages.apply {
+        binding.pages.apply {
             adapter = MinimumPages(supportFragmentManager)
             setPageTransformer(true, MinimumPages.DEFAULT_PAGE_TRANSFORMER)
             addOnPageChangeListener(object : ViewPager.SimpleOnPageChangeListener() {
                 override fun onPageSelected(position: Int) {}
             })
         }
-
-        PreferencesHandler.addListener(this)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -47,10 +45,10 @@ class MinimumActivity : AppCompatActivity(), PreferencesHandler.OnPreferenceChan
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.mDial ->
+            R.id.dial ->
                 startActivity(Intent(Intent.ACTION_DIAL))
 
-            R.id.mCamera ->
+            R.id.camera ->
                 startActivity(
                     Intent.createChooser(
                         Intent(MediaStore.INTENT_ACTION_STILL_IMAGE_CAMERA),
@@ -58,7 +56,7 @@ class MinimumActivity : AppCompatActivity(), PreferencesHandler.OnPreferenceChan
                     )
                 )
 
-            R.id.mPreferences ->
+            R.id.preferences ->
                 startActivity(Intent(this, PreferencesActivity::class.java))
         }
         return super.onOptionsItemSelected(item)
@@ -66,15 +64,15 @@ class MinimumActivity : AppCompatActivity(), PreferencesHandler.OnPreferenceChan
 
     override fun onDestroy() {
         super.onDestroy()
-        PreferencesHandler.removeListener(this)
-        binding.mPages.clearOnPageChangeListeners()
+        preferences.unregisterOnSharedPreferenceChangeListener(this)
+        binding.pages.clearOnPageChangeListeners()
     }
 
     override fun onBackPressed() {
         // Nothings
     }
 
-    override fun onPreferenceChange(key: String) {
+    override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
         when (key) {
             DARK_MODE, ACCENT_COLOR, GRID_VIEW, GRID_VIEW_COLUMNS -> {
                 recreate()

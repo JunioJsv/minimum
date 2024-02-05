@@ -1,10 +1,7 @@
 package juniojsv.minimum.features.applications
 
 import android.animation.LayoutTransition
-import android.annotation.SuppressLint
-import android.content.Intent
 import android.content.SharedPreferences
-import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -21,6 +18,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import juniojsv.minimum.databinding.ApplicationsFragmentBinding
 import juniojsv.minimum.features.preferences.PreferencesActivity
+import juniojsv.minimum.models.Application
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -28,26 +26,17 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.coroutines.CoroutineContext
 
-class ApplicationsFragment : Fragment(), ApplicationsEventHandler.Listener,
-    ApplicationAdapterHolder.HolderListener, CoroutineScope {
+class ApplicationsFragment : Fragment(),
+    ApplicationViewHolder.Callbacks, CoroutineScope {
     private lateinit var binding: ApplicationsFragmentBinding
     private lateinit var preferences: SharedPreferences
-
-    private lateinit var controller: Applications.Controller
     private lateinit var applicationsAdapter: ApplicationsAdapter
-
-    private val eventHandler = ApplicationsEventHandler(this)
     private val job = Job()
     override val coroutineContext: CoroutineContext = Dispatchers.IO + job
 
-    @SuppressLint("UnspecifiedRegisterReceiverFlag")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         preferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
-        requireContext().registerReceiver(
-            eventHandler,
-            ApplicationsEventHandler.DEFAULT_INTENT_FILTER,
-        )
     }
 
     override fun onCreateView(
@@ -61,140 +50,92 @@ class ApplicationsFragment : Fragment(), ApplicationsEventHandler.Listener,
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
+        applicationsAdapter =
+            ApplicationsAdapter(requireContext(), this).apply {
+                launch {
+                    fetchAllApplications()
 
-        launch {
-            controller = Applications.getInstance(requireContext())
-            applicationsAdapter =
-                ApplicationsAdapter(controller.applications, this@ApplicationsFragment)
-
-            withContext(Dispatchers.Main) {
-                binding.mApplications.apply {
-                    layoutManager = preferenceLayoutManager
-                    adapter = applicationsAdapter
-                }
-
-                binding.mSearchBar.layoutTransition = LayoutTransition()
-
-                with(binding.mSearch) {
-                    maxWidth = Int.MAX_VALUE
-                    setOnQueryTextListener(applicationsAdapter.searchHandler)
-                    setOnSearchClickListener {
-                        binding.mApplicationsTitle.visibility = GONE
-                    }
-                    setOnCloseListener {
-                        binding.mApplicationsTitle.visibility = VISIBLE
-                        false
+                    withContext(Dispatchers.Main) {
+                        binding.applicationsContainer.visibility = VISIBLE
+                        binding.loading.visibility = GONE
                     }
                 }
+            }
 
-                binding.mApplicationsContainer.visibility = VISIBLE
-                binding.mLoading.visibility = GONE
+        binding.applications.apply {
+            layoutManager = getRecyclerViewLayoutManagerByPreferences()
+            adapter = applicationsAdapter
+        }
+
+        with(binding.searchIconButton) {
+            layoutTransition = LayoutTransition()
+            maxWidth = Int.MAX_VALUE
+            setOnQueryTextListener(applicationsAdapter.filter)
+            setOnSearchClickListener {
+                binding.searchTitle.visibility = GONE
+            }
+            setOnCloseListener {
+                binding.searchTitle.visibility = VISIBLE
+                false
             }
         }
     }
 
-    private val preferenceLayoutManager: RecyclerView.LayoutManager
-        get() {
-            with(binding.mApplications) {
-                return if (preferences.getBoolean(PreferencesActivity.GRID_VIEW, false)) {
-                    if (itemDecorationCount > 0) {
-                        removeItemDecorationAt(0)
-                    }
-                    GridLayoutManager(
-                        requireContext(),
-                        preferences.getInt(PreferencesActivity.GRID_VIEW_COLUMNS, 3)
-                    )
-                } else {
-                    binding.mApplications.addItemDecoration(
-                        DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL)
-                    )
-                    LinearLayoutManager(requireContext())
+    private fun getRecyclerViewLayoutManagerByPreferences(): RecyclerView.LayoutManager {
+        with(binding.applications) {
+            return if (preferences.getBoolean(PreferencesActivity.GRID_VIEW, false)) {
+                if (itemDecorationCount > 0) {
+                    removeItemDecorationAt(0)
                 }
-            }
-        }
-
-    override fun onApplicationAdded(intent: Intent) {
-        launch {
-            controller.apply {
-                with(requireContext().packageManager) {
-                    val info = getApplicationInfo(
-                        intent.data!!.encodedSchemeSpecificPart,
-                        PackageManager.GET_META_DATA
-                    )
-
-                    onAddApplication(Application(requireContext(), info, true))
-                }
-
-                for (index in 0..applications.size) {
-                    if (applications[index].packageName == intent.data?.encodedSchemeSpecificPart) {
-                        with(applicationsAdapter.searchHandler) {
-                            withContext(Dispatchers.Main) {
-                                if (isSeeking)
-                                    notifyDataSetChanged()
-                                else
-                                    applicationsAdapter.notifyItemInserted(index)
-                            }
-                        }
-                        break
-                    }
-                }
-            }
-        }
-    }
-
-    override fun onApplicationRemoved(intent: Intent) {
-        launch {
-            controller.apply {
-                for (index in 0..applications.size) {
-                    if (applications[index].packageName == intent.data?.encodedSchemeSpecificPart) {
-                        onRemoveApplicationAt(index)
-                        with(applicationsAdapter.searchHandler) {
-                            withContext(Dispatchers.Main) {
-                                if (isSeeking)
-                                    notifyDataSetChanged()
-                                else
-                                    applicationsAdapter.notifyItemRemoved(index)
-                            }
-                        }
-                        break
-                    }
-                }
-            }
-        }
-    }
-
-    override fun onApplicationIsChanged(intent: Intent) {}
-
-    override fun onClick(application: Application, view: View, position: Int) {
-        application.apply {
-            try {
-                ActivityCompat.startActivity(
-                    requireActivity(), intent, ActivityOptionsCompat
-                        .makeThumbnailScaleUpAnimation(
-                            view, application.icon, 0, 0
-                        ).toBundle()
+                GridLayoutManager(
+                    requireContext(),
+                    preferences.getInt(PreferencesActivity.GRID_VIEW_COLUMNS, 3)
                 )
-            } catch (_: Throwable) {
-            }
-
-
-            if (isNew) {
-                isNew = false
-                launch(Dispatchers.Main) {
-                    applicationsAdapter.notifyItemChanged(position)
-                }
+            } else {
+                addItemDecoration(
+                    DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL)
+                )
+                LinearLayoutManager(requireContext())
             }
         }
     }
 
-    override fun onLongClick(application: Application, view: View, position: Int) =
-        ApplicationActionsDialog(application)
+    override fun onClickApplication(
+        application: Application,
+        view: View,
+        position: Int
+    ): Application? {
+        try {
+            ActivityCompat.startActivity(
+                requireActivity(), application.intent, ActivityOptionsCompat
+                    .makeThumbnailScaleUpAnimation(
+                        view, application.icon, 0, 0
+                    ).toBundle()
+            )
+        } catch (_: Throwable) {
+        }
+
+
+        if (application.isNew) {
+            return application.copy(isNew = false)
+        }
+        return null
+    }
+
+    override fun onLongClickApplication(
+        application: Application,
+        view: View,
+        position: Int
+    ): Application? {
+        ApplicationOptionsDialog(application)
             .show(parentFragmentManager, "ApplicationActions")
+        return null
+    }
 
 
     override fun onStop() {
         super.onStop()
-        with(binding.mSearch) {
+        with(binding.searchIconButton) {
             if (!isIconified) {
                 onActionViewCollapsed()
                 isIconified = true
@@ -204,6 +145,6 @@ class ApplicationsFragment : Fragment(), ApplicationsEventHandler.Listener,
 
     override fun onDestroy() {
         super.onDestroy()
-        requireContext().unregisterReceiver(eventHandler)
+        applicationsAdapter.dispose()
     }
 }

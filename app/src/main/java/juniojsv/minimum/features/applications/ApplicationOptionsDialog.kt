@@ -9,12 +9,13 @@ import android.provider.Settings
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatDialogFragment
 import juniojsv.minimum.R
+import juniojsv.minimum.models.Application
 
-class ApplicationActionsDialog(private val application: Application) : AppCompatDialogFragment() {
+class ApplicationOptionsDialog(private val application: Application) : AppCompatDialogFragment() {
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        return activity?.let {
-            AlertDialog.Builder(it).apply {
+        return activity?.let { activity ->
+            AlertDialog.Builder(activity).apply {
                 setTitle(application.label)
                 setItems(
                     arrayOf(
@@ -24,7 +25,7 @@ class ApplicationActionsDialog(private val application: Application) : AppCompat
                 ) { _, index ->
                     when (index) {
                         0 -> {
-                            activity?.startActivity(
+                            activity.startActivity(
                                 Intent(
                                     Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
                                     Uri.parse("package:${application.packageName}")
@@ -33,7 +34,7 @@ class ApplicationActionsDialog(private val application: Application) : AppCompat
                         }
 
                         1 -> {
-                            activity?.startActivity(
+                            activity.startActivity(
                                 Intent(
                                     ACTION_DELETE,
                                     Uri.parse("package:${application.packageName}")

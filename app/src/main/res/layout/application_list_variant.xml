@@ -6,16 +6,16 @@
     android:background="?selectableItemBackground">
 
     <include
-        android:id="@+id/mIncludeApplicationIcon"
+        android:id="@+id/include_application_icon"
         layout="@layout/application_icon" />
 
     <TextView
-        android:id="@+id/mLabel"
+        android:id="@+id/label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_marginTop="24dp"
-        android:layout_toEndOf="@+id/mIncludeApplicationIcon"
+        android:layout_toEndOf="@+id/include_application_icon"
         tools:text="@string/app_name" />
 
 </RelativeLayout>

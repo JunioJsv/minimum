@@ -12,33 +12,23 @@ import juniojsv.minimum.R
 import juniojsv.minimum.appearanceHandler
 import juniojsv.minimum.databinding.PreferencesActivityBinding
 
-class PreferencesActivity : AppCompatActivity(), PreferencesHandler.OnPreferenceChangeListener {
+class PreferencesActivity : AppCompatActivity(),
+    SharedPreferences.OnSharedPreferenceChangeListener {
     private lateinit var binding: PreferencesActivityBinding
     private lateinit var preferences: SharedPreferences
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         preferences = PreferenceManager.getDefaultSharedPreferences(applicationContext)
+        preferences.registerOnSharedPreferenceChangeListener(this)
         appearanceHandler(preferences)
 
         binding = PreferencesActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         supportFragmentManager.commit {
-            replace(R.id.mPreference_fragment, PreferencesFragment())
+            replace(R.id.preferences_fragment, PreferencesFragment())
         }
-
-        PreferencesHandler.addListener(this)
-    }
-
-    override fun onResume() {
-        super.onResume()
-        preferences.registerOnSharedPreferenceChangeListener(PreferencesHandler)
-    }
-
-    override fun onPause() {
-        super.onPause()
-        preferences.unregisterOnSharedPreferenceChangeListener(PreferencesHandler)
     }
 
     class PreferencesFragment : PreferenceFragmentCompat() {
@@ -51,10 +41,10 @@ class PreferencesActivity : AppCompatActivity(), PreferencesHandler.OnPreference
 
     override fun onDestroy() {
         super.onDestroy()
-        PreferencesHandler.removeListener(this)
+        preferences.unregisterOnSharedPreferenceChangeListener(this)
     }
 
-    override fun onPreferenceChange(key: String) {
+    override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
         when (key) {
             DARK_MODE, ACCENT_COLOR -> {
                 recreate()
