@@ -3,24 +3,19 @@
 
 ### Minimalist App Launcher for Effortless Efficiency.
 
-<a href='https://play.google.com/store/apps/details?id=juniojsv.minimum&pcampaignid=pcampaignidMKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'>
+<a  href='https://play.google.com/store/apps/details?id=juniojsv.minimum&pcampaignid=pcampaignidMKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'>
 <img height=100 alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png'/></a>
 
 **Highlights**:
 
-**Enhanced Design**: We present an even more refined design, featuring intuitive icons and a minimalist interface for smooth and enjoyable navigation.
+**Enhanced Design**: Enjoy a more refined design with intuitive icons and a minimalist interface for smooth navigation.
 
-**Optimized Performance**: Our focus remains on speed. We have fine-tuned performance to ensure quick startup and a responsive experience while navigating through your favorite apps.
+**Optimized Performance**: Experience quick startup and responsive navigation in your favorite apps with fine-tuned performance.
 
-**Simplified Customization**: The Minimum allows you to personalize your digital space according to your style. Choose from a variety of themes and color schemes to make your launcher truly unique.
+**Simplified Customization**: Personalize your digital space with The Minimum, offering a variety of themes and color schemes for a truly unique launcher.
 
-**Less is More**: Staying true to our minimalist philosophy, we have removed any excess to provide a pure and focused user experience.
+**Less is More**: Embrace a minimalist philosophy with a pure and focused user experience by removing any excess elements.
 
-**Enhanced Compatibility**: Now with improved support for the latest devices, ensuring that Minimum is the perfect choice regardless of your device.
-<br><br><br><br>
-
-
-
-<p align="center">Experience simplicity at its best with Minimum. Download now and discover a new level of lightness and efficiency on your device!</p>
+**Enhanced Compatibility**: Minimum now offers improved support for the latest devices, ensuring a seamless experience regardless of your device.
     
 <p align="center">Created by Jeovane Santos, Aka JunioJsv</p>
