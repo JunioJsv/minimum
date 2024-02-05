@@ -6,7 +6,6 @@
     <string name="appearance_category">Appearance</string>
     <string name="about_category">About</string>
     <string name="todo" translatable="false">TODO</string>
-    <string name="search">Search</string>
     <string name="dark_theme_title">Dark theme</string>
     <string name="dark_theme_summary">Activate dark theme</string>
     <string name="accent_color_title">Accent color</string>
@@ -24,14 +23,8 @@
     <string name="grid_view_summary">Activate grid view</string>
     <string name="grid_view_columns_title">Grid columns count</string>
     <string name="action_uninstall">Uninstall</string>
+    <string name="action_pin_at_top">Pin at top</string>
+    <string name="action_unpin_of_top">Unpin of top</string>
     <string name="action_information">Information</string>
-    <string name="action_add_bookmark">Add to bookmarks</string>
-    <string name="action_remove_bookmark">Remove from bookmarks</string>
     <string name="applications">Applications</string>
-    <string name="all_applications">All applications</string>
-    <string name="only_favorites">Only favorites</string>
-    <string name="expose">Expose</string>
-    <string name="add_widget">Add widget</string>
-    <string name="change_wallpaper">Change wallpaper</string>
-    <string name="remove">Remove</string>
 </resources>

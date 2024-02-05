@@ -12,12 +12,12 @@
             app:iconSpaceReserved="false" />
         <SeekBarPreference
             android:key="grid_view_columns"
-            android:max="4"
+            android:max="5"
             android:title="@string/grid_view_columns_title"
             app:defaultValue="3"
             app:dependency="grid_view"
             app:iconSpaceReserved="false"
-            app:min="2"
+            app:min="3"
             app:showSeekBarValue="true" />
         <SwitchPreferenceCompat
             android:defaultValue="false"

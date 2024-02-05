@@ -117,7 +117,11 @@ class ApplicationsAdapter(
 
     private val isFilteringApplications get() = showOnlyApplicationsWithIndexes?.isNotEmpty() == true
     private fun getApplicationsCount() = showOnlyApplicationsWithIndexes?.size ?: applications.size
-    private fun getApplicationIndex(position: Int) =
+
+    private fun getApplicationIndexByPackageName(packageName: String) =
+        applications.indexOfFirst { it.packageName == packageName }
+
+    private fun getApplicationIndexByBindViewPositon(position: Int) =
         showOnlyApplicationsWithIndexes?.get(position) ?: position
 
     override fun onShowOnlyApplicationsWithIndexChange(indexes: List<Int>) {
@@ -134,18 +138,29 @@ class ApplicationsAdapter(
 
     override
     fun getItemId(position: Int): Long {
-        val index = getApplicationIndex(position)
+        val index = getApplicationIndexByBindViewPositon(position)
 
         return applications[index].hashCode().toLong()
     }
 
-    override fun onBindViewHolder(holder: ApplicationViewHolder, position: Int) {
-        val index = getApplicationIndex(position)
-
-        holder.bind(applications[index], position, callbacks) {
-            applications[index] = it
-            notifyItemChanged(index)
+    private fun onApplicationChange(application: Application) {
+        val index = getApplicationIndexByPackageName(application.packageName)
+        if (index != -1) {
+            val previous = applications[index]
+            applications[index] = application
+            if (previous.isPinned != application.isPinned) {
+                applications.sort()
+                notifyDataSetChanged()
+            } else {
+                notifyItemChanged(index)
+            }
         }
+    }
+
+    override fun onBindViewHolder(holder: ApplicationViewHolder, position: Int) {
+        val index = getApplicationIndexByBindViewPositon(position)
+
+        holder.bind(applications[index], callbacks, this::onApplicationChange)
     }
 
     override fun onApplicationAdded(intent: Intent) {
@@ -163,7 +178,9 @@ class ApplicationsAdapter(
                         filter.byLastQuery()
                     } else {
                         withContext(Dispatchers.Main) {
-                            notifyItemInserted(applications.indexOf(application))
+                            notifyItemInserted(
+                                getApplicationIndexByPackageName(packageName)
+                            )
                         }
                     }
                 }
@@ -174,7 +191,7 @@ class ApplicationsAdapter(
     override fun onApplicationRemoved(intent: Intent) {
         launch {
             intent.data?.encodedSchemeSpecificPart?.let { packageName ->
-                val index = applications.indexOfFirst { it.packageName == packageName }
+                val index = getApplicationIndexByPackageName(packageName)
                 if (index != -1) {
                     applications.removeAt(index)
                     if (isFilteringApplications) {
@@ -192,7 +209,7 @@ class ApplicationsAdapter(
     override fun onApplicationReplaced(intent: Intent) {
         launch {
             intent.data?.encodedSchemeSpecificPart?.let { packageName ->
-                val index = applications.indexOfFirst { it.packageName == packageName }
+                val index = getApplicationIndexByPackageName(packageName)
                 if (index != -1) {
                     applications[index] = applications[index].copy(isNew = true)
                     withContext(Dispatchers.Main) {

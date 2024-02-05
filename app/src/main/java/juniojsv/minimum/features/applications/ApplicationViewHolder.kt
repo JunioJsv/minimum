@@ -7,21 +7,28 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
 import juniojsv.minimum.R
 import juniojsv.minimum.models.Application
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import kotlin.coroutines.CoroutineContext
 
 class ApplicationViewHolder(private val binding: ViewBinding) :
-    RecyclerView.ViewHolder(binding.root) {
+    RecyclerView.ViewHolder(binding.root), CoroutineScope {
+    override val coroutineContext: CoroutineContext
+        get() = Dispatchers.Default + Job()
+
     interface Callbacks {
-        fun onClickApplication(application: Application, view: View, position: Int): Application?
-        fun onLongClickApplication(
+        suspend fun onClickApplication(application: Application, view: View): Application?
+        suspend fun onLongClickApplication(
             application: Application,
             view: View,
-            position: Int
         ): Application?
     }
 
     fun bind(
         application: Application,
-        index: Int,
         callbacks: Callbacks,
         onChangeApplication: (application: Application) -> Unit
     ) {
@@ -30,12 +37,26 @@ class ApplicationViewHolder(private val binding: ViewBinding) :
             findViewById<ImageView>(R.id.icon).setImageBitmap(application.icon)
             findViewById<ImageView>(R.id.is_new).visibility =
                 if (application.isNew) View.VISIBLE else View.GONE
+            findViewById<ImageView>(R.id.is_pinned).visibility =
+                if (application.isPinned) View.VISIBLE else View.GONE
 
             setOnClickListener {
-                callbacks.onClickApplication(application, it, index)?.let(onChangeApplication)
+                launch {
+                    callbacks.onClickApplication(application, it)?.let { application ->
+                        withContext(Dispatchers.Main) {
+                            onChangeApplication(application)
+                        }
+                    }
+                }
             }
             setOnLongClickListener {
-                callbacks.onLongClickApplication(application, it, index)?.let(onChangeApplication)
+                launch {
+                    callbacks.onLongClickApplication(application, it)?.let { application ->
+                        withContext(Dispatchers.Main) {
+                            onChangeApplication(application)
+                        }
+                    }
+                }
                 true
             }
         }

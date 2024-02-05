@@ -25,6 +25,8 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 class ApplicationsFragment : Fragment(),
     ApplicationViewHolder.Callbacks, CoroutineScope {
@@ -100,10 +102,9 @@ class ApplicationsFragment : Fragment(),
         }
     }
 
-    override fun onClickApplication(
+    override suspend fun onClickApplication(
         application: Application,
         view: View,
-        position: Int
     ): Application? {
         try {
             ActivityCompat.startActivity(
@@ -122,14 +123,20 @@ class ApplicationsFragment : Fragment(),
         return null
     }
 
-    override fun onLongClickApplication(
+    override suspend fun onLongClickApplication(
         application: Application,
         view: View,
-        position: Int
-    ): Application? {
-        ApplicationOptionsDialog(application)
-            .show(parentFragmentManager, "ApplicationActions")
-        return null
+    ): Application? = suspendCoroutine { continuation ->
+        var update: Application? = null
+        ApplicationOptionsDialog(application, object : ApplicationOptionsDialog.Callbacks {
+            override fun onTogglePinAtTop() {
+                update = application.copy(isPinned = !application.isPinned)
+            }
+
+            override fun onDismiss() {
+                continuation.resume(update)
+            }
+        }).show(parentFragmentManager, ApplicationOptionsDialog.TAG)
     }
 
 

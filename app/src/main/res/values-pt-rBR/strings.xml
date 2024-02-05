@@ -5,7 +5,6 @@
     <string name="preferences_shortcut">Preferências</string>
     <string name="appearance_category">Aparência</string>
     <string name="about_category">Sobre</string>
-    <string name="search">Buscar</string>
     <string name="dark_theme_title">Tema escuro</string>
     <string name="dark_theme_summary">Ativar tema escuro</string>
     <string name="accent_color_title">Cor de destaque</string>
@@ -22,14 +21,8 @@
     <string name="grid_view_summary">Ativar visualização em grade</string>
     <string name="grid_view_columns_title">Número de colunas na grade</string>
     <string name="action_uninstall">Desinstalar</string>
+    <string name="action_pin_at_top">Fixar ao topo</string>
+    <string name="action_unpin_of_top">Desafixar do topo</string>
     <string name="action_information">Informações</string>
-    <string name="action_add_bookmark">Adicionar aos favoritos</string>
-    <string name="action_remove_bookmark">Remover dos favoritos</string>
     <string name="applications">Aplicativos</string>
-    <string name="all_applications">Todos aplicativos</string>
-    <string name="only_favorites">Apenas favoritos</string>
-    <string name="expose">Exibir</string>
-    <string name="add_widget">Adicionar widget</string>
-    <string name="change_wallpaper">Alterar wallpaper</string>
-    <string name="remove">Remover</string>
 </resources>
