@@ -55,8 +55,7 @@ class ApplicationsFragment : Fragment(),
         applicationsAdapter =
             ApplicationsAdapter(requireContext(), this).apply {
                 launch {
-                    fetchAllApplications()
-
+                    getInstalledApplications()
                     withContext(Dispatchers.Main) {
                         binding.applicationsContainer.visibility = VISIBLE
                         binding.loading.visibility = GONE

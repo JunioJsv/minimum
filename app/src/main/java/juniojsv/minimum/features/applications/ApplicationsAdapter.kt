@@ -3,11 +3,13 @@ package juniojsv.minimum.features.applications
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.core.graphics.drawable.toBitmap
+import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import juniojsv.minimum.BuildConfig
@@ -32,6 +34,7 @@ class ApplicationsAdapter(
     private val callbacks: ApplicationViewHolder.Callbacks
 ) : RecyclerView.Adapter<ApplicationViewHolder>(), ApplicationsAdapterFilter.Callbacks,
     ApplicationsEventsBroadcastReceiver.Listener, CoroutineScope {
+    private var preferences: SharedPreferences
     private val events = ApplicationsEventsBroadcastReceiver(this)
     private val applications = arrayListOf<Application>()
     val filter = ApplicationsAdapterFilter(applications, this)
@@ -42,6 +45,7 @@ class ApplicationsAdapter(
 
     init {
         setHasStableIds(true)
+        preferences = PreferenceManager.getDefaultSharedPreferences(context)
         context.registerReceiver(
             events,
             ApplicationsEventsBroadcastReceiver.DEFAULT_INTENT_FILTER,
@@ -50,6 +54,12 @@ class ApplicationsAdapter(
 
     fun dispose() {
         context.unregisterReceiver(events)
+        preferences.edit().apply {
+            putStringSet(
+                PINNED_AT_TOP_APPLICATIONS,
+                getPinnedApplicationsPackages().toSet()
+            )
+        }.apply()
     }
 
     private suspend fun getApplication(info: ApplicationInfo) = coroutineScope {
@@ -69,16 +79,21 @@ class ApplicationsAdapter(
         application
     }
 
-    suspend fun fetchAllApplications() = coroutineScope {
+    /**
+     * Setup applications list on [ApplicationsAdapter]
+     */
+    suspend fun getInstalledApplications() = coroutineScope {
         showOnlyApplicationsWithIndexes = null
         val packageManager = context.packageManager
         val installedApplications = async {
             packageManager.getInstalledApplications(PackageManager.GET_META_DATA)
         }
+        val pinnedApplications = preferences.getStringSet(PINNED_AT_TOP_APPLICATIONS, setOf())
         val deferreds = mutableListOf<Deferred<Application?>>()
 
         for (info in installedApplications.await()) {
-            deferreds.add(async { getApplication(info) })
+            val isPinned = pinnedApplications?.contains(info.packageName) == true
+            deferreds.add(async { getApplication(info)?.copy(isPinned = isPinned) })
         }
 
         applications.apply {
@@ -121,12 +136,21 @@ class ApplicationsAdapter(
     private fun getApplicationIndexByPackageName(packageName: String) =
         applications.indexOfFirst { it.packageName == packageName }
 
-    private fun getApplicationIndexByBindViewPositon(position: Int) =
+    private fun getApplicationIndexByBindViewPosition(position: Int) =
         showOnlyApplicationsWithIndexes?.get(position) ?: position
 
     override fun onShowOnlyApplicationsWithIndexChange(indexes: List<Int>) {
         showOnlyApplicationsWithIndexes = indexes
         notifyDataSetChanged()
+    }
+
+    private fun getPinnedApplicationsPackages() = applications.mapNotNull {
+        var packageName: String? = null
+        if (it.isPinned) {
+            packageName = it.packageName
+        }
+
+        packageName
     }
 
     override fun onStopFilteringApplications() {
@@ -138,7 +162,7 @@ class ApplicationsAdapter(
 
     override
     fun getItemId(position: Int): Long {
-        val index = getApplicationIndexByBindViewPositon(position)
+        val index = getApplicationIndexByBindViewPosition(position)
 
         return applications[index].hashCode().toLong()
     }
@@ -149,8 +173,13 @@ class ApplicationsAdapter(
             val previous = applications[index]
             applications[index] = application
             if (previous.isPinned != application.isPinned) {
-                applications.sort()
-                notifyDataSetChanged()
+                launch {
+                    applications.sort()
+                    withContext(Dispatchers.Main) {
+                        notifyDataSetChanged()
+                    }
+                }
+
             } else {
                 notifyItemChanged(index)
             }
@@ -158,7 +187,7 @@ class ApplicationsAdapter(
     }
 
     override fun onBindViewHolder(holder: ApplicationViewHolder, position: Int) {
-        val index = getApplicationIndexByBindViewPositon(position)
+        val index = getApplicationIndexByBindViewPosition(position)
 
         holder.bind(applications[index], callbacks, this::onApplicationChange)
     }
@@ -218,5 +247,9 @@ class ApplicationsAdapter(
                 }
             }
         }
+    }
+
+    private companion object Key {
+        const val PINNED_AT_TOP_APPLICATIONS = "pinned_at_to_applications"
     }
 }
