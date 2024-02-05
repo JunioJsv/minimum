@@ -22,6 +22,7 @@ class MinimumActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenc
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        PreferenceManager.setDefaultValues(this, R.xml.preferences, false)
         preferences = PreferenceManager.getDefaultSharedPreferences(applicationContext)
         preferences.registerOnSharedPreferenceChangeListener(this)
         appearanceHandler(preferences)

@@ -20,7 +20,7 @@
             app:min="3"
             app:showSeekBarValue="true" />
         <SwitchPreferenceCompat
-            android:defaultValue="false"
+            android:defaultValue="true"
             android:key="dark_mode"
             android:summary="@string/dark_theme_summary"
             android:title="@string/dark_theme_title"
