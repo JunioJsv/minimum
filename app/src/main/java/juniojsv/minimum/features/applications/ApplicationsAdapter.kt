@@ -175,11 +175,14 @@ class ApplicationsAdapter(
             if (previous.isPinned != application.isPinned) {
                 launch {
                     applications.sort()
-                    withContext(Dispatchers.Main) {
-                        notifyDataSetChanged()
+                    if (isFilteringApplications) {
+                        filter.byLastQuery()
+                    } else {
+                        withContext(Dispatchers.Main) {
+                            notifyDataSetChanged()
+                        }
                     }
                 }
-
             } else {
                 notifyItemChanged(index)
             }

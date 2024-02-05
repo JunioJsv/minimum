@@ -1,5 +1,3 @@
-@file:Suppress("UnstableApiUsage")
-
 plugins {
     id("com.android.application")
     id("kotlin-android")
@@ -10,18 +8,18 @@ repositories {
 }
 
 android {
-    compileSdkVersion(33)
+    namespace = "juniojsv.minimum"
     defaultConfig {
         applicationId = "juniojsv.minimum"
-        versionCode = 131
-        versionName = "1.3.0"
-        setMinSdkVersion(21)
-        targetSdkVersion(33)
+        minSdk = 21
+        targetSdk = 33
+        compileSdk = 33
+        versionCode = 132
+        versionName = "1.4.0"
         setProperty("archivesBaseName", "$applicationId-v$versionName")
     }
-    kotlinOptions {
-        jvmTarget = "1.8"
-        useIR = true
+    androidResources {
+        generateLocaleConfig = true
     }
     buildTypes {
         getByName("release") {
@@ -36,7 +34,6 @@ android {
     buildFeatures {
         viewBinding = true
     }
-    buildToolsVersion = "30.0.3"
 }
 
 dependencies {
