@@ -19,6 +19,8 @@ class ApplicationsAdapterFilter(
 ) : SearchView.OnQueryTextListener, CoroutineScope {
     private var lastQuery = String()
 
+    val isFiltering = lastQuery.isEmpty()
+
     interface Callbacks {
         fun onShowOnlyApplicationsWithIndexChange(indexes: List<Int>)
         fun onStopFilteringApplications()

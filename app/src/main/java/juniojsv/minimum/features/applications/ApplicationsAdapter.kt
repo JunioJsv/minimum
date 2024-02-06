@@ -8,12 +8,10 @@ import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.core.graphics.drawable.toBitmap
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import juniojsv.minimum.BuildConfig
-import juniojsv.minimum.R
 import juniojsv.minimum.databinding.ApplicationGridVariantBinding
 import juniojsv.minimum.databinding.ApplicationListVariantBinding
 import juniojsv.minimum.models.Application
@@ -25,20 +23,17 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import kotlin.coroutines.CoroutineContext
 
 @SuppressLint("UnspecifiedRegisterReceiverFlag")
 class ApplicationsAdapter(
     private val context: Context,
     private val callbacks: ApplicationViewHolder.Callbacks
-) : RecyclerView.Adapter<ApplicationViewHolder>(), ApplicationsAdapterFilter.Callbacks,
+) : RecyclerView.Adapter<ApplicationViewHolder>(),
     ApplicationsEventsBroadcastReceiver.Listener, CoroutineScope {
     private var preferences: SharedPreferences
     private val events = ApplicationsEventsBroadcastReceiver(this)
-    private val applications = arrayListOf<Application>()
-    val filter = ApplicationsAdapterFilter(applications, this)
-    private var showOnlyApplicationsWithIndexes: List<Int>? = null
+    val controller = ApplicationsAdapterController(this)
 
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.Default + Job()
@@ -57,24 +52,20 @@ class ApplicationsAdapter(
         preferences.edit().apply {
             putStringSet(
                 PINNED_AT_TOP_APPLICATIONS,
-                getPinnedApplicationsPackages().toSet()
+                controller.getPinnedApplicationsPackages().toSet()
             )
         }.apply()
     }
 
-    private suspend fun getApplication(info: ApplicationInfo) = coroutineScope {
+    private suspend fun getApplicationByInfo(info: ApplicationInfo) = coroutineScope {
         val packageManager = context.packageManager
         val intent = packageManager.getLaunchIntentForPackage(info.packageName)
         var application: Application? = null
         if (intent != null && info.packageName != BuildConfig.APPLICATION_ID) {
             val label = async { info.loadLabel(packageManager) as String }
-            val icon = async {
-                val size = context.resources.getDimensionPixelSize(R.dimen.dp48)
-                info.loadIcon(packageManager).toBitmap(size, size)
-            }
             val packageName: String = info.packageName
 
-            application = Application(label.await(), icon.await(), packageName, intent)
+            application = Application(label.await(), packageName, intent)
         }
         application
     }
@@ -83,7 +74,6 @@ class ApplicationsAdapter(
      * Setup applications list on [ApplicationsAdapter]
      */
     suspend fun getInstalledApplications() = coroutineScope {
-        showOnlyApplicationsWithIndexes = null
         val packageManager = context.packageManager
         val installedApplications = async {
             packageManager.getInstalledApplications(PackageManager.GET_META_DATA)
@@ -93,17 +83,10 @@ class ApplicationsAdapter(
 
         for (info in installedApplications.await()) {
             val isPinned = pinnedApplications?.contains(info.packageName) == true
-            deferreds.add(async { getApplication(info)?.copy(isPinned = isPinned) })
+            deferreds.add(async { getApplicationByInfo(info)?.copy(isPinned = isPinned) })
         }
 
-        applications.apply {
-            clear()
-            addAll(deferreds.awaitAll().filterNotNull())
-            sort()
-        }
-        withContext(Dispatchers.Main) {
-            notifyDataSetChanged()
-        }
+        controller.setInstalledApplications(deferreds.awaitAll().filterNotNull())
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ApplicationViewHolder {
@@ -127,72 +110,26 @@ class ApplicationsAdapter(
                 )
         }
 
-        return ApplicationViewHolder(binding)
+        return ApplicationViewHolder(binding, callbacks)
     }
 
-    private val isFilteringApplications get() = showOnlyApplicationsWithIndexes?.isNotEmpty() == true
-    private fun getApplicationsCount() = showOnlyApplicationsWithIndexes?.size ?: applications.size
-
-    private fun getApplicationIndexByPackageName(packageName: String) =
-        applications.indexOfFirst { it.packageName == packageName }
-
-    private fun getApplicationIndexByBindViewPosition(position: Int) =
-        showOnlyApplicationsWithIndexes?.get(position) ?: position
-
-    override fun onShowOnlyApplicationsWithIndexChange(indexes: List<Int>) {
-        showOnlyApplicationsWithIndexes = indexes
-        notifyDataSetChanged()
-    }
-
-    private fun getPinnedApplicationsPackages() = applications.mapNotNull {
-        var packageName: String? = null
-        if (it.isPinned) {
-            packageName = it.packageName
-        }
-
-        packageName
-    }
-
-    override fun onStopFilteringApplications() {
-        showOnlyApplicationsWithIndexes = null
-        notifyDataSetChanged()
-    }
-
-    override fun getItemCount(): Int = getApplicationsCount()
+    override fun getItemCount(): Int = controller.getAdapterApplicationsCount()
 
     override
-    fun getItemId(position: Int): Long {
-        val index = getApplicationIndexByBindViewPosition(position)
+    fun getItemId(position: Int): Long = controller.getAdapterApplicationId(position)
 
-        return applications[index].hashCode().toLong()
+    override fun onBindViewHolder(holder: ApplicationViewHolder, position: Int) {
+        holder.bind(
+            controller.getAdapterApplicationAt(position),
+            this::onApplicationChange
+        )
     }
 
     private fun onApplicationChange(application: Application) {
-        val index = getApplicationIndexByPackageName(application.packageName)
+        val index = controller.getInstalledApplicationIndexByPackageName(application.packageName)
         if (index != -1) {
-            val previous = applications[index]
-            applications[index] = application
-            if (previous.isPinned != application.isPinned) {
-                launch {
-                    applications.sort()
-                    if (isFilteringApplications) {
-                        filter.byLastQuery()
-                    } else {
-                        withContext(Dispatchers.Main) {
-                            notifyDataSetChanged()
-                        }
-                    }
-                }
-            } else {
-                notifyItemChanged(index)
-            }
+            controller.setInstalledApplicationAt(index, application)
         }
-    }
-
-    override fun onBindViewHolder(holder: ApplicationViewHolder, position: Int) {
-        val index = getApplicationIndexByBindViewPosition(position)
-
-        holder.bind(applications[index], callbacks, this::onApplicationChange)
     }
 
     override fun onApplicationAdded(intent: Intent) {
@@ -203,18 +140,8 @@ class ApplicationsAdapter(
                     packageName,
                     PackageManager.GET_META_DATA
                 )
-                getApplication(info)?.let { application ->
-                    applications.add(application.copy(isNew = true))
-                    applications.sort()
-                    if (isFilteringApplications) {
-                        filter.byLastQuery()
-                    } else {
-                        withContext(Dispatchers.Main) {
-                            notifyItemInserted(
-                                getApplicationIndexByPackageName(packageName)
-                            )
-                        }
-                    }
+                getApplicationByInfo(info)?.let { application ->
+                    controller.addInstalledApplication(application.copy(isNew = true))
                 }
             }
         }
@@ -223,30 +150,23 @@ class ApplicationsAdapter(
     override fun onApplicationRemoved(intent: Intent) {
         launch {
             intent.data?.encodedSchemeSpecificPart?.let { packageName ->
-                val index = getApplicationIndexByPackageName(packageName)
+                val index = controller.getInstalledApplicationIndexByPackageName(packageName)
                 if (index != -1) {
-                    applications.removeAt(index)
-                    if (isFilteringApplications) {
-                        filter.byLastQuery()
-                    } else {
-                        withContext(Dispatchers.Main) {
-                            notifyItemRemoved(index)
-                        }
-                    }
+                    controller.removeInstalledApplicationAt(index)
                 }
             }
         }
     }
 
-    override fun onApplicationReplaced(intent: Intent) {
+    override fun onApplicationUpdated(intent: Intent) {
         launch {
             intent.data?.encodedSchemeSpecificPart?.let { packageName ->
-                val index = getApplicationIndexByPackageName(packageName)
+                val index = controller.getInstalledApplicationIndexByPackageName(packageName)
                 if (index != -1) {
-                    applications[index] = applications[index].copy(isNew = true)
-                    withContext(Dispatchers.Main) {
-                        notifyItemChanged(index)
-                    }
+                    controller.setInstalledApplicationAt(
+                        index,
+                        controller.getInstalledApplicationAt(index).copy(isNew = true)
+                    )
                 }
             }
         }

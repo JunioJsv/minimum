@@ -2,20 +2,24 @@ package juniojsv.minimum.features.applications
 
 import android.animation.LayoutTransition
 import android.content.SharedPreferences
+import android.content.pm.PackageManager
+import android.graphics.Bitmap
 import android.os.Bundle
+import android.util.LruCache
 import android.view.LayoutInflater
 import android.view.View
 import android.view.View.GONE
 import android.view.View.VISIBLE
 import android.view.ViewGroup
-import androidx.core.app.ActivityCompat
 import androidx.core.app.ActivityOptionsCompat
+import androidx.core.graphics.drawable.toBitmap
 import androidx.fragment.app.Fragment
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import juniojsv.minimum.R
 import juniojsv.minimum.databinding.ApplicationsFragmentBinding
 import juniojsv.minimum.features.preferences.PreferencesActivity
 import juniojsv.minimum.models.Application
@@ -33,12 +37,13 @@ class ApplicationsFragment : Fragment(),
     private lateinit var binding: ApplicationsFragmentBinding
     private lateinit var preferences: SharedPreferences
     private lateinit var applicationsAdapter: ApplicationsAdapter
-    private val job = Job()
-    override val coroutineContext: CoroutineContext = Dispatchers.IO + job
+    private lateinit var packageManager: PackageManager
+    override val coroutineContext: CoroutineContext = Dispatchers.Default + Job()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         preferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
+        packageManager = requireContext().packageManager
     }
 
     override fun onCreateView(
@@ -71,7 +76,7 @@ class ApplicationsFragment : Fragment(),
         with(binding.searchIconButton) {
             layoutTransition = LayoutTransition()
             maxWidth = Int.MAX_VALUE
-            setOnQueryTextListener(applicationsAdapter.filter)
+            setOnQueryTextListener(applicationsAdapter.controller.filter)
             setOnSearchClickListener {
                 binding.searchTitle.visibility = GONE
             }
@@ -101,16 +106,25 @@ class ApplicationsFragment : Fragment(),
         }
     }
 
+    override fun getApplicationIcon(application: Application): Bitmap {
+        val packageName = application.packageName
+        return BitmapCache.get(packageName) ?: run {
+            val size = resources.getDimensionPixelSize(R.dimen.dp48)
+            val drawable = packageManager.getApplicationIcon(packageName)
+            val bitmap = drawable.toBitmap(size, size)
+            BitmapCache.put(packageName, bitmap)
+            bitmap
+        }
+    }
+
     override suspend fun onClickApplication(
         application: Application,
         view: View,
     ): Application? {
         try {
-            ActivityCompat.startActivity(
-                requireActivity(), application.intent, ActivityOptionsCompat
-                    .makeThumbnailScaleUpAnimation(
-                        view, application.icon, 0, 0
-                    ).toBundle()
+            startActivity(
+                application.intent,
+                ActivityOptionsCompat.makeTaskLaunchBehind().toBundle()
             )
         } catch (_: Throwable) {
         }
@@ -152,5 +166,15 @@ class ApplicationsFragment : Fragment(),
     override fun onDestroy() {
         super.onDestroy()
         applicationsAdapter.dispose()
+    }
+
+    private companion object {
+        private val maxMemory = (Runtime.getRuntime().maxMemory() / 1024).toInt()
+
+        object BitmapCache : LruCache<String, Bitmap>(maxMemory / 8) {
+            override fun sizeOf(key: String, bitmap: Bitmap): Int {
+                return bitmap.byteCount / 1024
+            }
+        }
     }
 }
