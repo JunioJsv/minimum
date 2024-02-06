@@ -5,13 +5,13 @@ import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.os.Bundle
+import android.util.Log
 import android.util.LruCache
 import android.view.LayoutInflater
 import android.view.View
 import android.view.View.GONE
 import android.view.View.VISIBLE
 import android.view.ViewGroup
-import androidx.core.app.ActivityOptionsCompat
 import androidx.core.graphics.drawable.toBitmap
 import androidx.fragment.app.Fragment
 import androidx.preference.PreferenceManager
@@ -123,10 +123,11 @@ class ApplicationsFragment : Fragment(),
     ): Application? {
         try {
             startActivity(
-                application.intent,
-                ActivityOptionsCompat.makeTaskLaunchBehind().toBundle()
+                application.launchIntent,
+                null
             )
-        } catch (_: Throwable) {
+        } catch (throwable: Throwable) {
+            Log.e(TAG, throwable.message, throwable)
         }
 
 
@@ -169,6 +170,7 @@ class ApplicationsFragment : Fragment(),
     }
 
     private companion object {
+        private val TAG = this::class.java.name
         private val maxMemory = (Runtime.getRuntime().maxMemory() / 1024).toInt()
 
         object BitmapCache : LruCache<String, Bitmap>(maxMemory / 8) {

@@ -59,13 +59,14 @@ class ApplicationsAdapter(
 
     private suspend fun getApplicationByInfo(info: ApplicationInfo) = coroutineScope {
         val packageManager = context.packageManager
-        val intent = packageManager.getLaunchIntentForPackage(info.packageName)
+        val packageName = info.packageName
+        val launchIntent = packageManager.getLaunchIntentForPackage(info.packageName)
+        val isMinimumAppPackage = packageName == BuildConfig.APPLICATION_ID
         var application: Application? = null
-        if (intent != null && info.packageName != BuildConfig.APPLICATION_ID) {
-            val label = async { info.loadLabel(packageManager) as String }
-            val packageName: String = info.packageName
+        if (!isMinimumAppPackage && launchIntent != null) {
+            val label = info.loadLabel(packageManager) as String
 
-            application = Application(label.await(), packageName, intent)
+            application = Application(label, packageName, launchIntent)
         }
         application
     }
@@ -128,7 +129,7 @@ class ApplicationsAdapter(
     private fun onApplicationChange(application: Application) {
         val index = controller.getInstalledApplicationIndexByPackageName(application.packageName)
         if (index != -1) {
-            controller.setInstalledApplicationAt(index, application)
+            launch { controller.setInstalledApplicationAt(index, application) }
         }
     }
 

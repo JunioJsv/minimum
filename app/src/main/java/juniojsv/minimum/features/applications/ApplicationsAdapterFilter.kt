@@ -10,7 +10,6 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import kotlin.coroutines.CoroutineContext
 
 class ApplicationsAdapterFilter(
@@ -22,8 +21,8 @@ class ApplicationsAdapterFilter(
     val isFiltering = lastQuery.isEmpty()
 
     interface Callbacks {
-        fun onShowOnlyApplicationsWithIndexChange(indexes: List<Int>)
-        fun onStopFilteringApplications()
+        suspend fun onShowOnlyApplicationsWithIndexChange(indexes: List<Int>)
+        suspend fun onStopFilteringApplications()
     }
 
     override val coroutineContext: CoroutineContext
@@ -41,9 +40,7 @@ class ApplicationsAdapterFilter(
                 ) index else null
             }
         }.awaitAll().filterNotNull()
-        withContext(Dispatchers.Main) {
-            callbacks.onShowOnlyApplicationsWithIndexChange(indexes)
-        }
+        callbacks.onShowOnlyApplicationsWithIndexChange(indexes)
     }
 
     suspend fun byLastQuery() = byLabel(lastQuery)
@@ -53,9 +50,7 @@ class ApplicationsAdapterFilter(
         debounce = launch {
             delay(DEBOUNCE_DELAY)
             if (query.isBlank()) {
-                withContext(Dispatchers.Main) {
-                    callbacks.onStopFilteringApplications()
-                }
+                callbacks.onStopFilteringApplications()
             } else if (query != lastQuery) {
                 byLabel(query)
             }

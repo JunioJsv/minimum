@@ -6,7 +6,7 @@ import juniojsv.minimum.models.Application
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.withContext
 import kotlin.coroutines.CoroutineContext
 
@@ -18,7 +18,7 @@ class ApplicationsAdapterController(adapter: ApplicationsAdapter) :
     private val differ = AsyncListDiffer(adapter, this)
     val filter = ApplicationsAdapterFilter(applications, this)
 
-    fun setInstalledApplications(applications: List<Application>) {
+    suspend fun setInstalledApplications(applications: List<Application>) {
         this.applications.apply {
             clear()
             addAll(applications)
@@ -26,26 +26,24 @@ class ApplicationsAdapterController(adapter: ApplicationsAdapter) :
         onInstalledApplicationsChanged()
     }
 
-    fun addInstalledApplication(application: Application) {
+    suspend fun addInstalledApplication(application: Application) {
         applications.add(application)
         onInstalledApplicationsChanged()
     }
 
-    fun removeInstalledApplicationAt(index: Int) {
+    suspend fun removeInstalledApplicationAt(index: Int) {
         applications.removeAt(index)
         onInstalledApplicationsChanged()
     }
 
-    fun setInstalledApplicationAt(index: Int, application: Application) {
+    suspend fun setInstalledApplicationAt(index: Int, application: Application) {
         applications[index] = application
         onInstalledApplicationsChanged()
     }
 
-    private fun setAdapterApplicationsByLastFilterQuery() = launch {
-        filter.byLastQuery()
-    }
+    private suspend fun setAdapterApplicationsByLastFilterQuery() = filter.byLastQuery()
 
-    private fun onInstalledApplicationsChanged() {
+    private suspend fun onInstalledApplicationsChanged() {
         if (filter.isFiltering) {
             setAdapterApplicationsByLastFilterQuery()
         } else {
@@ -56,14 +54,12 @@ class ApplicationsAdapterController(adapter: ApplicationsAdapter) :
     fun getInstalledApplicationIndexByPackageName(packageName: String) =
         applications.indexOfFirst { it.packageName == packageName }
 
-    private fun setAdapterApplications(
+    private suspend fun setAdapterApplications(
         callback: (applications: List<Application>) -> List<Application>
-    ) {
-        launch {
-            val update = callback(differ.currentList).sorted()
-            withContext(Dispatchers.Main) {
-                differ.submitList(update)
-            }
+    ) = coroutineScope {
+        val update = callback(differ.currentList).sorted()
+        withContext(Dispatchers.Main) {
+            differ.submitList(update)
         }
     }
 
@@ -94,15 +90,13 @@ class ApplicationsAdapterController(adapter: ApplicationsAdapter) :
         return differ.currentList[position].hashCode().toLong()
     }
 
-    override fun onShowOnlyApplicationsWithIndexChange(indexes: List<Int>) {
-        launch {
-            setAdapterApplications {
-                indexes.map { index -> applications[index] }
-            }
+    override suspend fun onShowOnlyApplicationsWithIndexChange(indexes: List<Int>) {
+        setAdapterApplications {
+            indexes.map { index -> applications[index] }
         }
     }
 
-    override fun onStopFilteringApplications() {
-        setAdapterApplications { this.applications }
+    override suspend fun onStopFilteringApplications() {
+        setAdapterApplications { applications }
     }
 }
