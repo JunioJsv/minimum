@@ -12,7 +12,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
 
-class ApplicationsAdapterFilter(
+class ApplicationsFilter(
     private val applications: ArrayList<Application>,
     private val callbacks: Callbacks
 ) : SearchView.OnQueryTextListener, CoroutineScope {
@@ -21,7 +21,7 @@ class ApplicationsAdapterFilter(
     val isFiltering = lastQuery.isEmpty()
 
     interface Callbacks {
-        suspend fun onShowOnlyApplicationsWithIndexChange(indexes: List<Int>)
+        suspend fun onShowOnlyApplicationsWithIndex(indexes: List<Int>)
         suspend fun onStopFilteringApplications()
     }
 
@@ -40,7 +40,7 @@ class ApplicationsAdapterFilter(
                 ) index else null
             }
         }.awaitAll().filterNotNull()
-        callbacks.onShowOnlyApplicationsWithIndexChange(indexes)
+        callbacks.onShowOnlyApplicationsWithIndex(indexes)
     }
 
     suspend fun byLastQuery() = byLabel(lastQuery)

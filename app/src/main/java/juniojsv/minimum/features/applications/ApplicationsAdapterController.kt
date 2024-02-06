@@ -11,12 +11,12 @@ import kotlinx.coroutines.withContext
 import kotlin.coroutines.CoroutineContext
 
 class ApplicationsAdapterController(adapter: ApplicationsAdapter) :
-    DiffUtil.ItemCallback<Application>(), ApplicationsAdapterFilter.Callbacks, CoroutineScope {
+    DiffUtil.ItemCallback<Application>(), ApplicationsFilter.Callbacks, CoroutineScope {
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.Default + Job()
     private val applications = arrayListOf<Application>()
     private val differ = AsyncListDiffer(adapter, this)
-    val filter = ApplicationsAdapterFilter(applications, this)
+    val filter = ApplicationsFilter(applications, this)
 
     suspend fun setInstalledApplications(applications: List<Application>) {
         this.applications.apply {
@@ -90,7 +90,7 @@ class ApplicationsAdapterController(adapter: ApplicationsAdapter) :
         return differ.currentList[position].hashCode().toLong()
     }
 
-    override suspend fun onShowOnlyApplicationsWithIndexChange(indexes: List<Int>) {
+    override suspend fun onShowOnlyApplicationsWithIndex(indexes: List<Int>) {
         setAdapterApplications {
             indexes.map { index -> applications[index] }
         }

@@ -41,12 +41,12 @@ class ApplicationViewHolder(
         with(binding.root) {
             findViewById<TextView>(R.id.label).text = application.label
             launch {
+                val view = findViewById<ImageView>(R.id.icon)
                 val animation = AlphaAnimation(0f, 1f).apply {
                     duration = 300
                 }
                 val icon = callbacks.getApplicationIcon(application)
                 withContext(Dispatchers.Main) {
-                    val view = findViewById<ImageView>(R.id.icon)
                     view.startAnimation(animation)
                     view.setImageBitmap(icon)
                 }

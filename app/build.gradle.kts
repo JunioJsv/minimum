@@ -8,7 +8,6 @@ repositories {
 }
 
 android {
-    namespace = "juniojsv.minimum"
     defaultConfig {
         applicationId = "juniojsv.minimum"
         minSdk = 21
@@ -34,9 +33,11 @@ android {
     buildFeatures {
         viewBinding = true
     }
+    namespace = defaultConfig.applicationId
 }
 
 dependencies {
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
-    implementation("androidx.preference:preference-ktx:1.1.1")
+    implementation("androidx.recyclerview:recyclerview:1.3.2")
+    implementation("androidx.preference:preference-ktx:1.2.1")
 }

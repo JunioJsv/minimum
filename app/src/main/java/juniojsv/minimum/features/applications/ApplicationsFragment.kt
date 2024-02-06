@@ -1,6 +1,5 @@
 package juniojsv.minimum.features.applications
 
-import android.animation.LayoutTransition
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
@@ -15,8 +14,10 @@ import android.view.ViewGroup
 import androidx.core.graphics.drawable.toBitmap
 import androidx.fragment.app.Fragment
 import androidx.preference.PreferenceManager
+import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.GridLayoutManager.SpanSizeLookup
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import juniojsv.minimum.R
@@ -37,6 +38,7 @@ class ApplicationsFragment : Fragment(),
     private lateinit var binding: ApplicationsFragmentBinding
     private lateinit var preferences: SharedPreferences
     private lateinit var applicationsAdapter: ApplicationsAdapter
+    private lateinit var applicationsFilterAdapter: ApplicationsFilterAdapter
     private lateinit var packageManager: PackageManager
     override val coroutineContext: CoroutineContext = Dispatchers.Default + Job()
 
@@ -55,35 +57,26 @@ class ApplicationsFragment : Fragment(),
         return binding.root
     }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         applicationsAdapter =
             ApplicationsAdapter(requireContext(), this).apply {
                 launch {
                     getInstalledApplications()
                     withContext(Dispatchers.Main) {
-                        binding.applicationsContainer.visibility = VISIBLE
+                        binding.applications.visibility = VISIBLE
                         binding.loading.visibility = GONE
                     }
                 }
             }
+        applicationsFilterAdapter =
+            ApplicationsFilterAdapter(applicationsAdapter.controller.filter)
 
         binding.applications.apply {
             layoutManager = getRecyclerViewLayoutManagerByPreferences()
-            adapter = applicationsAdapter
-        }
-
-        with(binding.searchIconButton) {
-            layoutTransition = LayoutTransition()
-            maxWidth = Int.MAX_VALUE
-            setOnQueryTextListener(applicationsAdapter.controller.filter)
-            setOnSearchClickListener {
-                binding.searchTitle.visibility = GONE
-            }
-            setOnCloseListener {
-                binding.searchTitle.visibility = VISIBLE
-                false
-            }
+            adapter = ConcatAdapter(ConcatAdapter.Config.Builder().apply {
+                setStableIdMode(ConcatAdapter.Config.StableIdMode.ISOLATED_STABLE_IDS)
+            }.build(), applicationsFilterAdapter, applicationsAdapter)
         }
     }
 
@@ -96,7 +89,18 @@ class ApplicationsFragment : Fragment(),
                 GridLayoutManager(
                     requireContext(),
                     preferences.getInt(PreferencesActivity.GRID_VIEW_COLUMNS, 3)
-                )
+                ).apply {
+                    spanSizeLookup = object : SpanSizeLookup() {
+                        init {
+                            isSpanIndexCacheEnabled = true
+                        }
+
+                        override fun getSpanSize(position: Int): Int {
+                            // On position 0 is filter bar view
+                            return if (position == 0) spanCount else 1
+                        }
+                    }
+                }
             } else {
                 addItemDecoration(
                     DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL)
@@ -151,17 +155,6 @@ class ApplicationsFragment : Fragment(),
                 continuation.resume(update)
             }
         }).show(parentFragmentManager, ApplicationOptionsDialog.TAG)
-    }
-
-
-    override fun onStop() {
-        super.onStop()
-        with(binding.searchIconButton) {
-            if (!isIconified) {
-                onActionViewCollapsed()
-                isIconified = true
-            }
-        }
     }
 
     override fun onDestroy() {
