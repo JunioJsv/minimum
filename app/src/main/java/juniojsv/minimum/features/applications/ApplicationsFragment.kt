@@ -33,8 +33,7 @@ import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
-class ApplicationsFragment : Fragment(),
-    ApplicationViewHolder.Callbacks, CoroutineScope {
+class ApplicationsFragment : Fragment(), ApplicationViewHolder.Callbacks, CoroutineScope {
     private lateinit var binding: ApplicationsFragmentBinding
     private lateinit var preferences: SharedPreferences
     private lateinit var applicationsAdapter: ApplicationsAdapter
@@ -46,6 +45,19 @@ class ApplicationsFragment : Fragment(),
         super.onCreate(savedInstanceState)
         preferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
         packageManager = requireContext().packageManager
+        applicationsAdapter =
+            ApplicationsAdapter(requireContext(), this).apply {
+                lifecycle.addObserver(this)
+                launch {
+                    getInstalledApplications()
+                    withContext(Dispatchers.Main) {
+                        binding.applications.visibility = VISIBLE
+                        binding.loading.visibility = GONE
+                    }
+                }
+            }
+        applicationsFilterAdapter =
+            ApplicationsFilterAdapter(applicationsAdapter.controller.filter)
     }
 
     override fun onCreateView(
@@ -59,19 +71,6 @@ class ApplicationsFragment : Fragment(),
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        applicationsAdapter =
-            ApplicationsAdapter(requireContext(), this).apply {
-                launch {
-                    getInstalledApplications()
-                    withContext(Dispatchers.Main) {
-                        binding.applications.visibility = VISIBLE
-                        binding.loading.visibility = GONE
-                    }
-                }
-            }
-        applicationsFilterAdapter =
-            ApplicationsFilterAdapter(applicationsAdapter.controller.filter)
-
         binding.applications.apply {
             layoutManager = getRecyclerViewLayoutManagerByPreferences()
             adapter = ConcatAdapter(ConcatAdapter.Config.Builder().apply {
@@ -159,7 +158,7 @@ class ApplicationsFragment : Fragment(),
 
     override fun onDestroy() {
         super.onDestroy()
-        applicationsAdapter.dispose()
+        lifecycle.removeObserver(applicationsAdapter)
     }
 
     private companion object {

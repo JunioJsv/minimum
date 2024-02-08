@@ -8,6 +8,8 @@ import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -30,7 +32,7 @@ class ApplicationsAdapter(
     private val context: Context,
     private val callbacks: ApplicationViewHolder.Callbacks
 ) : RecyclerView.Adapter<ApplicationViewHolder>(),
-    ApplicationsEventsBroadcastReceiver.Listener, CoroutineScope {
+    ApplicationsEventsBroadcastReceiver.Listener, DefaultLifecycleObserver, CoroutineScope {
     private var preferences: SharedPreferences
     private val events = ApplicationsEventsBroadcastReceiver(this)
     val controller = ApplicationsAdapterController(this)
@@ -47,7 +49,8 @@ class ApplicationsAdapter(
         )
     }
 
-    fun dispose() {
+    override fun onDestroy(owner: LifecycleOwner) {
+        super.onDestroy(owner)
         context.unregisterReceiver(events)
         preferences.edit().apply {
             putStringSet(
@@ -136,7 +139,7 @@ class ApplicationsAdapter(
     override fun onApplicationAdded(intent: Intent) {
         launch {
             val packageManager = context.packageManager
-            intent.data?.encodedSchemeSpecificPart?.let { packageName ->
+            intent.data?.schemeSpecificPart?.let { packageName ->
                 val info = packageManager.getApplicationInfo(
                     packageName,
                     PackageManager.GET_META_DATA
@@ -150,7 +153,7 @@ class ApplicationsAdapter(
 
     override fun onApplicationRemoved(intent: Intent) {
         launch {
-            intent.data?.encodedSchemeSpecificPart?.let { packageName ->
+            intent.data?.schemeSpecificPart?.let { packageName ->
                 val index = controller.getInstalledApplicationIndexByPackageName(packageName)
                 if (index != -1) {
                     controller.removeInstalledApplicationAt(index)
@@ -161,7 +164,7 @@ class ApplicationsAdapter(
 
     override fun onApplicationUpdated(intent: Intent) {
         launch {
-            intent.data?.encodedSchemeSpecificPart?.let { packageName ->
+            intent.data?.schemeSpecificPart?.let { packageName ->
                 val index = controller.getInstalledApplicationIndexByPackageName(packageName)
                 if (index != -1) {
                     controller.setInstalledApplicationAt(

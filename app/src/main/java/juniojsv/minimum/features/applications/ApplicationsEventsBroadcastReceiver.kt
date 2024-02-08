@@ -13,10 +13,21 @@ class ApplicationsEventsBroadcastReceiver(private val listener: Listener) : Broa
     }
 
     override fun onReceive(context: Context, intent: Intent) {
+        val isReplacingPackage = intent
+            .getBooleanExtra(Intent.EXTRA_REPLACING, false)
         when (intent.action) {
-            Intent.ACTION_PACKAGE_ADDED -> listener.onApplicationAdded(intent)
-            Intent.ACTION_PACKAGE_REMOVED -> listener.onApplicationRemoved(intent)
-            Intent.ACTION_PACKAGE_REPLACED -> listener.onApplicationUpdated(intent)
+            Intent.ACTION_PACKAGE_ADDED -> {
+                if (!isReplacingPackage) {
+                    listener.onApplicationAdded(intent)
+                } else {
+                    listener.onApplicationUpdated(intent)
+                }
+            }
+
+            Intent.ACTION_PACKAGE_REMOVED -> {
+                if (!isReplacingPackage)
+                    listener.onApplicationRemoved(intent)
+            }
         }
     }
 
@@ -25,7 +36,6 @@ class ApplicationsEventsBroadcastReceiver(private val listener: Listener) : Broa
             addDataScheme("package")
             addAction(Intent.ACTION_PACKAGE_ADDED)
             addAction(Intent.ACTION_PACKAGE_REMOVED)
-            addAction(Intent.ACTION_PACKAGE_REPLACED)
         }
     }
 }

@@ -18,7 +18,7 @@ class ApplicationsFilter(
 ) : SearchView.OnQueryTextListener, CoroutineScope {
     private var lastQuery = String()
 
-    val isFiltering = lastQuery.isEmpty()
+    val isFiltering get() = lastQuery.isNotEmpty()
 
     interface Callbacks {
         suspend fun onShowOnlyApplicationsWithIndex(indexes: List<Int>)
@@ -49,7 +49,7 @@ class ApplicationsFilter(
         debounce?.cancel()
         debounce = launch {
             delay(DEBOUNCE_DELAY)
-            if (query.isBlank()) {
+            if (query.isEmpty()) {
                 callbacks.onStopFilteringApplications()
             } else if (query != lastQuery) {
                 byLabel(query)
