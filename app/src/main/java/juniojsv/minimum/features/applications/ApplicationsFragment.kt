@@ -11,6 +11,8 @@ import android.view.View
 import android.view.View.GONE
 import android.view.View.VISIBLE
 import android.view.ViewGroup
+import androidx.activity.OnBackPressedCallback
+import androidx.appcompat.widget.SearchView
 import androidx.core.graphics.drawable.toBitmap
 import androidx.fragment.app.Fragment
 import androidx.preference.PreferenceManager
@@ -24,6 +26,7 @@ import juniojsv.minimum.R
 import juniojsv.minimum.databinding.ApplicationsFragmentBinding
 import juniojsv.minimum.features.preferences.PreferencesActivity
 import juniojsv.minimum.models.Application
+import juniojsv.minimum.setIconified
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -40,6 +43,11 @@ class ApplicationsFragment : Fragment(), ApplicationViewHolder.Callbacks, Corout
     private lateinit var applicationsFilterAdapter: ApplicationsFilterAdapter
     private lateinit var packageManager: PackageManager
     override val coroutineContext: CoroutineContext = Dispatchers.Default + Job()
+    private val onBackPressCallback = object : OnBackPressedCallback(true) {
+        override fun handleOnBackPressed() {
+            setApplicationsFilterViewIconified()
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -77,6 +85,12 @@ class ApplicationsFragment : Fragment(), ApplicationViewHolder.Callbacks, Corout
                 setStableIdMode(ConcatAdapter.Config.StableIdMode.ISOLATED_STABLE_IDS)
             }.build(), applicationsFilterAdapter, applicationsAdapter)
         }
+        requireActivity().onBackPressedDispatcher.addCallback(onBackPressCallback)
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        onBackPressCallback.remove()
     }
 
     private fun getRecyclerViewLayoutManagerByPreferences(): RecyclerView.LayoutManager {
@@ -156,16 +170,38 @@ class ApplicationsFragment : Fragment(), ApplicationViewHolder.Callbacks, Corout
         }).show(parentFragmentManager, ApplicationOptionsDialog.TAG)
     }
 
+    private fun setApplicationsFilterViewIconified() {
+        binding.applications.apply {
+            findViewById<SearchView>(R.id.applications_filter_button)?.setIconified() ?: run {
+                addOnScrollListener(object : RecyclerView.OnScrollListener() {
+                    override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                        super.onScrollStateChanged(recyclerView, newState)
+                        if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                            findViewById<SearchView>(R.id.applications_filter_button)?.setIconified()
+                            recyclerView.removeOnScrollListener(this)
+                        }
+                    }
+                })
+                smoothScrollToPosition(0)
+            }
+        }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        setApplicationsFilterViewIconified()
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         lifecycle.removeObserver(applicationsAdapter)
     }
 
-    private companion object {
-        private val TAG = this::class.java.name
+    companion object {
+        val TAG: String = this::class.java.name
         private val maxMemory = (Runtime.getRuntime().maxMemory() / 1024).toInt()
 
-        object BitmapCache : LruCache<String, Bitmap>(maxMemory / 8) {
+        private object BitmapCache : LruCache<String, Bitmap>(maxMemory / 8) {
             override fun sizeOf(key: String, bitmap: Bitmap): Int {
                 return bitmap.byteCount / 1024
             }

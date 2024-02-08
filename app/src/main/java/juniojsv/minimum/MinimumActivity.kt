@@ -7,9 +7,10 @@ import android.provider.MediaStore
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.commit
 import androidx.preference.PreferenceManager
-import androidx.viewpager.widget.ViewPager
 import juniojsv.minimum.databinding.MinimumActivityBinding
+import juniojsv.minimum.features.applications.ApplicationsFragment
 import juniojsv.minimum.features.preferences.PreferencesActivity
 import juniojsv.minimum.features.preferences.PreferencesActivity.Keys.ACCENT_COLOR
 import juniojsv.minimum.features.preferences.PreferencesActivity.Keys.DARK_MODE
@@ -25,17 +26,13 @@ class MinimumActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenc
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false)
         preferences = PreferenceManager.getDefaultSharedPreferences(applicationContext)
         preferences.registerOnSharedPreferenceChangeListener(this)
-        appearanceHandler(preferences)
+        setActivityThemeByPreferences(preferences)
 
         binding = MinimumActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.pages.apply {
-            adapter = MinimumPages(supportFragmentManager)
-            setPageTransformer(true, MinimumPages.DEFAULT_PAGE_TRANSFORMER)
-            addOnPageChangeListener(object : ViewPager.SimpleOnPageChangeListener() {
-                override fun onPageSelected(position: Int) {}
-            })
+        supportFragmentManager.commit {
+            replace(R.id.applications_fragment, ApplicationsFragment())
         }
     }
 
@@ -66,11 +63,6 @@ class MinimumActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenc
     override fun onDestroy() {
         super.onDestroy()
         preferences.unregisterOnSharedPreferenceChangeListener(this)
-        binding.pages.clearOnPageChangeListeners()
-    }
-
-    override fun onBackPressed() {
-        // Nothings
     }
 
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {

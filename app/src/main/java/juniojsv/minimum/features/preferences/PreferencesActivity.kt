@@ -9,8 +9,8 @@ import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceManager
 import juniojsv.minimum.BuildConfig
 import juniojsv.minimum.R
-import juniojsv.minimum.appearanceHandler
 import juniojsv.minimum.databinding.PreferencesActivityBinding
+import juniojsv.minimum.setActivityThemeByPreferences
 
 class PreferencesActivity : AppCompatActivity(),
     SharedPreferences.OnSharedPreferenceChangeListener {
@@ -21,7 +21,7 @@ class PreferencesActivity : AppCompatActivity(),
         super.onCreate(savedInstanceState)
         preferences = PreferenceManager.getDefaultSharedPreferences(applicationContext)
         preferences.registerOnSharedPreferenceChangeListener(this)
-        appearanceHandler(preferences)
+        setActivityThemeByPreferences(preferences)
 
         binding = PreferencesActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)

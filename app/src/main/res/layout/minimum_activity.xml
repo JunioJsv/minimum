@@ -1,14 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.fragment.app.FragmentContainerView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/applications_fragment"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
-
-    <androidx.viewpager.widget.ViewPager
-        android:id="@+id/pages"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        tools:showIn="@layout/applications_fragment">
-
-    </androidx.viewpager.widget.ViewPager>
-</FrameLayout>
+    android:layout_height="match_parent"
+    tools:layout="@layout/applications_fragment" />
