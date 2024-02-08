@@ -3,6 +3,7 @@ package juniojsv.minimum.features.applications
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.appcompat.widget.SearchView
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import juniojsv.minimum.R
 import juniojsv.minimum.databinding.ApplicationsFilterBinding
@@ -18,10 +19,16 @@ class ApplicationsFilterAdapter(private val listener: SearchView.OnQueryTextList
         parent: ViewGroup,
         viewType: Int
     ): ApplicationsFilterViewHolder {
+        val recyclerView = parent as RecyclerView
+        val layoutManager = recyclerView.layoutManager
         val layoutInflater = LayoutInflater.from(parent.context)
         val binding = ApplicationsFilterBinding.inflate(layoutInflater)
 
-        return ApplicationsFilterViewHolder(binding, listener)
+        return ApplicationsFilterViewHolder(
+            binding,
+            listener,
+            layoutManager is GridLayoutManager
+        )
     }
 
     override fun getItemViewType(position: Int): Int {

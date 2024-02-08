@@ -5,33 +5,17 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <FrameLayout
+    <androidx.appcompat.widget.SearchView
+        android:id="@+id/applications_filter_button"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <TextView
-            android:id="@+id/applications_filter_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:layout_marginStart="8dp"
-            android:drawableStart="@drawable/ic_baseline_apps_24"
-            android:drawablePadding="8dp"
-            android:gravity="center_vertical"
-            android:text="@string/applications"
-            android:textColor="?android:textColorSecondary"
-            android:textStyle="bold" />
-
-        <androidx.appcompat.widget.SearchView
-            android:id="@+id/applications_filter_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="end|center_vertical"
-            app:queryBackground="@android:color/transparent" />
-
-    </FrameLayout>
+        android:layout_height="wrap_content"
+        android:layout_gravity="end|center_vertical"
+        app:iconifiedByDefault="false"
+        app:queryBackground="@android:color/transparent"
+        app:queryHint="@string/search" />
 
     <View
+        android:id="@+id/applications_filter_divider"
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:layout_gravity="center"

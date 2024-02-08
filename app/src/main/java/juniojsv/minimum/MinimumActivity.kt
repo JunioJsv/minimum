@@ -12,10 +12,6 @@ import androidx.preference.PreferenceManager
 import juniojsv.minimum.databinding.MinimumActivityBinding
 import juniojsv.minimum.features.applications.ApplicationsFragment
 import juniojsv.minimum.features.preferences.PreferencesActivity
-import juniojsv.minimum.features.preferences.PreferencesActivity.Keys.ACCENT_COLOR
-import juniojsv.minimum.features.preferences.PreferencesActivity.Keys.DARK_MODE
-import juniojsv.minimum.features.preferences.PreferencesActivity.Keys.GRID_VIEW
-import juniojsv.minimum.features.preferences.PreferencesActivity.Keys.GRID_VIEW_COLUMNS
 
 class MinimumActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceChangeListener {
     private lateinit var binding: MinimumActivityBinding
@@ -67,7 +63,10 @@ class MinimumActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenc
 
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
         when (key) {
-            DARK_MODE, ACCENT_COLOR, GRID_VIEW, GRID_VIEW_COLUMNS -> {
+            getString(R.string.pref_activate_dark_mode_key),
+            getString(R.string.pref_theme_accent_color_key),
+            getString(R.string.pref_activate_grid_view_key),
+            getString(R.string.pref_grid_view_columns_count_key) -> {
                 recreate()
             }
         }

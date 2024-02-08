@@ -4,9 +4,9 @@
     <color name="default_light_color_primary_dark">#00574B</color>
     <color name="default_accent">#D81B60</color>
 
-    <color name="red_light_color_primary">#F44336</color>
+    <color name="red_light_color_primary">#FF5252</color>
     <color name="red_light_color_primary_dark">#D32F2F</color>
-    <color name="red_accent">#EF5350</color>
+    <color name="red_accent">#FF5252</color>
 
     <color name="green_light_color_primary">#4CAF50</color>
     <color name="green_light_color_primary_dark">#388E3C</color>
@@ -14,7 +14,7 @@
 
     <color name="blue_light_color_primary">#2196F3</color>
     <color name="blue_light_color_primary_dark">#1976D2</color>
-    <color name="blue_accent">#29B6F6</color>
+    <color name="blue_accent">#64B5F6</color>
 
     <color name="default_dark_color_primary">#2D3035</color>
     <color name="default_dark_color_primary_dark">#26282C</color>

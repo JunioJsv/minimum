@@ -14,6 +14,7 @@ import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import juniojsv.minimum.BuildConfig
+import juniojsv.minimum.R
 import juniojsv.minimum.databinding.ApplicationGridVariantBinding
 import juniojsv.minimum.databinding.ApplicationListVariantBinding
 import juniojsv.minimum.models.Application
@@ -49,15 +50,18 @@ class ApplicationsAdapter(
         )
     }
 
+    private val isInitialized get() = controller.getInstalledApplicationsCount() > 0
+
     override fun onDestroy(owner: LifecycleOwner) {
         super.onDestroy(owner)
         context.unregisterReceiver(events)
-        preferences.edit().apply {
-            putStringSet(
-                PINNED_AT_TOP_APPLICATIONS,
-                controller.getPinnedApplicationsPackages().toSet()
-            )
-        }.apply()
+        if (isInitialized)
+            preferences.edit().apply {
+                putStringSet(
+                    context.getString(R.string.pref_applications_pinned_at_top_key),
+                    controller.getPinnedApplicationsPackages().toSet()
+                )
+            }.apply()
     }
 
     private suspend fun getApplicationByInfo(info: ApplicationInfo) = coroutineScope {
@@ -82,7 +86,10 @@ class ApplicationsAdapter(
         val installedApplications = async {
             packageManager.getInstalledApplications(PackageManager.GET_META_DATA)
         }
-        val pinnedApplications = preferences.getStringSet(PINNED_AT_TOP_APPLICATIONS, setOf())
+        val pinnedApplications = preferences.getStringSet(
+            context.getString(R.string.pref_applications_pinned_at_top_key),
+            setOf()
+        )
         val deferreds = mutableListOf<Deferred<Application?>>()
 
         for (info in installedApplications.await()) {
@@ -174,9 +181,5 @@ class ApplicationsAdapter(
                 }
             }
         }
-    }
-
-    private companion object Key {
-        const val PINNED_AT_TOP_APPLICATIONS = "pinned_at_to_applications"
     }
 }

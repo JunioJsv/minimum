@@ -47,14 +47,16 @@ class ApplicationsFilter(
 
     override fun onQueryTextSubmit(query: String): Boolean {
         debounce?.cancel()
-        debounce = launch {
-            delay(DEBOUNCE_DELAY)
-            if (query.isEmpty()) {
-                callbacks.onStopFilteringApplications()
-            } else if (query != lastQuery) {
-                byLabel(query)
+        if (query != lastQuery) {
+            debounce = launch {
+                delay(DEBOUNCE_DELAY)
+                if (query.isEmpty()) {
+                    callbacks.onStopFilteringApplications()
+                } else {
+                    byLabel(query)
+                }
+                lastQuery = query
             }
-            lastQuery = query
         }
         return true
     }

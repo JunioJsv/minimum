@@ -4,10 +4,7 @@ import android.content.SharedPreferences
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.commit
-import androidx.preference.Preference
-import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceManager
-import juniojsv.minimum.BuildConfig
 import juniojsv.minimum.R
 import juniojsv.minimum.databinding.PreferencesActivityBinding
 import juniojsv.minimum.setActivityThemeByPreferences
@@ -31,14 +28,6 @@ class PreferencesActivity : AppCompatActivity(),
         }
     }
 
-    class PreferencesFragment : PreferenceFragmentCompat() {
-        override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
-            setPreferencesFromResource(R.xml.preferences, rootKey)
-            findPreference<Preference>(APPLICATION_VERSION)?.summary =
-                "${getString(R.string.version)} ${BuildConfig.VERSION_NAME}"
-        }
-    }
-
     override fun onDestroy() {
         super.onDestroy()
         preferences.unregisterOnSharedPreferenceChangeListener(this)
@@ -46,20 +35,10 @@ class PreferencesActivity : AppCompatActivity(),
 
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
         when (key) {
-            DARK_MODE, ACCENT_COLOR -> {
+            getString(R.string.pref_activate_dark_mode_key),
+            getString(R.string.pref_theme_accent_color_key) -> {
                 recreate()
             }
         }
-    }
-
-    companion object Keys {
-        const val GRID_VIEW = "grid_view"
-        const val GRID_VIEW_COLUMNS = "grid_view_columns"
-        const val DARK_MODE = "dark_mode"
-        const val ACCENT_COLOR = "accent_color"
-        const val ACCENT_COLOR_RED = "red"
-        const val ACCENT_COLOR_GREEN = "green"
-        const val ACCENT_COLOR_BLUE = "blue"
-        const val APPLICATION_VERSION = "application_version"
     }
 }

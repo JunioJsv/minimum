@@ -1,30 +1,44 @@
 <resources>
+    <string name="pref_activate_grid_view_key" translatable="false">activate_grid_view</string>
+    <string name="pref_grid_view_columns_count_key" translatable="false">grid_view_columns_count</string>
+    <string name="pref_activate_dark_mode_key" translatable="false">activate_dark_mode</string>
+    <string name="pref_theme_accent_color_key" translatable="false">theme_accent_color</string>
+    <!-- pref_theme_accent_color_key values -->
+    <string name="pref_theme_accent_color_default" translatable="false">default</string>
+    <string name="pref_theme_accent_color_red" translatable="false">red</string>
+    <string name="pref_theme_accent_color_green" translatable="false">green</string>
+    <string name="pref_theme_accent_color_blue" translatable="false">blue</string>
+
+    <string name="pref_application_version_key" translatable="false">application_version</string>
+    <string name="pref_applications_pinned_at_top_key" translatable="false">applications_pinned_at_top</string>
+
     <string name="app_name" translatable="false">Minimum</string>
-    <string name="dial_shortcut">Dial</string>
-    <string name="camera_shortcut">Camera</string>
-    <string name="preferences_shortcut">Preferences</string>
-    <string name="appearance_category">Appearance</string>
-    <string name="about_category">About</string>
+    <string name="dial">Dial</string>
+    <string name="camera">Camera</string>
+    <string name="preferences">Preferences</string>
+    <string name="appearance">Appearance</string>
+    <string name="about">About</string>
     <string name="todo" translatable="false">TODO</string>
-    <string name="dark_theme_title">Dark theme</string>
-    <string name="dark_theme_summary">Activate dark theme</string>
-    <string name="accent_color_title">Accent color</string>
+    <string name="dark_theme">Dark theme</string>
+    <string name="activate_dark_theme">Activate dark theme</string>
+    <string name="accent_color">Accent color</string>
     <string name="take_pictures_with">Take pictures with</string>
-    <string name="author_title">Author</string>
-    <string name="author_summary">Created by Jeovene Santos, Aka JunioJsv</string>
-    <string name="accent_color_default">Default</string>
-    <string name="accent_color_red">Red</string>
-    <string name="accent_color_green">Green</string>
-    <string name="accent_color_blue">Blue</string>
+    <string name="author">Author</string>
+    <string name="created_by_jeovane">Created by Jeovene Santos, Aka JunioJsv</string>
+    <string name="standard">Default</string>
+    <string name="red">Red</string>
+    <string name="green">Green</string>
+    <string name="blue">Blue</string>
     <string name="version">Version</string>
-    <string name="licence_title">Licence</string>
-    <string name="licence_summary" translatable="false">MIT</string>
-    <string name="grid_view_title">Grid view</string>
-    <string name="grid_view_summary">Activate grid view</string>
-    <string name="grid_view_columns_title">Grid columns count</string>
-    <string name="action_uninstall">Uninstall</string>
-    <string name="action_pin_at_top">Pin at top</string>
-    <string name="action_unpin_of_top">Unpin of top</string>
-    <string name="action_information">Information</string>
+    <string name="licence">Licence</string>
+    <string name="licence_mit" translatable="false">MIT</string>
+    <string name="grid_view">Grid view</string>
+    <string name="activate_grid_view">Activate grid view</string>
+    <string name="grid_view_columns_count">Grid columns count</string>
+    <string name="uninstall">Uninstall</string>
+    <string name="pin_at_top">Pin at top</string>
+    <string name="unpin_of_top">Unpin of top</string>
+    <string name="information">Information</string>
     <string name="applications">Applications</string>
+    <string name="search">Search</string>
 </resources>

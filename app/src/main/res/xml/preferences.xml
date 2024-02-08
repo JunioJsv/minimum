@@ -2,43 +2,44 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <PreferenceCategory
-        android:title="@string/appearance_category"
+        android:title="@string/appearance"
         app:iconSpaceReserved="false">
         <SwitchPreferenceCompat
             android:defaultValue="false"
-            android:key="grid_view"
-            android:summary="@string/grid_view_summary"
-            android:title="@string/grid_view_title"
+            android:key="@string/pref_activate_grid_view_key"
+            android:summary="@string/activate_grid_view"
+            android:title="@string/grid_view"
             app:iconSpaceReserved="false" />
         <SeekBarPreference
-            android:key="grid_view_columns"
+            android:key="@string/pref_grid_view_columns_count_key"
             android:max="5"
-            android:title="@string/grid_view_columns_title"
+            android:title="@string/grid_view_columns_count"
             app:defaultValue="4"
-            app:dependency="grid_view"
+            app:dependency="@string/pref_activate_grid_view_key"
             app:iconSpaceReserved="false"
             app:min="3"
             app:showSeekBarValue="true" />
         <SwitchPreferenceCompat
             android:defaultValue="true"
-            android:key="dark_mode"
-            android:summary="@string/dark_theme_summary"
-            android:title="@string/dark_theme_title"
+            android:key="@string/pref_activate_dark_mode_key"
+            android:summary="@string/activate_dark_theme"
+            android:title="@string/dark_theme"
             app:iconSpaceReserved="false" />
         <ListPreference
-            android:defaultValue="default"
-            android:entries="@array/accent_colors"
-            android:entryValues="@array/accent_colors_values"
-            android:key="accent_color"
-            android:title="@string/accent_color_title"
+            android:defaultValue="@string/pref_theme_accent_color_default"
+            android:entries="@array/theme_accent_colors"
+            android:entryValues="@array/theme_accent_colors_values"
+            android:key="@string/pref_theme_accent_color_key"
+            android:title="@string/accent_color"
             app:iconSpaceReserved="false"
             app:useSimpleSummaryProvider="true" />
     </PreferenceCategory>
     <PreferenceCategory
-        android:title="@string/about_category"
+        android:title="@string/about"
         app:iconSpaceReserved="false">
         <Preference
-            android:key="application_version"
+            android:key="@string/pref_application_version_key"
+            android:persistent="false"
             android:title="@string/app_name"
             app:iconSpaceReserved="false">
             <intent
@@ -46,16 +47,16 @@
                 android:data="https://github.com/JunioJsv/minimum" />
         </Preference>
         <Preference
-            android:summary="@string/licence_summary"
-            android:title="@string/licence_title"
+            android:summary="@string/licence_mit"
+            android:title="@string/licence"
             app:iconSpaceReserved="false">
             <intent
                 android:action="android.intent.action.VIEW"
                 android:data="https://github.com/JunioJsv/minimum/blob/master/LICENSE" />
         </Preference>
         <Preference
-            android:summary="@string/author_summary"
-            android:title="@string/author_title"
+            android:summary="@string/created_by_jeovane"
+            android:title="@string/author"
             app:iconSpaceReserved="false">
             <intent
                 android:action="android.intent.action.VIEW"

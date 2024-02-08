@@ -32,11 +32,11 @@ class ApplicationOptionsDialog(
         return activity?.let { activity ->
             val options = arrayListOf(
                 LabeledCallback(
-                    if (application.isPinned) getString(R.string.action_unpin_of_top)
-                    else getString(R.string.action_pin_at_top),
+                    if (application.isPinned) getString(R.string.unpin_of_top)
+                    else getString(R.string.pin_at_top),
                     callbacks::onTogglePinAtTop
                 ),
-                LabeledCallback(getString(R.string.action_information)) {
+                LabeledCallback(getString(R.string.information)) {
                     activity.startActivity(
                         Intent(
                             Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
@@ -44,7 +44,7 @@ class ApplicationOptionsDialog(
                         )
                     )
                 },
-                LabeledCallback(getString(R.string.action_uninstall)) {
+                LabeledCallback(getString(R.string.uninstall)) {
                     activity.startActivity(
                         Intent(
                             ACTION_DELETE,

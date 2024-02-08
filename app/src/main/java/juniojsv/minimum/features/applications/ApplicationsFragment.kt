@@ -23,10 +23,9 @@ import androidx.recyclerview.widget.GridLayoutManager.SpanSizeLookup
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import juniojsv.minimum.R
+import juniojsv.minimum.clear
 import juniojsv.minimum.databinding.ApplicationsFragmentBinding
-import juniojsv.minimum.features.preferences.PreferencesActivity
 import juniojsv.minimum.models.Application
-import juniojsv.minimum.setIconified
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -45,7 +44,7 @@ class ApplicationsFragment : Fragment(), ApplicationViewHolder.Callbacks, Corout
     override val coroutineContext: CoroutineContext = Dispatchers.Default + Job()
     private val onBackPressCallback = object : OnBackPressedCallback(true) {
         override fun handleOnBackPressed() {
-            setApplicationsFilterViewIconified()
+            setApplicationsFilterViewClear()
         }
     }
 
@@ -80,6 +79,7 @@ class ApplicationsFragment : Fragment(), ApplicationViewHolder.Callbacks, Corout
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.applications.apply {
+            setItemViewCacheSize(20)
             layoutManager = getRecyclerViewLayoutManagerByPreferences()
             adapter = ConcatAdapter(ConcatAdapter.Config.Builder().apply {
                 setStableIdMode(ConcatAdapter.Config.StableIdMode.ISOLATED_STABLE_IDS)
@@ -95,13 +95,17 @@ class ApplicationsFragment : Fragment(), ApplicationViewHolder.Callbacks, Corout
 
     private fun getRecyclerViewLayoutManagerByPreferences(): RecyclerView.LayoutManager {
         with(binding.applications) {
-            return if (preferences.getBoolean(PreferencesActivity.GRID_VIEW, false)) {
+            return if (preferences.getBoolean(
+                    getString(R.string.pref_activate_grid_view_key),
+                    false
+                )
+            ) {
                 if (itemDecorationCount > 0) {
                     removeItemDecorationAt(0)
                 }
                 GridLayoutManager(
                     requireContext(),
-                    preferences.getInt(PreferencesActivity.GRID_VIEW_COLUMNS, 3)
+                    preferences.getInt(getString(R.string.pref_grid_view_columns_count_key), 3)
                 ).apply {
                     spanSizeLookup = object : SpanSizeLookup() {
                         init {
@@ -170,14 +174,14 @@ class ApplicationsFragment : Fragment(), ApplicationViewHolder.Callbacks, Corout
         }).show(parentFragmentManager, ApplicationOptionsDialog.TAG)
     }
 
-    private fun setApplicationsFilterViewIconified() {
+    private fun setApplicationsFilterViewClear() {
         binding.applications.apply {
-            findViewById<SearchView>(R.id.applications_filter_button)?.setIconified() ?: run {
+            findViewById<SearchView>(R.id.applications_filter_button)?.clear() ?: run {
                 addOnScrollListener(object : RecyclerView.OnScrollListener() {
                     override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
                         super.onScrollStateChanged(recyclerView, newState)
                         if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-                            findViewById<SearchView>(R.id.applications_filter_button)?.setIconified()
+                            findViewById<SearchView>(R.id.applications_filter_button)?.clear()
                             recyclerView.removeOnScrollListener(this)
                         }
                     }
@@ -189,7 +193,7 @@ class ApplicationsFragment : Fragment(), ApplicationViewHolder.Callbacks, Corout
 
     override fun onStop() {
         super.onStop()
-        setApplicationsFilterViewIconified()
+        setApplicationsFilterViewClear()
     }
 
     override fun onDestroy() {

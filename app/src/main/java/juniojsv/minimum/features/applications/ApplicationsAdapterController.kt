@@ -84,6 +84,8 @@ class ApplicationsAdapterController(adapter: ApplicationsAdapter) :
         return oldItem == newItem
     }
 
+    fun getInstalledApplicationsCount() = applications.size
+
     fun getAdapterApplicationsCount(): Int = differ.currentList.size
 
     fun getAdapterApplicationId(position: Int): Long {
