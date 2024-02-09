@@ -34,9 +34,3 @@ fun AppCompatActivity.setActivityThemeByPreferences(preferences: SharedPreferenc
 }
 
 fun SearchView.clear() = setQuery("", true)
-fun SearchView.setIconified() {
-    if (!isIconified) {
-        setQuery("", true)
-        isIconified = true
-    }
-}

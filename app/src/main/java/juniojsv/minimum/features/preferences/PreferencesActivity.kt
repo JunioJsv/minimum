@@ -23,9 +23,16 @@ class PreferencesActivity : AppCompatActivity(),
         binding = PreferencesActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+
         supportFragmentManager.commit {
             replace(R.id.preferences_fragment, PreferencesFragment())
         }
+    }
+
+    override fun onSupportNavigateUp(): Boolean {
+        onBackPressedDispatcher.onBackPressed()
+        return super.onSupportNavigateUp()
     }
 
     override fun onDestroy() {

@@ -11,8 +11,10 @@ import android.view.View
 import android.view.View.GONE
 import android.view.View.VISIBLE
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.widget.SearchView
+import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.toBitmap
 import androidx.fragment.app.Fragment
 import androidx.preference.PreferenceManager
@@ -35,21 +37,38 @@ import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
+
 class ApplicationsFragment : Fragment(), ApplicationViewHolder.Callbacks, CoroutineScope {
     private lateinit var binding: ApplicationsFragmentBinding
     private lateinit var preferences: SharedPreferences
     private lateinit var applicationsAdapter: ApplicationsAdapter
     private lateinit var applicationsFilterAdapter: ApplicationsFilterAdapter
     private lateinit var packageManager: PackageManager
+    private var imm: InputMethodManager? = null
     override val coroutineContext: CoroutineContext = Dispatchers.Default + Job()
     private val onBackPressCallback = object : OnBackPressedCallback(true) {
         override fun handleOnBackPressed() {
             setApplicationsFilterViewClear()
         }
     }
+    private val onScrollListener = object : RecyclerView.OnScrollListener() {
+        override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+            super.onScrollStateChanged(recyclerView, newState)
+            recyclerView.apply {
+                val isKeyboardActive = imm?.isActive == true
+                val isFilterViewVisible =
+                    findViewById<SearchView>(R.id.applications_filter_button) != null
+                val isScrollStateIdle = newState == RecyclerView.SCROLL_STATE_IDLE
+                if (isScrollStateIdle && isKeyboardActive && !isFilterViewVisible) {
+                    imm?.hideSoftInputFromWindow(windowToken, 0)
+                }
+            }
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        imm = ContextCompat.getSystemService(requireContext(), InputMethodManager::class.java)
         preferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
         packageManager = requireContext().packageManager
         applicationsAdapter =
@@ -80,6 +99,7 @@ class ApplicationsFragment : Fragment(), ApplicationViewHolder.Callbacks, Corout
         super.onViewCreated(view, savedInstanceState)
         binding.applications.apply {
             setItemViewCacheSize(20)
+            addOnScrollListener(onScrollListener)
             layoutManager = getRecyclerViewLayoutManagerByPreferences()
             adapter = ConcatAdapter(ConcatAdapter.Config.Builder().apply {
                 setStableIdMode(ConcatAdapter.Config.StableIdMode.ISOLATED_STABLE_IDS)
@@ -177,27 +197,30 @@ class ApplicationsFragment : Fragment(), ApplicationViewHolder.Callbacks, Corout
     private fun setApplicationsFilterViewClear() {
         binding.applications.apply {
             findViewById<SearchView>(R.id.applications_filter_button)?.clear() ?: run {
-                addOnScrollListener(object : RecyclerView.OnScrollListener() {
+                val onScrollListener = object : RecyclerView.OnScrollListener() {
                     override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
                         super.onScrollStateChanged(recyclerView, newState)
                         if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-                            findViewById<SearchView>(R.id.applications_filter_button)?.clear()
+                            recyclerView.findViewById<SearchView>(R.id.applications_filter_button)
+                                ?.clear()
                             recyclerView.removeOnScrollListener(this)
                         }
                     }
-                })
+                }
+                addOnScrollListener(onScrollListener)
                 smoothScrollToPosition(0)
             }
         }
     }
 
-    override fun onStop() {
-        super.onStop()
-        setApplicationsFilterViewClear()
+    override fun onResume() {
+        super.onResume()
+        binding.root.requestFocus()
     }
 
     override fun onDestroy() {
         super.onDestroy()
+        binding.applications.removeOnScrollListener(onScrollListener)
         lifecycle.removeObserver(applicationsAdapter)
     }
 
