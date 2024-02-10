@@ -8,13 +8,17 @@ repositories {
 }
 
 android {
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
     defaultConfig {
         applicationId = "juniojsv.minimum"
         minSdk = 21
         targetSdk = 33
         compileSdk = 33
-        versionCode = 133
-        versionName = "1.4.0"
+        versionCode = 134
+        versionName = "1.5.0"
         setProperty("archivesBaseName", "$applicationId-v$versionName")
     }
     androidResources {
@@ -40,4 +44,5 @@ dependencies {
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
     implementation("androidx.recyclerview:recyclerview:1.3.2")
     implementation("androidx.preference:preference-ktx:1.2.1")
+    implementation("com.google.android.material:material:1.7.0")
 }

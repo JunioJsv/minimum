@@ -21,12 +21,12 @@
         android:layout_gravity="top|start"
         android:layout_margin="4dp"
         android:background="@drawable/tag_background"
-        android:backgroundTint="?colorAccent"
+        android:backgroundTint="?colorPrimary"
         android:contentDescription="@string/todo"
         android:elevation="2dp"
         android:padding="1dp"
         app:srcCompat="@drawable/ic_twotone_new_releases_24"
-        app:tint="@android:color/background_light" />
+        app:tint="?colorOnPrimary" />
 
     <ImageView
         android:id="@+id/is_pinned"
@@ -35,11 +35,11 @@
         android:layout_gravity="top|end"
         android:layout_margin="4dp"
         android:background="@drawable/tag_background"
-        android:backgroundTint="?colorAccent"
+        android:backgroundTint="?colorPrimary"
         android:contentDescription="@string/todo"
         android:elevation="2dp"
         android:padding="1dp"
         app:srcCompat="@drawable/ic_twotone_push_pin_24"
-        app:tint="@android:color/background_light" />
+        app:tint="?colorOnPrimary" />
 
 </FrameLayout>
