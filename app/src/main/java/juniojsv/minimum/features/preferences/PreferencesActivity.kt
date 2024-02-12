@@ -25,8 +25,16 @@ class PreferencesActivity : AppCompatActivity(),
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        supportFragmentManager.commit {
-            replace(R.id.preferences_fragment, PreferencesFragment())
+        with(supportFragmentManager) {
+            if (findFragmentByTag(PreferencesFragment.TAG) == null) {
+                commit {
+                    add(
+                        R.id.preferences_fragment,
+                        PreferencesFragment(),
+                        PreferencesFragment.TAG
+                    )
+                }
+            }
         }
     }
 

@@ -1,22 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="default_light_color_primary">#008577</color>
-    <color name="default_light_color_primary_dark">#00574B</color>
+    <color name="default_color_primary">#008577</color>
+    <color name="default_color_primary_dark">#00574B</color>
     <color name="default_accent">#D81B60</color>
+    <color name="color_window_background">#FFFFFFFF</color>
 
-    <color name="red_light_color_primary">#FF5252</color>
-    <color name="red_light_color_primary_dark">#D32F2F</color>
+    <color name="red_color_primary">#FF5252</color>
+    <color name="red_color_primary_dark">#D32F2F</color>
     <color name="red_accent">#FF5252</color>
 
-    <color name="green_light_color_primary">#4CAF50</color>
-    <color name="green_light_color_primary_dark">#388E3C</color>
+    <color name="green_color_primary">#4CAF50</color>
+    <color name="green_color_primary_dark">#388E3C</color>
     <color name="green_accent">#66BB6A</color>
 
-    <color name="blue_light_color_primary">#2196F3</color>
-    <color name="blue_light_color_primary_dark">#1976D2</color>
+    <color name="blue_color_primary">#2196F3</color>
+    <color name="blue_color_primary_dark">#1976D2</color>
     <color name="blue_accent">#64B5F6</color>
 
-    <color name="default_dark_color_primary">#2D3035</color>
-    <color name="default_dark_color_primary_dark">#26282C</color>
-    <color name="dark_color_window_background">#22252A</color>
+    <color name="default_night_color_primary">#2D3035</color>
+    <color name="default_night_color_primary_dark">#26282C</color>
+    <color name="night_color_window_background">#22252A</color>
 </resources>

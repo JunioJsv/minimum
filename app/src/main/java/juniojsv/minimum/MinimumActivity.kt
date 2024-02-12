@@ -27,8 +27,16 @@ class MinimumActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenc
         binding = MinimumActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        supportFragmentManager.commit {
-            replace(R.id.applications_fragment, ApplicationsFragment())
+        with(supportFragmentManager) {
+            if (findFragmentByTag(ApplicationsFragment.TAG) == null) {
+                commit {
+                    add(
+                        R.id.applications_fragment,
+                        ApplicationsFragment(),
+                        ApplicationsFragment.TAG
+                    )
+                }
+            }
         }
     }
 

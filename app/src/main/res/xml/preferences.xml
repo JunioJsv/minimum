@@ -24,7 +24,8 @@
             android:key="@string/pref_activate_dark_mode_key"
             android:summary="@string/activate_dark_theme"
             android:title="@string/dark_theme"
-            app:iconSpaceReserved="false" />
+            app:iconSpaceReserved="false"
+            app:isPreferenceVisible="@bool/is_pref_activate_dark_mode_visible" />
         <ListPreference
             android:defaultValue="@string/pref_theme_accent_color_default"
             android:entries="@array/theme_accent_colors"
@@ -32,6 +33,7 @@
             android:key="@string/pref_theme_accent_color_key"
             android:title="@string/accent_color"
             app:iconSpaceReserved="false"
+            app:isPreferenceVisible="@bool/is_pref_theme_accent_color_visible"
             app:useSimpleSummaryProvider="true" />
     </PreferenceCategory>
     <PreferenceCategory

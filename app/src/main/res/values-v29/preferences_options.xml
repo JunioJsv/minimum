@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <bool name="is_pref_activate_dark_mode_visible">false</bool>
+</resources>

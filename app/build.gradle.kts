@@ -17,7 +17,7 @@ android {
         minSdk = 21
         targetSdk = 33
         compileSdk = 33
-        versionCode = 134
+        versionCode = 135
         versionName = "1.5.0"
         setProperty("archivesBaseName", "$applicationId-v$versionName")
     }
@@ -44,5 +44,4 @@ dependencies {
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
     implementation("androidx.recyclerview:recyclerview:1.3.2")
     implementation("androidx.preference:preference-ktx:1.2.1")
-    implementation("com.google.android.material:material:1.7.0")
 }

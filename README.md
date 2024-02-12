@@ -1,4 +1,5 @@
 # Minimum
+
 <img align="left" src="https://i.imgur.com/GK6RuYZl.png">
 
 ### Minimalist App Launcher for Effortless Efficiency.
@@ -8,14 +9,19 @@
 
 **Highlights**:
 
-**Enhanced Design**: Enjoy a more refined design with intuitive icons and a minimalist interface for smooth navigation.
+**Enhanced Design**: Enjoy a more refined design with intuitive icons and a minimalist interface for
+smooth navigation.
 
-**Optimized Performance**: Experience quick startup and responsive navigation in your favorite apps with fine-tuned performance.
+**Optimized Performance**: Experience quick startup and responsive navigation in your favorite apps
+with fine-tuned performance.
 
-**Simplified Customization**: Personalize your digital space with The Minimum, offering a variety of themes and color schemes for a truly unique launcher.
+**Simplified Customization**: Personalize your digital space with The Minimum, offering a variety of
+themes and color schemes for a truly unique launcher.
 
-**Less is More**: Embrace a minimalist philosophy with a pure and focused user experience by removing any excess elements.
+**Less is More**: Embrace a minimalist philosophy with a pure and focused user experience by
+removing any excess elements.
 
-**Enhanced Compatibility**: Minimum now offers improved support for the latest devices, ensuring a seamless experience regardless of your device.
-    
+**Enhanced Compatibility**: Minimum now offers improved support for the latest devices, ensuring a
+seamless experience regardless of your device.
+
 <p align="center">Created by Jeovane Santos, Aka JunioJsv</p>

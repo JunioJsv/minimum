@@ -39,6 +39,5 @@
     <string name="pin_at_top">Pin at top</string>
     <string name="unpin_of_top">Unpin of top</string>
     <string name="information">Information</string>
-    <string name="applications">Applications</string>
     <string name="search">Search</string>
 </resources>

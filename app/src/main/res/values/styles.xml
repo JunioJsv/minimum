@@ -1,54 +1,31 @@
 <resources>
 
-    <style name="AppThemeLight" parent="Theme.AppCompat.Light.DarkActionBar">
-        <item name="isLightTheme">true</item>
-        <item name="colorPrimary">@color/default_light_color_primary</item>
-        <item name="colorPrimaryDark">@color/default_light_color_primary_dark</item>
+    <style name="MinimumTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="colorPrimary">@color/default_color_primary</item>
+        <item name="colorPrimaryDark">@color/default_color_primary_dark</item>
         <item name="colorAccent">@color/default_accent</item>
+        <item name="android:windowBackground">@color/color_window_background</item>
+        <item name="colorBackgroundFloating">@color/color_window_background</item>
 
         <item name="dialogCornerRadius">@dimen/dp8</item>
         <item name="android:colorControlNormal">?colorAccent</item>
     </style>
 
-    <style name="AppThemeDark" parent="Theme.AppCompat">
-        <item name="isLightTheme">false</item>
-        <item name="colorPrimary">@color/default_dark_color_primary</item>
-        <item name="colorPrimaryDark">@color/default_dark_color_primary_dark</item>
-        <item name="colorAccent">@color/default_accent</item>
-        <item name="android:windowBackground">@color/dark_color_window_background</item>
-        <item name="colorBackgroundFloating">@color/dark_color_window_background</item>
-
-        <item name="dialogCornerRadius">@dimen/dp8</item>
-        <item name="android:colorControlNormal">?colorAccent</item>
-    </style>
-
-    <style name="AppThemeLight.Red">
-        <item name="colorPrimary">@color/red_light_color_primary</item>
-        <item name="colorPrimaryDark">@color/red_light_color_primary_dark</item>
+    <style name="MinimumTheme.Red">
+        <item name="colorPrimary">@color/red_color_primary</item>
+        <item name="colorPrimaryDark">@color/red_color_primary_dark</item>
         <item name="colorAccent">@color/red_accent</item>
     </style>
 
-    <style name="AppThemeLight.Green">
-        <item name="colorPrimary">@color/green_light_color_primary</item>
-        <item name="colorPrimaryDark">@color/green_light_color_primary_dark</item>
+    <style name="MinimumTheme.Green">
+        <item name="colorPrimary">@color/green_color_primary</item>
+        <item name="colorPrimaryDark">@color/green_color_primary_dark</item>
         <item name="colorAccent">@color/green_accent</item>
     </style>
 
-    <style name="AppThemeLight.Blue">
-        <item name="colorPrimary">@color/blue_light_color_primary</item>
-        <item name="colorPrimaryDark">@color/blue_light_color_primary_dark</item>
-        <item name="colorAccent">@color/blue_accent</item>
-    </style>
-
-    <style name="AppThemeDark.Red">
-        <item name="colorAccent">@color/red_accent</item>
-    </style>
-
-    <style name="AppThemeDark.Green">
-        <item name="colorAccent">@color/green_accent</item>
-    </style>
-
-    <style name="AppThemeDark.Blue">
+    <style name="MinimumTheme.Blue">
+        <item name="colorPrimary">@color/blue_color_primary</item>
+        <item name="colorPrimaryDark">@color/blue_color_primary_dark</item>
         <item name="colorAccent">@color/blue_accent</item>
     </style>
 
