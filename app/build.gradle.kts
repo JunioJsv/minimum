@@ -17,8 +17,8 @@ android {
         minSdk = 21
         targetSdk = 33
         compileSdk = 33
-        versionCode = 135
-        versionName = "1.5.1"
+        versionCode = 136
+        versionName = "1.5.2"
         setProperty("archivesBaseName", "$applicationId-v$versionName")
     }
     androidResources {
