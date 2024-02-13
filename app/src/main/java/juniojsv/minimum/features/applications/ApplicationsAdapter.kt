@@ -33,7 +33,7 @@ class ApplicationsAdapter(
     private val context: Context,
     private val callbacks: ApplicationViewHolder.Callbacks
 ) : RecyclerView.Adapter<ApplicationViewHolder>(),
-    ApplicationsEventsBroadcastReceiver.Listener, DefaultLifecycleObserver, CoroutineScope {
+    ApplicationsEventsBroadcastReceiver.Callbacks, DefaultLifecycleObserver, CoroutineScope {
     private var preferences: SharedPreferences
     private val events = ApplicationsEventsBroadcastReceiver(this)
     val controller = ApplicationsAdapterController(this)
@@ -137,7 +137,7 @@ class ApplicationsAdapter(
     }
 
     private fun onApplicationChange(application: Application) {
-        val index = controller.getInstalledApplicationIndexByPackageName(application.packageName)
+        val index = getApplicationIndexByPackageName(application.packageName)
         if (index != -1) {
             launch { controller.setInstalledApplicationAt(index, application) }
         }
@@ -161,7 +161,7 @@ class ApplicationsAdapter(
     override fun onApplicationRemoved(intent: Intent) {
         launch {
             intent.data?.schemeSpecificPart?.let { packageName ->
-                val index = controller.getInstalledApplicationIndexByPackageName(packageName)
+                val index = getApplicationIndexByPackageName(packageName)
                 if (index != -1) {
                     controller.removeInstalledApplicationAt(index)
                 }
@@ -172,7 +172,7 @@ class ApplicationsAdapter(
     override fun onApplicationUpdated(intent: Intent) {
         launch {
             intent.data?.schemeSpecificPart?.let { packageName ->
-                val index = controller.getInstalledApplicationIndexByPackageName(packageName)
+                val index = getApplicationIndexByPackageName(packageName)
                 if (index != -1) {
                     controller.setInstalledApplicationAt(
                         index,
@@ -181,5 +181,13 @@ class ApplicationsAdapter(
                 }
             }
         }
+    }
+
+    override fun onApplicationDisabled(intent: Intent) {
+        onApplicationRemoved(intent)
+    }
+
+    override fun getApplicationIndexByPackageName(packageName: String): Int {
+        return controller.getInstalledApplicationIndexByPackageName(packageName)
     }
 }
