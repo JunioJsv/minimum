@@ -72,8 +72,7 @@ class ApplicationsFragment : Fragment(), ApplicationViewHolder.Callbacks, Corout
         preferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
         packageManager = requireContext().packageManager
         applicationsAdapter =
-            ApplicationsAdapter(requireContext(), this).apply {
-                lifecycle.addObserver(this)
+            ApplicationsAdapter(requireContext(), lifecycle, this).apply {
                 launch {
                     getInstalledApplications()
                     withContext(Dispatchers.Main) {

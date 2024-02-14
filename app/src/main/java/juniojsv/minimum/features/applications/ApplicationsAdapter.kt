@@ -9,6 +9,7 @@ import android.content.pm.PackageManager
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.GridLayoutManager
@@ -31,11 +32,12 @@ import kotlin.coroutines.CoroutineContext
 @SuppressLint("UnspecifiedRegisterReceiverFlag")
 class ApplicationsAdapter(
     private val context: Context,
+    private val lifecycle: Lifecycle,
     private val callbacks: ApplicationViewHolder.Callbacks
 ) : RecyclerView.Adapter<ApplicationViewHolder>(),
     ApplicationsEventsBroadcastReceiver.Callbacks, DefaultLifecycleObserver, CoroutineScope {
     private var preferences: SharedPreferences
-    private val events = ApplicationsEventsBroadcastReceiver(this)
+    private val events = ApplicationsEventsBroadcastReceiver(lifecycle, this)
     val controller = ApplicationsAdapterController(this)
 
     override val coroutineContext: CoroutineContext
@@ -44,6 +46,7 @@ class ApplicationsAdapter(
     init {
         setHasStableIds(true)
         preferences = PreferenceManager.getDefaultSharedPreferences(context)
+        lifecycle.addObserver(this)
         context.registerReceiver(
             events,
             ApplicationsEventsBroadcastReceiver.DEFAULT_INTENT_FILTER,
@@ -54,6 +57,7 @@ class ApplicationsAdapter(
 
     override fun onDestroy(owner: LifecycleOwner) {
         super.onDestroy(owner)
+        lifecycle.removeObserver(this)
         context.unregisterReceiver(events)
         if (isInitialized)
             preferences.edit().apply {
@@ -100,6 +104,10 @@ class ApplicationsAdapter(
         controller.setInstalledApplications(deferreds.awaitAll().filterNotNull())
     }
 
+    private fun getInstalledApplicationIndexByPackageName(packageName: String): Int {
+        return controller.getInstalledApplicationIndexByPackageName(packageName)
+    }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ApplicationViewHolder {
         val recyclerView = parent as RecyclerView
         val layoutManager = recyclerView.layoutManager
@@ -137,57 +145,51 @@ class ApplicationsAdapter(
     }
 
     private fun onApplicationChange(application: Application) {
-        val index = getApplicationIndexByPackageName(application.packageName)
+        val index = getInstalledApplicationIndexByPackageName(application.packageName)
         if (index != -1) {
             launch { controller.setInstalledApplicationAt(index, application) }
         }
     }
 
-    override fun onApplicationAdded(intent: Intent) {
-        launch {
-            val packageManager = context.packageManager
-            intent.data?.schemeSpecificPart?.let { packageName ->
-                val info = packageManager.getApplicationInfo(
-                    packageName,
-                    PackageManager.GET_META_DATA
+    override suspend fun onApplicationAdded(intent: Intent): Unit = coroutineScope {
+        val packageManager = context.packageManager
+        intent.data?.schemeSpecificPart?.let { packageName ->
+            val info = packageManager.getApplicationInfo(
+                packageName,
+                PackageManager.GET_META_DATA
+            )
+            getApplicationByInfo(info)?.let { application ->
+                controller.addInstalledApplication(application.copy(isNew = true))
+            }
+        }
+    }
+
+    override fun isApplicationAlreadyAdded(packageName: String): Boolean {
+        return getInstalledApplicationIndexByPackageName(packageName) != -1
+    }
+
+    override suspend fun onApplicationRemoved(intent: Intent): Unit = coroutineScope {
+        intent.data?.schemeSpecificPart?.let { packageName ->
+            val index = getInstalledApplicationIndexByPackageName(packageName)
+            if (index != -1) {
+                controller.removeInstalledApplicationAt(index)
+            }
+        }
+    }
+
+    override suspend fun onApplicationUpdated(intent: Intent): Unit = coroutineScope {
+        intent.data?.schemeSpecificPart?.let { packageName ->
+            val index = getInstalledApplicationIndexByPackageName(packageName)
+            if (index != -1) {
+                controller.setInstalledApplicationAt(
+                    index,
+                    controller.getInstalledApplicationAt(index).copy(isNew = true)
                 )
-                getApplicationByInfo(info)?.let { application ->
-                    controller.addInstalledApplication(application.copy(isNew = true))
-                }
             }
         }
     }
 
-    override fun onApplicationRemoved(intent: Intent) {
-        launch {
-            intent.data?.schemeSpecificPart?.let { packageName ->
-                val index = getApplicationIndexByPackageName(packageName)
-                if (index != -1) {
-                    controller.removeInstalledApplicationAt(index)
-                }
-            }
-        }
-    }
-
-    override fun onApplicationUpdated(intent: Intent) {
-        launch {
-            intent.data?.schemeSpecificPart?.let { packageName ->
-                val index = getApplicationIndexByPackageName(packageName)
-                if (index != -1) {
-                    controller.setInstalledApplicationAt(
-                        index,
-                        controller.getInstalledApplicationAt(index).copy(isNew = true)
-                    )
-                }
-            }
-        }
-    }
-
-    override fun onApplicationDisabled(intent: Intent) {
+    override suspend fun onApplicationDisabled(intent: Intent) {
         onApplicationRemoved(intent)
-    }
-
-    override fun getApplicationIndexByPackageName(packageName: String): Int {
-        return controller.getInstalledApplicationIndexByPackageName(packageName)
     }
 }
