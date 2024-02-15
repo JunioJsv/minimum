@@ -2,6 +2,7 @@ package juniojsv.minimum
 
 import android.content.Intent
 import android.content.SharedPreferences
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.provider.MediaStore
 import android.view.Menu
@@ -12,6 +13,7 @@ import androidx.preference.PreferenceManager
 import juniojsv.minimum.databinding.MinimumActivityBinding
 import juniojsv.minimum.features.applications.ApplicationsFragment
 import juniojsv.minimum.features.preferences.PreferencesActivity
+import juniojsv.minimum.utils.SetAsDefaultLauncherDialog
 
 class MinimumActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenceChangeListener {
     private lateinit var binding: MinimumActivityBinding
@@ -38,6 +40,27 @@ class MinimumActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenc
                 }
             }
         }
+
+        SetAsDefaultLauncherDialog(object : SetAsDefaultLauncherDialog.Callbacks() {
+            override fun onNegativeButtonClicked() {
+                isPromptingSetAsDefaultLauncher = false
+            }
+        }).apply {
+            if (!isAlreadyDefaultLauncher() && isPromptingSetAsDefaultLauncher) {
+                show(supportFragmentManager, SetAsDefaultLauncherDialog.TAG)
+            }
+        }
+    }
+
+    private fun isAlreadyDefaultLauncher(): Boolean {
+        return getCurrentLauncherClassName() == componentName.className
+    }
+
+    private fun getCurrentLauncherClassName(): String? {
+        return packageManager.resolveActivity(Intent(Intent.ACTION_MAIN).apply {
+            addCategory(Intent.CATEGORY_HOME)
+            addCategory(Intent.CATEGORY_DEFAULT)
+        }, PackageManager.MATCH_DEFAULT_ONLY)?.activityInfo?.name
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -78,5 +101,9 @@ class MinimumActivity : AppCompatActivity(), SharedPreferences.OnSharedPreferenc
                 recreate()
             }
         }
+    }
+
+    companion object {
+        var isPromptingSetAsDefaultLauncher = true
     }
 }

@@ -14,6 +14,6 @@ class PreferencesFragment : PreferenceFragmentCompat() {
     }
 
     companion object {
-        val TAG: String = this::class.java.name
+        const val TAG: String = "PreferencesFragment"
     }
 }

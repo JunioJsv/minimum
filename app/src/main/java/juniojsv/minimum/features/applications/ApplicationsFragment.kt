@@ -224,7 +224,7 @@ class ApplicationsFragment : Fragment(), ApplicationViewHolder.Callbacks, Corout
     }
 
     companion object {
-        val TAG: String = this::class.java.name
+        const val TAG = "ApplicationsFragment"
         private val maxMemory = (Runtime.getRuntime().maxMemory() / 1024).toInt()
 
         private object BitmapCache : LruCache<String, Bitmap>(maxMemory / 8) {

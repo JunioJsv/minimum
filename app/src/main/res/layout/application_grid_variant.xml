@@ -4,7 +4,9 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="?selectableItemBackgroundBorderless"
-    android:gravity="center_horizontal">
+    android:gravity="center_horizontal"
+    android:paddingStart="8dp"
+    android:paddingEnd="8dp">
 
     <include
         android:id="@+id/include_application_icon"

@@ -29,38 +29,36 @@ class ApplicationOptionsDialog(
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        return activity?.let { activity ->
-            val options = arrayListOf(
-                LabeledCallback(
-                    if (application.isPinned) getString(R.string.unpin_of_top)
-                    else getString(R.string.pin_at_top),
-                    callbacks::onTogglePinAtTop
-                ),
-                LabeledCallback(getString(R.string.information)) {
-                    activity.startActivity(
-                        Intent(
-                            Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
-                            Uri.parse("package:${application.packageName}")
-                        )
+        val options = arrayListOf(
+            LabeledCallback(
+                if (application.isPinned) getString(R.string.unpin_of_top)
+                else getString(R.string.pin_at_top),
+                callbacks::onTogglePinAtTop
+            ),
+            LabeledCallback(getString(R.string.information)) {
+                requireContext().startActivity(
+                    Intent(
+                        Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                        Uri.parse("package:${application.packageName}")
                     )
-                },
-                LabeledCallback(getString(R.string.uninstall)) {
-                    activity.startActivity(
-                        Intent(
-                            ACTION_DELETE,
-                            Uri.parse("package:${application.packageName}")
-                        )
+                )
+            },
+            LabeledCallback(getString(R.string.uninstall)) {
+                requireContext().startActivity(
+                    Intent(
+                        ACTION_DELETE,
+                        Uri.parse("package:${application.packageName}")
                     )
-                },
-            )
+                )
+            },
+        )
 
-            AlertDialog.Builder(activity).apply {
-                setTitle(application.label)
-                setItems(
-                    options.map { it.label }.toTypedArray()
-                ) { _, index -> options[index].callback() }
-            }.create()
-        } ?: throw IllegalStateException("Activity can't be null")
+        return AlertDialog.Builder(requireContext()).apply {
+            setTitle(application.label)
+            setItems(
+                options.map { it.label }.toTypedArray()
+            ) { _, index -> options[index].callback() }
+        }.create()
     }
 
     companion object {
