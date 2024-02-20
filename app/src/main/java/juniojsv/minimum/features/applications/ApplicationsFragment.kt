@@ -3,10 +3,15 @@ package juniojsv.minimum.features.applications
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.os.Bundle
 import android.util.Log
 import android.util.LruCache
+import android.util.TypedValue
 import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.View.GONE
 import android.view.View.VISIBLE
@@ -28,17 +33,18 @@ import juniojsv.minimum.R
 import juniojsv.minimum.clear
 import juniojsv.minimum.databinding.ApplicationsFragmentBinding
 import juniojsv.minimum.models.Application
+import juniojsv.minimum.models.ApplicationsGroup
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
-
-class ApplicationsFragment : Fragment(), ApplicationViewHolder.Callbacks, CoroutineScope {
+class ApplicationsFragment : Fragment(), ApplicationsAdapter.Callbacks, CoroutineScope {
     private lateinit var binding: ApplicationsFragmentBinding
     private lateinit var preferences: SharedPreferences
     private lateinit var applicationsAdapter: ApplicationsAdapter
@@ -65,6 +71,9 @@ class ApplicationsFragment : Fragment(), ApplicationViewHolder.Callbacks, Corout
             }
         }
     }
+
+    // Utility var to keep group until will be added in adapter
+    private var group: ApplicationsGroup? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -146,10 +155,52 @@ class ApplicationsFragment : Fragment(), ApplicationViewHolder.Callbacks, Corout
         }
     }
 
+    override fun getApplicationsGroupIcon(group: ApplicationsGroup): Bitmap {
+        val controller = applicationsAdapter.controller
+        val applications = controller.getInstalledApplications().filter { it.group == group.uuid }
+        val icons = applications.take(4).map(this::getApplicationIcon)
+
+        val size = TypedValue.applyDimension(
+            TypedValue.COMPLEX_UNIT_DIP,
+            48f,
+            resources.displayMetrics
+        ).toInt()
+
+        val bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
+
+        val canvas = Canvas(bitmap)
+
+        val iconSize = size / 2
+
+        val iconsPerRow = size / iconSize
+
+        var xPosition = 0
+        var yPosition = 0
+
+        for ((index, icon) in icons.withIndex()) {
+            val scaledIcon = Bitmap.createScaledBitmap(icon, iconSize, iconSize, true)
+
+            canvas.drawBitmap(scaledIcon, xPosition.toFloat(), yPosition.toFloat(), null)
+
+            xPosition += iconSize
+
+            if ((index + 1) % iconsPerRow == 0 || index == icons.lastIndex) {
+                xPosition = 0
+                yPosition += iconSize
+            }
+        }
+
+        return bitmap
+    }
+
     override fun getApplicationIcon(application: Application): Bitmap {
         val packageName = application.packageName
         return BitmapCache.get(packageName) ?: run {
-            val size = resources.getDimensionPixelSize(R.dimen.dp48)
+            val size = TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP,
+                48f,
+                resources.displayMetrics
+            ).toInt()
             val drawable = packageManager.getApplicationIcon(packageName)
             val bitmap = drawable.toBitmap(size, size)
             BitmapCache.put(packageName, bitmap)
@@ -161,6 +212,11 @@ class ApplicationsFragment : Fragment(), ApplicationViewHolder.Callbacks, Corout
         application: Application,
         view: View,
     ): Application? {
+        if (group != null) {
+            return application.copy(
+                group = if (application.group == group!!.uuid) null else group!!.uuid
+            )
+        }
         try {
             startActivity(
                 application.launchIntent,
@@ -177,12 +233,72 @@ class ApplicationsFragment : Fragment(), ApplicationViewHolder.Callbacks, Corout
         return null
     }
 
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.applications_agroup_mode_shortcuts, menu)
+        super.onCreateOptionsMenu(menu, inflater)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        with(applicationsAdapter.controller) {
+            group?.let { group ->
+                when (item.itemId) {
+                    R.id.clear -> {
+                        launch {
+                            mapInstalledApplications {
+                                var application = it
+                                if (it.group == group.uuid) {
+                                    application = it.copy(group = null)
+                                }
+                                application
+                            }
+                        }
+                    }
+
+                    R.id.confirm -> {
+                        onDisableAgroupMode()
+                        launch {
+                            addApplicationsGroup(group)
+                        }
+                    }
+
+                    else -> {}
+                }
+            }
+        }
+
+        return super.onOptionsItemSelected(item)
+    }
+
+    private fun onEnableAgroupMode(group: ApplicationsGroup) {
+        this.group = group
+        setHasOptionsMenu(true)
+    }
+
+    private fun onDisableAgroupMode() {
+        group = null
+        setHasOptionsMenu(false)
+    }
+
     override suspend fun onLongClickApplication(
         application: Application,
         view: View,
     ): Application? = suspendCoroutine { continuation ->
+        if (group != null) {
+            continuation.resume(null)
+            return@suspendCoroutine
+        }
         var update: Application? = null
         ApplicationOptionsDialog(application, object : ApplicationOptionsDialog.Callbacks {
+            override fun onEnableAgroupMode() {
+                with(applicationsAdapter.controller) {
+                    val label = getString(R.string.group) +
+                            " ${getAdapterApplicationsGroupsCount() + 1}"
+                    val group = ApplicationsGroup(label)
+                    onEnableAgroupMode(group)
+                    update = application.copy(group = group.uuid)
+                }
+            }
+
             override fun onTogglePinAtTop() {
                 update = application.copy(isPinned = !application.isPinned)
             }
@@ -191,6 +307,45 @@ class ApplicationsFragment : Fragment(), ApplicationViewHolder.Callbacks, Corout
                 continuation.resume(update)
             }
         }).show(parentFragmentManager, ApplicationOptionsDialog.TAG)
+    }
+
+    override suspend fun onLongClickApplicationsGroup(
+        group: ApplicationsGroup,
+        view: View
+    ): ApplicationsGroup? = coroutineScope {
+        suspendCoroutine { continuation ->
+            val controller = applicationsAdapter.controller
+            var label: String? = null
+            var update: ApplicationsGroup? = null
+            ApplicationsGroupOptionsDialog(
+                group,
+                object : ApplicationsGroupOptionsDialog.Callbacks {
+                    override fun onUngroup() {
+                        launch {
+                            val index = controller.getApplicationsGroupIndexByUuid(group.uuid)
+                            if (index != -1) {
+                                controller.removeApplicationsGroupAt(index)
+                            }
+                        }
+                    }
+
+                    override fun onChangeTitle(title: String) {
+                        label = title
+                    }
+
+                    override fun onDismiss() {
+                        label?.let {
+                            if (it != group.label) {
+                                update = group.copy(label = it)
+                            }
+                        }
+                        continuation.resume(update)
+                    }
+                }).show(
+                parentFragmentManager,
+                ApplicationsGroupOptionsDialog.TAG,
+            )
+        }
     }
 
     private fun setApplicationsFilterViewClear() {

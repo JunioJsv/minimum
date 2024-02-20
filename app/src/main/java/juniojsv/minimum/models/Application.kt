@@ -1,21 +1,16 @@
 package juniojsv.minimum.models
 
 import android.content.Intent
+import java.util.UUID
 
 data class Application(
-    val label: String,
+    override val label: String,
     val packageName: String,
     val launchIntent: Intent,
     val isNew: Boolean = false,
-    val isPinned: Boolean = false
-) : Comparable<Application> {
-    override fun compareTo(other: Application): Int {
-        if (isPinned && !other.isPinned) {
-            return -1
-        } else if (!isPinned && other.isPinned) {
-            return 1
-        }
-
-        return label.compareTo(other.label)
-    }
+    val isPinned: Boolean = false,
+    val group: UUID? = null
+) : ApplicationBase(label) {
+    override val priority: Int
+        get() = if (isPinned) 1 else 0
 }

@@ -1,24 +1,24 @@
 package juniojsv.minimum.features.applications
 
-import android.view.View
+import android.util.TypedValue
 import android.view.animation.AlphaAnimation
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.viewbinding.ViewBinding
 import juniojsv.minimum.R
-import juniojsv.minimum.models.Application
 import juniojsv.minimum.models.ApplicationBase
+import juniojsv.minimum.models.ApplicationsGroup
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class ApplicationViewHolder(
+class ApplicationsGroupViewHolder(
     private val binding: ViewBinding,
     private val callbacks: Callbacks,
-    private val onChangeApplication: (application: Application) -> Unit
+    private val onChangeGroup: (group: ApplicationsGroup) -> Unit
 ) : ApplicationBaseViewHolder(binding) {
     override fun bind(item: ApplicationBase) {
-        if (item !is Application) throw IllegalArgumentException()
+        if (item !is ApplicationsGroup) throw IllegalArgumentException()
         with(binding.root) {
             findViewById<TextView>(R.id.label).text = item.label
             launch {
@@ -26,33 +26,25 @@ class ApplicationViewHolder(
                 val animation = AlphaAnimation(0f, 1f).apply {
                     duration = 300
                 }
-                val icon = callbacks.getApplicationIcon(item)
+                val icon = callbacks.getApplicationsGroupIcon(item)
                 withContext(Dispatchers.Main) {
+                    val padding = TypedValue.applyDimension(
+                        TypedValue.COMPLEX_UNIT_DIP,
+                        4f,
+                        resources.displayMetrics
+                    ).toInt()
+                    view.background = resources.getDrawable(R.drawable.group_background)
+                    view.setPadding(padding, padding, padding, padding)
                     view.startAnimation(animation)
                     view.setImageBitmap(icon)
                 }
             }
-            findViewById<ImageView>(R.id.is_new).visibility =
-                if (item.isNew) View.VISIBLE else View.GONE
-            findViewById<ImageView>(R.id.is_pinned).visibility =
-                if (item.isPinned) View.VISIBLE else View.GONE
-            findViewById<ImageView>(R.id.is_selected).visibility =
-                if (item.group != null) View.VISIBLE else View.GONE
 
-            setOnClickListener {
-                launch {
-                    callbacks.onClickApplication(item, it)?.let { application ->
-                        withContext(Dispatchers.Main) {
-                            onChangeApplication(application)
-                        }
-                    }
-                }
-            }
             setOnLongClickListener {
                 launch {
-                    callbacks.onLongClickApplication(item, it)?.let { application ->
+                    callbacks.onLongClickApplicationsGroup(item, it)?.let { group ->
                         withContext(Dispatchers.Main) {
-                            onChangeApplication(application)
+                            onChangeGroup(group)
                         }
                     }
                 }
@@ -62,6 +54,6 @@ class ApplicationViewHolder(
     }
 
     companion object {
-        const val viewType = 0
+        const val viewType = 1
     }
 }

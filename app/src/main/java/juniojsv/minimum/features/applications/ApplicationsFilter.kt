@@ -21,7 +21,7 @@ class ApplicationsFilter(
     val isFiltering get() = lastQuery.isNotEmpty()
 
     interface Callbacks {
-        suspend fun onShowOnlyApplicationsWithIndex(indexes: List<Int>)
+        suspend fun onShowOnlyApplicationsWithIndex(indexes: List<Int>, query: String)
         suspend fun onStopFilteringApplications()
     }
 
@@ -40,7 +40,7 @@ class ApplicationsFilter(
                 ) index else null
             }
         }.awaitAll().filterNotNull()
-        callbacks.onShowOnlyApplicationsWithIndex(indexes)
+        callbacks.onShowOnlyApplicationsWithIndex(indexes, label)
     }
 
     suspend fun byLastQuery() = byLabel(lastQuery)

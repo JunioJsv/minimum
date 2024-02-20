@@ -10,6 +10,7 @@
         android:layout_width="48dp"
         android:layout_height="48dp"
         android:layout_margin="8dp"
+        android:backgroundTint="?colorControlHighlight"
         android:contentDescription="@string/todo"
         android:scaleType="fitXY"
         tools:srcCompat="@mipmap/ic_launcher" />
@@ -25,8 +26,10 @@
         android:contentDescription="@string/todo"
         android:elevation="2dp"
         android:padding="1dp"
+        android:visibility="gone"
         app:srcCompat="@drawable/ic_twotone_new_releases_24"
-        app:tint="@android:color/white" />
+        app:tint="@android:color/white"
+        tools:visibility="visible" />
 
     <ImageView
         android:id="@+id/is_pinned"
@@ -39,7 +42,25 @@
         android:contentDescription="@string/todo"
         android:elevation="2dp"
         android:padding="1dp"
+        android:visibility="gone"
         app:srcCompat="@drawable/ic_twotone_push_pin_24"
-        app:tint="@android:color/white" />
+        app:tint="@android:color/white"
+        tools:visibility="visible" />
+
+    <ImageView
+        android:id="@+id/is_selected"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="4dp"
+        android:background="@drawable/tag_background"
+        android:backgroundTint="?colorAccent"
+        android:contentDescription="@string/todo"
+        android:elevation="2dp"
+        android:padding="1dp"
+        android:visibility="gone"
+        app:srcCompat="@drawable/ic_twotone_check_box_24"
+        app:tint="@android:color/white"
+        tools:visibility="visible" />
 
 </FrameLayout>

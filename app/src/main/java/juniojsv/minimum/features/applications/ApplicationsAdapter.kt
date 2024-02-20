@@ -19,6 +19,7 @@ import juniojsv.minimum.R
 import juniojsv.minimum.databinding.ApplicationGridVariantBinding
 import juniojsv.minimum.databinding.ApplicationListVariantBinding
 import juniojsv.minimum.models.Application
+import juniojsv.minimum.models.ApplicationsGroup
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
@@ -33,12 +34,14 @@ import kotlin.coroutines.CoroutineContext
 class ApplicationsAdapter(
     private val context: Context,
     private val lifecycle: Lifecycle,
-    private val callbacks: ApplicationViewHolder.Callbacks
-) : RecyclerView.Adapter<ApplicationViewHolder>(),
+    private val callbacks: Callbacks
+) : RecyclerView.Adapter<ApplicationBaseViewHolder>(),
     ApplicationsEventsBroadcastReceiver.Callbacks, DefaultLifecycleObserver, CoroutineScope {
     private var preferences: SharedPreferences
     private val events = ApplicationsEventsBroadcastReceiver(lifecycle, this)
     val controller = ApplicationsAdapterController(this)
+
+    interface Callbacks : ApplicationBaseViewHolder.Callbacks
 
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.Default + Job()
@@ -108,7 +111,17 @@ class ApplicationsAdapter(
         return controller.getInstalledApplicationIndexByPackageName(packageName)
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ApplicationViewHolder {
+    override fun getItemViewType(position: Int): Int {
+        return when (controller.getAdapterItemAt(position)) {
+            is Application -> ApplicationViewHolder.viewType
+            is ApplicationsGroup -> ApplicationsGroupViewHolder.viewType
+        }
+    }
+
+    override fun onCreateViewHolder(
+        parent: ViewGroup,
+        viewType: Int
+    ): ApplicationBaseViewHolder {
         val recyclerView = parent as RecyclerView
         val layoutManager = recyclerView.layoutManager
         val layoutInflater = LayoutInflater.from(parent.context)
@@ -129,25 +142,46 @@ class ApplicationsAdapter(
                 )
         }
 
-        return ApplicationViewHolder(binding, callbacks)
+        return when (viewType) {
+            ApplicationsGroupViewHolder.viewType -> ApplicationsGroupViewHolder(
+                binding,
+                callbacks,
+                this::onApplicationsGroupChange
+            )
+
+            ApplicationViewHolder.viewType -> ApplicationViewHolder(
+                binding,
+                callbacks,
+                this::onApplicationChange
+            )
+
+            else -> throw IllegalArgumentException()
+        }
     }
 
-    override fun getItemCount(): Int = controller.getAdapterApplicationsCount()
+    override fun getItemCount(): Int = controller.getAdapterItemsCount()
 
     override
-    fun getItemId(position: Int): Long = controller.getAdapterApplicationId(position)
+    fun getItemId(position: Int): Long = controller.getAdapterItemId(position)
 
-    override fun onBindViewHolder(holder: ApplicationViewHolder, position: Int) {
-        holder.bind(
-            controller.getAdapterApplicationAt(position),
-            this::onApplicationChange
-        )
+    override fun onBindViewHolder(
+        holder: ApplicationBaseViewHolder,
+        position: Int
+    ) {
+        holder.bind(controller.getAdapterItemAt(position))
     }
 
     private fun onApplicationChange(application: Application) {
         val index = getInstalledApplicationIndexByPackageName(application.packageName)
         if (index != -1) {
             launch { controller.setInstalledApplicationAt(index, application) }
+        }
+    }
+
+    private fun onApplicationsGroupChange(group: ApplicationsGroup) {
+        val index = controller.getApplicationsGroupIndexByUuid(group.uuid)
+        if (index != -1) {
+            launch { controller.setApplicationsGroupAt(index, group) }
         }
     }
 

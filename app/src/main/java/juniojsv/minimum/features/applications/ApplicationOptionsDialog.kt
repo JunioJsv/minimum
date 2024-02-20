@@ -15,10 +15,11 @@ import juniojsv.minimum.models.LabeledCallback
 
 class ApplicationOptionsDialog(
     private val application: Application,
-    private val callbacks: Callbacks
+    private val callbacks: Callbacks,
 ) : AppCompatDialogFragment() {
 
     interface Callbacks {
+        fun onEnableAgroupMode()
         fun onTogglePinAtTop()
         fun onDismiss()
     }
@@ -30,6 +31,7 @@ class ApplicationOptionsDialog(
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val options = arrayListOf(
+            LabeledCallback(getString(R.string.agroup), callbacks::onEnableAgroupMode),
             LabeledCallback(
                 if (application.isPinned) getString(R.string.unpin_of_top)
                 else getString(R.string.pin_at_top),

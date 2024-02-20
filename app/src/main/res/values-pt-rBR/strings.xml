@@ -25,6 +25,12 @@
     <string name="unpin_of_top">Desafixar do topo</string>
     <string name="information">Informações</string>
     <string name="search">Pesquisar</string>
+    <string name="agroup">Agrupar</string>
+    <string name="clear">Limpar</string>
+    <string name="confirm">Confirmar</string>
+    <string name="group">Grupo</string>
+    <string name="ungroup">Desagrupar</string>
+
 
     <string name="set_as_default_launcher">Definir como Launcher Padrão</string>
     <string name="ask_to_set_as_default_launcher">Você deseja definir este aplicativo como o Launcher Padrão?</string>

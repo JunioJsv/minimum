@@ -40,6 +40,11 @@
     <string name="unpin_of_top">Unpin of top</string>
     <string name="information">Information</string>
     <string name="search">Search</string>
+    <string name="agroup">Agroup</string>
+    <string name="clear">Clear</string>
+    <string name="confirm">Confirm</string>
+    <string name="group">Group</string>
+    <string name="ungroup">Ungroup</string>
 
     <string name="set_as_default_launcher">Set as Default Launcher</string>
     <string name="ask_to_set_as_default_launcher">Do you want to set this app as the Default Launcher?</string>

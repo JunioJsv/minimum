@@ -4,7 +4,6 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.util.Log
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
@@ -43,9 +42,6 @@ class ApplicationsEventsBroadcastReceiver(
         lifecycle.addObserver(this)
         launch {
             while (isProcessingJobs) {
-                Log.d(
-                    this::class.java.name, "On $coroutineContext"
-                )
                 delay(100)
                 jobs.poll()?.run {
                     start()

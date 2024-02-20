@@ -25,12 +25,10 @@ fun AppCompatActivity.setActivityThemeByPreferences(preferences: SharedPreferenc
         getString(R.string.pref_theme_accent_color_green) to R.style.MinimumTheme_Green,
     )
 
-    val theme = themes[preferences.getString(
+    themes[preferences.getString(
         getString(R.string.pref_theme_accent_color_key),
         getString(R.string.pref_theme_accent_color_default)
-    )]!!
-
-    setTheme(theme)
+    )]?.let(::setTheme)
 }
 
 fun SearchView.clear() = setQuery("", true)
