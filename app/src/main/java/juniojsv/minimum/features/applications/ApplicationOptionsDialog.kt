@@ -20,6 +20,7 @@ class ApplicationOptionsDialog(
 
     interface Callbacks {
         fun onEnableAgroupMode()
+        fun onRemoveGroup()
         fun onTogglePinAtTop()
         fun onDismiss()
     }
@@ -31,11 +32,21 @@ class ApplicationOptionsDialog(
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val options = arrayListOf(
-            LabeledCallback(getString(R.string.agroup), callbacks::onEnableAgroupMode),
+            LabeledCallback(
+                getString(R.string.ungroup),
+                application.group != null,
+                callbacks::onRemoveGroup
+
+            ),
+            LabeledCallback(
+                getString(R.string.agroup),
+                application.group == null,
+                callbacks::onEnableAgroupMode
+            ),
             LabeledCallback(
                 if (application.isPinned) getString(R.string.unpin_of_top)
                 else getString(R.string.pin_at_top),
-                callbacks::onTogglePinAtTop
+                callback = callbacks::onTogglePinAtTop
             ),
             LabeledCallback(getString(R.string.information)) {
                 requireContext().startActivity(
@@ -53,7 +64,7 @@ class ApplicationOptionsDialog(
                     )
                 )
             },
-        )
+        ).filter { it.enabled }
 
         return AlertDialog.Builder(requireContext()).apply {
             setTitle(application.label)

@@ -28,6 +28,11 @@ sealed class ApplicationBaseViewHolder(
             view: View,
         ): Application?
 
+        suspend fun onClickApplicationsGroup(
+            group: ApplicationsGroup,
+            view: View
+        ): ApplicationsGroup?
+
         suspend fun onLongClickApplicationsGroup(
             group: ApplicationsGroup,
             view: View

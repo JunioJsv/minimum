@@ -34,7 +34,7 @@ import kotlin.coroutines.CoroutineContext
 class ApplicationsAdapter(
     private val context: Context,
     private val lifecycle: Lifecycle,
-    private val callbacks: Callbacks
+    val callbacks: Callbacks
 ) : RecyclerView.Adapter<ApplicationBaseViewHolder>(),
     ApplicationsEventsBroadcastReceiver.Callbacks, DefaultLifecycleObserver, CoroutineScope {
     private var preferences: SharedPreferences
@@ -171,7 +171,7 @@ class ApplicationsAdapter(
         holder.bind(controller.getAdapterItemAt(position))
     }
 
-    private fun onApplicationChange(application: Application) {
+    fun onApplicationChange(application: Application) {
         val index = getInstalledApplicationIndexByPackageName(application.packageName)
         if (index != -1) {
             launch { controller.setInstalledApplicationAt(index, application) }

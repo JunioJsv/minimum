@@ -40,6 +40,16 @@ class ApplicationsGroupViewHolder(
                 }
             }
 
+            setOnClickListener {
+                launch {
+                    callbacks.onClickApplicationsGroup(item, it)?.let { group ->
+                        withContext(Dispatchers.Main) {
+                            onChangeGroup(group)
+                        }
+                    }
+                }
+            }
+
             setOnLongClickListener {
                 launch {
                     callbacks.onLongClickApplicationsGroup(item, it)?.let { group ->

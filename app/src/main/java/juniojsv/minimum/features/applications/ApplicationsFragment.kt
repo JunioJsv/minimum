@@ -158,7 +158,7 @@ class ApplicationsFragment : Fragment(), ApplicationsAdapter.Callbacks, Coroutin
     override fun getApplicationsGroupIcon(group: ApplicationsGroup): Bitmap {
         val controller = applicationsAdapter.controller
         val applications = controller.getInstalledApplications().filter { it.group == group.uuid }
-        val icons = applications.take(4).map(this::getApplicationIcon)
+        val icons = applications.take(4).sorted().map(this::getApplicationIcon)
 
         val size = TypedValue.applyDimension(
             TypedValue.COMPLEX_UNIT_DIP,
@@ -240,11 +240,11 @@ class ApplicationsFragment : Fragment(), ApplicationsAdapter.Callbacks, Coroutin
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         with(applicationsAdapter.controller) {
-            group?.let { group ->
+            group?.also { group ->
                 when (item.itemId) {
                     R.id.clear -> {
                         launch {
-                            mapInstalledApplications {
+                            forEachInstalledApplications {
                                 var application = it
                                 if (it.group == group.uuid) {
                                     application = it.copy(group = null)
@@ -256,17 +256,16 @@ class ApplicationsFragment : Fragment(), ApplicationsAdapter.Callbacks, Coroutin
 
                     R.id.confirm -> {
                         onDisableAgroupMode()
-                        launch {
-                            addApplicationsGroup(group)
-                        }
+                        if (getApplicationsOnGroup(group.uuid).isNotEmpty())
+                            launch {
+                                addApplicationsGroup(group)
+                            }
                     }
-
-                    else -> {}
                 }
             }
         }
 
-        return super.onOptionsItemSelected(item)
+        return true
     }
 
     private fun onEnableAgroupMode(group: ApplicationsGroup) {
@@ -299,6 +298,10 @@ class ApplicationsFragment : Fragment(), ApplicationsAdapter.Callbacks, Coroutin
                 }
             }
 
+            override fun onRemoveGroup() {
+                update = application.copy(group = null)
+            }
+
             override fun onTogglePinAtTop() {
                 update = application.copy(isPinned = !application.isPinned)
             }
@@ -309,7 +312,7 @@ class ApplicationsFragment : Fragment(), ApplicationsAdapter.Callbacks, Coroutin
         }).show(parentFragmentManager, ApplicationOptionsDialog.TAG)
     }
 
-    override suspend fun onLongClickApplicationsGroup(
+    override suspend fun onClickApplicationsGroup(
         group: ApplicationsGroup,
         view: View
     ): ApplicationsGroup? = coroutineScope {
@@ -317,9 +320,10 @@ class ApplicationsFragment : Fragment(), ApplicationsAdapter.Callbacks, Coroutin
             val controller = applicationsAdapter.controller
             var label: String? = null
             var update: ApplicationsGroup? = null
-            ApplicationsGroupOptionsDialog(
+            ApplicationsGroupDialog(
                 group,
-                object : ApplicationsGroupOptionsDialog.Callbacks {
+                applicationsAdapter,
+                object : ApplicationsGroupDialog.Callbacks {
                     override fun onUngroup() {
                         launch {
                             val index = controller.getApplicationsGroupIndexByUuid(group.uuid)
@@ -343,10 +347,15 @@ class ApplicationsFragment : Fragment(), ApplicationsAdapter.Callbacks, Coroutin
                     }
                 }).show(
                 parentFragmentManager,
-                ApplicationsGroupOptionsDialog.TAG,
+                ApplicationsGroupDialog.TAG,
             )
         }
     }
+
+    override suspend fun onLongClickApplicationsGroup(
+        group: ApplicationsGroup,
+        view: View
+    ): ApplicationsGroup? = null
 
     private fun setApplicationsFilterViewClear() {
         binding.applications.apply {

@@ -15,7 +15,8 @@ import kotlinx.coroutines.withContext
 class ApplicationViewHolder(
     private val binding: ViewBinding,
     private val callbacks: Callbacks,
-    private val onChangeApplication: (application: Application) -> Unit
+    private val onChangeApplication: (application: Application) -> Unit,
+    private val isOnGroup: Boolean = false
 ) : ApplicationBaseViewHolder(binding) {
     override fun bind(item: ApplicationBase) {
         if (item !is Application) throw IllegalArgumentException()
@@ -37,7 +38,7 @@ class ApplicationViewHolder(
             findViewById<ImageView>(R.id.is_pinned).visibility =
                 if (item.isPinned) View.VISIBLE else View.GONE
             findViewById<ImageView>(R.id.is_selected).visibility =
-                if (item.group != null) View.VISIBLE else View.GONE
+                if (item.group != null && !isOnGroup) View.VISIBLE else View.GONE
 
             setOnClickListener {
                 launch {

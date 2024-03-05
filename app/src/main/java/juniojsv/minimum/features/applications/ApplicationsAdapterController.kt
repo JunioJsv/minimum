@@ -9,6 +9,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.UUID
 import kotlin.coroutines.CoroutineContext
@@ -21,6 +22,19 @@ class ApplicationsAdapterController(adapter: ApplicationsAdapter) :
     private val groups = arrayListOf<ApplicationsGroup>()
     private val differ = AsyncListDiffer(adapter, this)
     val filter = ApplicationsFilter(applications, this)
+    private val onInstalledApplicationsListeners = mutableListOf<OnInstalledApplicationsListener>()
+
+    interface OnInstalledApplicationsListener {
+        fun onChange(applications: ArrayList<Application>)
+    }
+
+    fun addOnInstalledApplicationsListener(listener: OnInstalledApplicationsListener) {
+        onInstalledApplicationsListeners.add(listener)
+    }
+
+    fun removeOnInstalledApplicationsListener(listener: OnInstalledApplicationsListener) {
+        onInstalledApplicationsListeners.remove(listener)
+    }
 
     suspend fun setInstalledApplications(applications: List<Application>) {
         this.applications.apply {
@@ -35,7 +49,7 @@ class ApplicationsAdapterController(adapter: ApplicationsAdapter) :
         onInstalledApplicationsChanged()
     }
 
-    suspend fun mapInstalledApplications(callback: (Application) -> Application) {
+    suspend fun forEachInstalledApplications(callback: (Application) -> Application) {
         val update = applications.map(callback)
         setInstalledApplications(update)
     }
@@ -47,7 +61,7 @@ class ApplicationsAdapterController(adapter: ApplicationsAdapter) :
 
     suspend fun removeApplicationsGroupAt(index: Int) {
         val removed = groups.removeAt(index)
-        mapInstalledApplications {
+        forEachInstalledApplications {
             var application = it
             if (it.group == removed.uuid) {
                 application = it.copy(group = null)
@@ -72,11 +86,14 @@ class ApplicationsAdapterController(adapter: ApplicationsAdapter) :
         onInstalledApplicationsChanged()
     }
 
-    private suspend fun setAdapterApplicationsByLastFilterQuery() = filter.byLastQuery()
+    private suspend fun setAdapterApplicationsWithLastFilterQuery() = filter.byLastQuery()
 
-    private suspend fun onInstalledApplicationsChanged() {
+    private suspend fun onInstalledApplicationsChanged() = coroutineScope {
+        launch {
+            onInstalledApplicationsListeners.forEach { it.onChange(applications) }
+        }
         if (filter.isFiltering) {
-            setAdapterApplicationsByLastFilterQuery()
+            setAdapterApplicationsWithLastFilterQuery()
         } else {
             setAdapterApplications { applications }
         }
@@ -86,6 +103,7 @@ class ApplicationsAdapterController(adapter: ApplicationsAdapter) :
         applications.indexOfFirst { it.packageName == packageName }
 
     fun getApplicationsGroupIndexByUuid(uuid: UUID) = groups.indexOfFirst { it.uuid == uuid }
+    fun getApplicationsOnGroup(uuid: UUID) = applications.filter { it.group == uuid }
 
     private suspend fun setAdapterApplications(
         query: String? = null,
