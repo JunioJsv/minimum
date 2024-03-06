@@ -339,7 +339,7 @@ class ApplicationsFragment : Fragment(), ApplicationsAdapter.Callbacks, Coroutin
 
                     override fun onDismiss() {
                         label?.let {
-                            if (it != group.label) {
+                            if (it.isNotBlank() && it != group.label) {
                                 update = group.copy(label = it)
                             }
                         }

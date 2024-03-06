@@ -50,4 +50,5 @@
     <string name="ask_to_set_as_default_launcher">Do you want to set this app as the Default Launcher?</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
+    <string name="rename">Rename</string>
 </resources>

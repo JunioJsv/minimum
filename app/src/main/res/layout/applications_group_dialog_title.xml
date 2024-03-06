@@ -8,10 +8,10 @@
     <androidx.appcompat.widget.AppCompatEditText
         android:id="@+id/title"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="34dp"
         android:layout_marginStart="24dp"
         android:layout_marginTop="16dp"
-        android:layout_marginEnd="16dp"
+        android:layout_toStartOf="@+id/menu"
         android:background="@null"
         android:imeOptions="actionDone"
         android:inputType="text"
@@ -19,4 +19,14 @@
         android:textAppearance="@style/TextAppearance.AppCompat.Title"
         tools:hint="@string/todo" />
 
+    <ImageButton
+        android:id="@+id/menu"
+        android:layout_width="34dp"
+        android:layout_height="34dp"
+        android:layout_alignParentEnd="true"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="24dp"
+        android:background="?selectableItemBackgroundBorderless"
+        android:src="@drawable/ic_twotone_more_vert_24" />
 </RelativeLayout>

@@ -36,4 +36,5 @@
     <string name="ask_to_set_as_default_launcher">Você deseja definir este aplicativo como o Launcher Padrão?</string>
     <string name="yes">Sim</string>
     <string name="no">Não</string>
+    <string name="rename">Renomear</string>
 </resources>

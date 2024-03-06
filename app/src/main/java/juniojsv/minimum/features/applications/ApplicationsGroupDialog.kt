@@ -4,14 +4,19 @@ import android.app.Dialog
 import android.content.DialogInterface
 import android.os.Bundle
 import android.util.TypedValue
+import android.view.Gravity
 import android.view.View
 import android.view.WindowManager
+import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatDialogFragment
+import androidx.appcompat.widget.PopupMenu
+import androidx.core.content.ContextCompat
 import androidx.core.view.updatePadding
 import androidx.core.widget.addTextChangedListener
 import androidx.recyclerview.widget.AsyncListDiffer.ListListener
 import androidx.recyclerview.widget.GridLayoutManager
+import juniojsv.minimum.R
 import juniojsv.minimum.databinding.ApplicationsFragmentBinding
 import juniojsv.minimum.databinding.ApplicationsGroupDialogTitleBinding
 import juniojsv.minimum.models.Application
@@ -105,6 +110,43 @@ class ApplicationsGroupDialog(
                     if (text != null)
                         callbacks.onChangeTitle(text.toString())
                 })
+                menu.setOnClickListener { view ->
+                    PopupMenu(requireContext(), view).apply {
+                        inflate(R.menu.applications_group_shortcuts)
+                        gravity = Gravity.END
+                        setOnMenuItemClickListener {
+                            when (it.itemId) {
+                                R.id.ungroup -> {
+                                    this@ApplicationsGroupDialog.dismiss()
+                                    callbacks.onUngroup()
+                                    true
+                                }
+
+                                R.id.rename -> {
+                                    val imm = ContextCompat.getSystemService(
+                                        requireContext(),
+                                        InputMethodManager::class.java
+                                    )
+                                    title.apply {
+                                        requestFocus()
+                                        setSelection(title.length())
+                                        postDelayed({
+                                            imm?.showSoftInput(
+                                                title,
+                                                InputMethodManager.SHOW_IMPLICIT
+                                            )
+                                        }, 100)
+                                    }
+
+                                    true
+                                }
+
+                                else -> false
+                            }
+                        }
+                        show()
+                    }
+                }
                 root
             })
 
