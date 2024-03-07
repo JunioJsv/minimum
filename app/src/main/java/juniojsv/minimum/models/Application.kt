@@ -9,8 +9,8 @@ data class Application(
     val launchIntent: Intent,
     val isNew: Boolean = false,
     val isPinned: Boolean = false,
-    val group: UUID? = null
-) : ApplicationBase(label) {
-    override val priority: Int
-        get() = if (isPinned) 1 else 0
+    val group: UUID? = null,
+    override val id: UUID = UUID.randomUUID()
+) : ApplicationBase(label, id) {
+    override val priority: Int = if (isPinned) 1 else 0
 }

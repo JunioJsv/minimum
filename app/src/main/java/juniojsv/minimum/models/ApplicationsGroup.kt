@@ -4,7 +4,7 @@ import java.util.UUID
 
 data class ApplicationsGroup(
     override val label: String,
-    val uuid: UUID = UUID.randomUUID()
-) : ApplicationBase(label) {
+    override val id: UUID = UUID.randomUUID(),
+) : ApplicationBase(label, id) {
     override val priority: Int = 0
 }

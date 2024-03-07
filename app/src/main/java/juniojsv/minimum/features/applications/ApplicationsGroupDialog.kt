@@ -71,7 +71,7 @@ class ApplicationsGroupDialog(
                 override fun onChange(applications: ArrayList<Application>) {
                     adapter.setApplications(
                         applicationsAdapter
-                            .controller.getApplicationsOnGroup(group.uuid)
+                            .controller.getApplicationsOnGroup(group.id)
                     )
                 }
             }
@@ -91,7 +91,7 @@ class ApplicationsGroupDialog(
         super.onStart()
         dialog?.window?.clearFlags(WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM)
         launch {
-            val applications = applicationsAdapter.controller.getApplicationsOnGroup(group.uuid)
+            val applications = applicationsAdapter.controller.getApplicationsOnGroup(group.id)
             withContext(Dispatchers.Main) {
                 adapter.setApplications(applications)
                 binding.applications.visibility = View.VISIBLE
@@ -152,12 +152,14 @@ class ApplicationsGroupDialog(
 
             binding = ApplicationsFragmentBinding.inflate(layoutInflater)
             setView(binding.root.apply {
+                val padding = TypedValue.applyDimension(
+                    TypedValue.COMPLEX_UNIT_DIP,
+                    24f,
+                    resources.displayMetrics
+                ).toInt()
                 updatePadding(
-                    top = TypedValue.applyDimension(
-                        TypedValue.COMPLEX_UNIT_DIP,
-                        24f,
-                        resources.displayMetrics
-                    ).toInt()
+                    top = padding,
+                    bottom = padding
                 )
             })
             binding.applications.layoutManager = GridLayoutManager(requireContext(), 3)

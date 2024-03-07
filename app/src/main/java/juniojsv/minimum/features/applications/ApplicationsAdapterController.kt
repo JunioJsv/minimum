@@ -63,7 +63,7 @@ class ApplicationsAdapterController(adapter: ApplicationsAdapter) :
         val removed = groups.removeAt(index)
         forEachInstalledApplications {
             var application = it
-            if (it.group == removed.uuid) {
+            if (it.group == removed.id) {
                 application = it.copy(group = null)
             }
 
@@ -102,7 +102,7 @@ class ApplicationsAdapterController(adapter: ApplicationsAdapter) :
     fun getInstalledApplicationIndexByPackageName(packageName: String) =
         applications.indexOfFirst { it.packageName == packageName }
 
-    fun getApplicationsGroupIndexByUuid(uuid: UUID) = groups.indexOfFirst { it.uuid == uuid }
+    fun getApplicationsGroupIndexById(id: UUID) = groups.indexOfFirst { it.id == id }
     fun getApplicationsOnGroup(uuid: UUID) = applications.filter { it.group == uuid }
 
     private suspend fun setAdapterApplications(
@@ -110,7 +110,7 @@ class ApplicationsAdapterController(adapter: ApplicationsAdapter) :
         callback: () -> List<Application>,
     ) = coroutineScope {
         val applications = callback().filter { application ->
-            application.group == null || !groups.any { it.uuid == application.group }
+            application.group == null || !groups.any { it.id == application.group }
         }
         val groups = if (query != null) groups.filter {
             it.label.contains(
@@ -139,7 +139,7 @@ class ApplicationsAdapterController(adapter: ApplicationsAdapter) :
     override fun areItemsTheSame(oldItem: ApplicationBase, newItem: ApplicationBase): Boolean {
         return when {
             oldItem is Application && newItem is Application -> oldItem.packageName == newItem.packageName
-            oldItem is ApplicationsGroup && newItem is ApplicationsGroup -> oldItem.uuid == newItem.uuid
+            oldItem is ApplicationsGroup && newItem is ApplicationsGroup -> oldItem.id == newItem.id
             else -> false
         }
     }
@@ -157,7 +157,7 @@ class ApplicationsAdapterController(adapter: ApplicationsAdapter) :
     fun getAdapterApplicationsGroupsCount(): Int = groups.size
 
     fun getAdapterItemId(position: Int): Long {
-        return differ.currentList[position].hashCode().toLong()
+        return differ.currentList[position].id.mostSignificantBits and Long.MAX_VALUE
     }
 
     override suspend fun onShowOnlyApplicationsWithIndex(indexes: List<Int>, query: String) {

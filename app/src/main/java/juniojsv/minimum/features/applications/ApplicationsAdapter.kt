@@ -179,7 +179,7 @@ class ApplicationsAdapter(
     }
 
     private fun onApplicationsGroupChange(group: ApplicationsGroup) {
-        val index = controller.getApplicationsGroupIndexByUuid(group.uuid)
+        val index = controller.getApplicationsGroupIndexById(group.id)
         if (index != -1) {
             launch { controller.setApplicationsGroupAt(index, group) }
         }

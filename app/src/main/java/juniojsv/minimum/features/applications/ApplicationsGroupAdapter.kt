@@ -59,7 +59,7 @@ class ApplicationsGroupAdapter(
     }
 
     override fun getItemId(position: Int): Long {
-        return differ.currentList[position].hashCode().toLong()
+        return differ.currentList[position].id.mostSignificantBits and Long.MAX_VALUE
     }
 
     override fun getItemCount(): Int {

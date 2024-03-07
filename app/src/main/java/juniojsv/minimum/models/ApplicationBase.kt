@@ -1,6 +1,12 @@
 package juniojsv.minimum.models
 
-sealed class ApplicationBase(open val label: String) : Comparable<ApplicationBase> {
+import java.util.UUID
+
+sealed class ApplicationBase(
+    open val label: String,
+    open val id: UUID
+) :
+    Comparable<ApplicationBase> {
     /**
      * Sorting priority
      */

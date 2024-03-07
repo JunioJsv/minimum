@@ -54,6 +54,10 @@ class ApplicationsFragment : Fragment(), ApplicationsAdapter.Callbacks, Coroutin
     override val coroutineContext: CoroutineContext = Dispatchers.Default + Job()
     private val onBackPressCallback = object : OnBackPressedCallback(true) {
         override fun handleOnBackPressed() {
+            if (group != null) {
+                onClearAllSelectionsOfAgroupMode()
+                return
+            }
             setApplicationsFilterViewClear()
         }
     }
@@ -157,7 +161,7 @@ class ApplicationsFragment : Fragment(), ApplicationsAdapter.Callbacks, Coroutin
 
     override fun getApplicationsGroupIcon(group: ApplicationsGroup): Bitmap {
         val controller = applicationsAdapter.controller
-        val applications = controller.getInstalledApplications().filter { it.group == group.uuid }
+        val applications = controller.getInstalledApplications().filter { it.group == group.id }
         val icons = applications.take(4).sorted().map(this::getApplicationIcon)
 
         val size = TypedValue.applyDimension(
@@ -214,7 +218,7 @@ class ApplicationsFragment : Fragment(), ApplicationsAdapter.Callbacks, Coroutin
     ): Application? {
         if (group != null) {
             return application.copy(
-                group = if (application.group == group!!.uuid) null else group!!.uuid
+                group = if (application.group == group!!.id) null else group!!.id
             )
         }
         try {
@@ -243,20 +247,12 @@ class ApplicationsFragment : Fragment(), ApplicationsAdapter.Callbacks, Coroutin
             group?.also { group ->
                 when (item.itemId) {
                     R.id.clear -> {
-                        launch {
-                            forEachInstalledApplications {
-                                var application = it
-                                if (it.group == group.uuid) {
-                                    application = it.copy(group = null)
-                                }
-                                application
-                            }
-                        }
+                        onClearAllSelectionsOfAgroupMode()
                     }
 
                     R.id.confirm -> {
                         onDisableAgroupMode()
-                        if (getApplicationsOnGroup(group.uuid).isNotEmpty())
+                        if (getApplicationsOnGroup(group.id).isNotEmpty())
                             launch {
                                 addApplicationsGroup(group)
                             }
@@ -266,6 +262,26 @@ class ApplicationsFragment : Fragment(), ApplicationsAdapter.Callbacks, Coroutin
         }
 
         return true
+    }
+
+    private fun onClearAllSelectionsOfAgroupMode() {
+        group?.also { group ->
+            var cleanedCount = 0
+            launch {
+                applicationsAdapter.controller.forEachInstalledApplications {
+                    var application = it
+                    if (it.group == group.id) {
+                        application = it.copy(group = null)
+                        cleanedCount++
+                    }
+                    application
+                }
+                if (cleanedCount < 1) {
+                    onDisableAgroupMode()
+                }
+            }
+        }
+
     }
 
     private fun onEnableAgroupMode(group: ApplicationsGroup) {
@@ -294,7 +310,7 @@ class ApplicationsFragment : Fragment(), ApplicationsAdapter.Callbacks, Coroutin
                             " ${getAdapterApplicationsGroupsCount() + 1}"
                     val group = ApplicationsGroup(label)
                     onEnableAgroupMode(group)
-                    update = application.copy(group = group.uuid)
+                    update = application.copy(group = group.id)
                 }
             }
 
@@ -326,7 +342,7 @@ class ApplicationsFragment : Fragment(), ApplicationsAdapter.Callbacks, Coroutin
                 object : ApplicationsGroupDialog.Callbacks {
                     override fun onUngroup() {
                         launch {
-                            val index = controller.getApplicationsGroupIndexByUuid(group.uuid)
+                            val index = controller.getApplicationsGroupIndexById(group.id)
                             if (index != -1) {
                                 controller.removeApplicationsGroupAt(index)
                             }
