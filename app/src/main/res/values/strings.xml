@@ -8,9 +8,7 @@
     <string name="pref_theme_accent_color_red" translatable="false">red</string>
     <string name="pref_theme_accent_color_green" translatable="false">green</string>
     <string name="pref_theme_accent_color_blue" translatable="false">blue</string>
-
     <string name="pref_application_version_key" translatable="false">application_version</string>
-    <string name="pref_applications_pinned_at_top_key" translatable="false">applications_pinned_at_top</string>
 
     <string name="app_name" translatable="false">Minimum</string>
     <string name="dial">Dial</string>

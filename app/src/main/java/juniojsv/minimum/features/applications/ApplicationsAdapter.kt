@@ -3,7 +3,6 @@ package juniojsv.minimum.features.applications
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.view.LayoutInflater
@@ -11,11 +10,10 @@ import android.view.ViewGroup
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
-import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.gson.Gson
 import juniojsv.minimum.BuildConfig
-import juniojsv.minimum.R
 import juniojsv.minimum.databinding.ApplicationGridVariantBinding
 import juniojsv.minimum.databinding.ApplicationListVariantBinding
 import juniojsv.minimum.models.Application
@@ -28,7 +26,17 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
+import java.util.UUID
 import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.resume
+
+private data class ApplicationState(val isPinned: Boolean, val group: UUID?)
+
+private data class ApplicationsAdapterState(
+    val groups: List<ApplicationsGroup>,
+    val applications: Map<String, ApplicationState>
+)
 
 @SuppressLint("UnspecifiedRegisterReceiverFlag")
 class ApplicationsAdapter(
@@ -37,9 +45,23 @@ class ApplicationsAdapter(
     val callbacks: Callbacks
 ) : RecyclerView.Adapter<ApplicationBaseViewHolder>(),
     ApplicationsEventsBroadcastReceiver.Callbacks, DefaultLifecycleObserver, CoroutineScope {
-    private var preferences: SharedPreferences
     private val events = ApplicationsEventsBroadcastReceiver(lifecycle, this)
     val controller = ApplicationsAdapterController(this)
+    private val gson = Gson()
+    private val lastPersistedState = async {
+        suspendCancellableCoroutine {
+            try {
+                val file = context.openFileInput(STATE_FILE_NAME)
+                val reader = file.reader()
+                val json = reader.readText()
+                reader.close()
+                file.close()
+                it.resume(gson.fromJson(json, ApplicationsAdapterState::class.java))
+            } catch (e: Throwable) {
+                it.resume(null)
+            }
+        }
+    }
 
     interface Callbacks : ApplicationBaseViewHolder.Callbacks
 
@@ -48,7 +70,6 @@ class ApplicationsAdapter(
 
     init {
         setHasStableIds(true)
-        preferences = PreferenceManager.getDefaultSharedPreferences(context)
         lifecycle.addObserver(this)
         context.registerReceiver(
             events,
@@ -62,13 +83,20 @@ class ApplicationsAdapter(
         super.onDestroy(owner)
         lifecycle.removeObserver(this)
         context.unregisterReceiver(events)
-        if (isInitialized)
-            preferences.edit().apply {
-                putStringSet(
-                    context.getString(R.string.pref_applications_pinned_at_top_key),
-                    controller.getPinnedApplicationsPackages().toSet()
-                )
-            }.apply()
+        if (isInitialized) {
+            val state = ApplicationsAdapterState(
+                controller.getApplicationsGroups(),
+                controller.getInstalledApplications().associate { application ->
+                    application.packageName to ApplicationState(
+                        application.isPinned,
+                        application.group
+                    )
+                }
+            )
+            val file = context.openFileOutput(STATE_FILE_NAME, Context.MODE_PRIVATE)
+            file.write(gson.toJson(state).toByteArray())
+            file.close()
+        }
     }
 
     private suspend fun getApplicationByInfo(info: ApplicationInfo) = coroutineScope {
@@ -86,25 +114,30 @@ class ApplicationsAdapter(
     }
 
     /**
-     * Setup applications list on [ApplicationsAdapter]
+     * Get all installed applications and persisted applications groups
+     * setup applications list on [ApplicationsAdapterController]
      */
-    suspend fun getInstalledApplications() = coroutineScope {
+    suspend fun initialize() = coroutineScope {
+        if (isInitialized) return@coroutineScope
+        val lastState = lastPersistedState.await()
         val packageManager = context.packageManager
         val installedApplications = async {
             packageManager.getInstalledApplications(PackageManager.GET_META_DATA)
         }
-        val pinnedApplications = preferences.getStringSet(
-            context.getString(R.string.pref_applications_pinned_at_top_key),
-            setOf()
-        )
         val deferreds = mutableListOf<Deferred<Application?>>()
 
         for (info in installedApplications.await()) {
-            val isPinned = pinnedApplications?.contains(info.packageName) == true
-            deferreds.add(async { getApplicationByInfo(info)?.copy(isPinned = isPinned) })
+            val state = lastState?.applications?.get(info.packageName)
+            val isPinned = state?.isPinned == true
+            deferreds.add(async {
+                getApplicationByInfo(info)?.copy(isPinned = isPinned, group = state?.group)
+            })
         }
 
         controller.setInstalledApplications(deferreds.awaitAll().filterNotNull())
+        if (lastState?.groups != null) {
+            controller.setApplicationsGroups(lastState.groups)
+        }
     }
 
     private fun getInstalledApplicationIndexByPackageName(packageName: String): Int {
@@ -225,5 +258,9 @@ class ApplicationsAdapter(
 
     override suspend fun onApplicationDisabled(intent: Intent) {
         onApplicationRemoved(intent)
+    }
+
+    companion object {
+        private const val STATE_FILE_NAME = "applications_adapter_state.json"
     }
 }

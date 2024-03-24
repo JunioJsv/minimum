@@ -44,4 +44,5 @@ dependencies {
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
     implementation("androidx.recyclerview:recyclerview:1.3.2")
     implementation("androidx.preference:preference-ktx:1.2.1")
+    implementation("com.google.code.gson:gson:2.10.1")
 }

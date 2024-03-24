@@ -87,7 +87,7 @@ class ApplicationsFragment : Fragment(), ApplicationsAdapter.Callbacks, Coroutin
         applicationsAdapter =
             ApplicationsAdapter(requireContext(), lifecycle, this).apply {
                 launch {
-                    getInstalledApplications()
+                    initialize()
                     withContext(Dispatchers.Main) {
                         binding.applications.visibility = VISIBLE
                         binding.loading.visibility = GONE

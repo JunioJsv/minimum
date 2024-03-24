@@ -67,6 +67,12 @@ class ApplicationsAdapterController(adapter: ApplicationsAdapter) :
         onMergeApplicationsGroups()
     }
 
+    suspend fun setApplicationsGroups(groups: List<ApplicationsGroup>) {
+        this.groups.clear()
+        this.groups.addAll(groups)
+        onInstalledApplicationsChanged()
+    }
+
     suspend fun removeApplicationsGroupAt(index: Int) {
         val removed = groups.removeAt(index)
         forEachInstalledApplications {
@@ -106,6 +112,8 @@ class ApplicationsAdapterController(adapter: ApplicationsAdapter) :
             setAdapterApplications { applications }
         }
     }
+
+    fun getApplicationsGroups() = groups
 
     fun getInstalledApplicationIndexByPackageName(packageName: String) =
         applications.indexOfFirst { it.packageName == packageName }
@@ -157,16 +165,6 @@ class ApplicationsAdapterController(adapter: ApplicationsAdapter) :
             differ.submitList(update)
         }
     }
-
-    fun getPinnedApplicationsPackages() =
-        applications.mapNotNull { application ->
-            var packageName: String? = null
-            if (application.isPinned) {
-                packageName = application.packageName
-            }
-
-            packageName
-        }
 
     fun getInstalledApplicationAt(index: Int): Application = applications[index]
     fun getAdapterItemAt(position: Int): ApplicationBase = differ.currentList[position]
