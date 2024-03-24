@@ -49,4 +49,5 @@
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="rename">Rename</string>
+    <string name="add">Add</string>
 </resources>

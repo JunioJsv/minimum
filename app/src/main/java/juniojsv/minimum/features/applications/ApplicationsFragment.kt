@@ -343,6 +343,14 @@ class ApplicationsFragment : Fragment(), ApplicationsAdapter.Callbacks, Coroutin
         }).show(parentFragmentManager, ApplicationOptionsDialog.TAG)
     }
 
+    private suspend fun onUngroup(group: ApplicationsGroup) = coroutineScope {
+        val controller = applicationsAdapter.controller
+        val index = controller.getApplicationsGroupIndexById(group.id)
+        if (index != -1) {
+            controller.removeApplicationsGroupAt(index)
+        }
+    }
+
     override suspend fun onClickApplicationsGroup(
         group: ApplicationsGroup,
         view: View
@@ -351,7 +359,7 @@ class ApplicationsFragment : Fragment(), ApplicationsAdapter.Callbacks, Coroutin
             return@coroutineScope group.copy(mergeWith = it.id)
         }
         suspendCoroutine<ApplicationsGroup?> { continuation ->
-            val controller = applicationsAdapter.controller
+
             var label: String? = null
             var update: ApplicationsGroup? = null
             ApplicationsGroupDialog(
@@ -359,12 +367,7 @@ class ApplicationsFragment : Fragment(), ApplicationsAdapter.Callbacks, Coroutin
                 applicationsAdapter,
                 object : ApplicationsGroupDialog.Callbacks {
                     override fun onUngroup() {
-                        launch {
-                            val index = controller.getApplicationsGroupIndexById(group.id)
-                            if (index != -1) {
-                                controller.removeApplicationsGroupAt(index)
-                            }
-                        }
+                        launch { onUngroup(group) }
                     }
 
                     override fun onChangeTitle(title: String) {
@@ -389,7 +392,44 @@ class ApplicationsFragment : Fragment(), ApplicationsAdapter.Callbacks, Coroutin
     override suspend fun onLongClickApplicationsGroup(
         group: ApplicationsGroup,
         view: View
-    ): ApplicationsGroup? = null
+    ): ApplicationsGroup? = coroutineScope {
+        suspendCoroutine { continuation ->
+            if (this@ApplicationsFragment.group != null) {
+                continuation.resume(null)
+                return@suspendCoroutine
+            }
+
+            var label: String? = null
+            var update: ApplicationsGroup? = null
+            ApplicationsGroupOptionsDialog(
+                group,
+                object : ApplicationsGroupOptionsDialog.Callbacks {
+                    override fun onChangeTitle(title: String) {
+                        label = title
+                    }
+
+                    override fun onEnableAgroupMode() {
+                    }
+
+                    override fun onUngroup() {
+                        launch { onUngroup(group) }
+                    }
+
+                    override fun onTogglePinAtTop() {
+                        update = group.copy(isPinned = !group.isPinned)
+                    }
+
+                    override fun onDismiss() {
+                        label?.let {
+                            if (it.isNotBlank() && it != group.label) {
+                                update = group.copy(label = it)
+                            }
+                        }
+                        continuation.resume(update)
+                    }
+                }).show(parentFragmentManager, ApplicationsGroupOptionsDialog.TAG)
+        }
+    }
 
     private fun setApplicationsFilterViewClear() {
         binding.applications.apply {
