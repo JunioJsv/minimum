@@ -5,8 +5,10 @@ import android.content.DialogInterface
 import android.os.Bundle
 import android.view.View
 import android.view.WindowManager
+import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatDialogFragment
+import androidx.core.content.ContextCompat
 import androidx.core.widget.addTextChangedListener
 import juniojsv.minimum.R
 import juniojsv.minimum.databinding.ApplicationsGroupDialogTitleBinding
@@ -26,7 +28,7 @@ class ApplicationsGroupOptionsDialog(
 
     interface Callbacks {
         fun onChangeTitle(title: String)
-        fun onEnableAgroupMode()
+        fun onEnableAddMode()
         fun onUngroup()
         fun onTogglePinAtTop()
         fun onDismiss()
@@ -43,15 +45,36 @@ class ApplicationsGroupOptionsDialog(
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        val binding = ApplicationsGroupDialogTitleBinding.inflate(layoutInflater)
+        val imm = ContextCompat.getSystemService(
+            requireContext(),
+            InputMethodManager::class.java
+        )
         val options = arrayListOf(
             LabeledCallback(
                 getString(R.string.add),
-                callback = callbacks::onEnableAgroupMode
+                callback = callbacks::onEnableAddMode
             ),
             LabeledCallback(
                 if (group.isPinned) getString(R.string.unpin_of_top)
                 else getString(R.string.pin_at_top),
                 callback = callbacks::onTogglePinAtTop
+            ),
+            LabeledCallback(
+                getString(R.string.rename),
+                false,
+                callback = {
+                    binding.title.apply {
+                        requestFocus()
+                        setSelection(length())
+                        postDelayed({
+                            imm?.showSoftInput(
+                                this,
+                                InputMethodManager.SHOW_IMPLICIT
+                            )
+                        }, 100)
+                    }
+                }
             ),
             LabeledCallback(
                 getString(R.string.ungroup),
@@ -60,7 +83,7 @@ class ApplicationsGroupOptionsDialog(
         ).filter { it.enabled }
 
         return AlertDialog.Builder(requireContext()).apply {
-            setCustomTitle(ApplicationsGroupDialogTitleBinding.inflate(layoutInflater).run {
+            setCustomTitle(binding.run {
                 title.setText(group.label)
                 title.hint = group.label
                 title.addTextChangedListener(onTextChanged = { text, _, _, _ ->

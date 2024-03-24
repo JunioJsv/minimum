@@ -41,6 +41,7 @@ class ApplicationsGroupDialog(
         get() = Dispatchers.Default + Job()
 
     interface Callbacks {
+        fun onEnableAddMode()
         fun onUngroup()
 
         fun onChangeTitle(title: String)
@@ -116,9 +117,15 @@ class ApplicationsGroupDialog(
                         gravity = Gravity.END
                         setOnMenuItemClickListener {
                             when (it.itemId) {
-                                R.id.ungroup -> {
+                                R.id.add -> {
+                                    callbacks.onEnableAddMode()
                                     this@ApplicationsGroupDialog.dismiss()
+                                    true
+                                }
+
+                                R.id.ungroup -> {
                                     callbacks.onUngroup()
+                                    this@ApplicationsGroupDialog.dismiss()
                                     true
                                 }
 

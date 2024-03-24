@@ -40,6 +40,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.UUID
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
@@ -366,6 +367,12 @@ class ApplicationsFragment : Fragment(), ApplicationsAdapter.Callbacks, Coroutin
                 group,
                 applicationsAdapter,
                 object : ApplicationsGroupDialog.Callbacks {
+                    override fun onEnableAddMode() {
+                        val copy = group.copy(id = UUID.randomUUID())
+                        onEnableAgroupMode(copy)
+                        update = group.copy(mergeWith = copy.id)
+                    }
+
                     override fun onUngroup() {
                         launch { onUngroup(group) }
                     }
@@ -408,7 +415,10 @@ class ApplicationsFragment : Fragment(), ApplicationsAdapter.Callbacks, Coroutin
                         label = title
                     }
 
-                    override fun onEnableAgroupMode() {
+                    override fun onEnableAddMode() {
+                        val copy = group.copy(id = UUID.randomUUID())
+                        onEnableAgroupMode(copy)
+                        update = group.copy(mergeWith = copy.id)
                     }
 
                     override fun onUngroup() {
