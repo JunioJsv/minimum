@@ -1,6 +1,7 @@
 package juniojsv.minimum.features.applications
 
 import android.util.TypedValue
+import android.view.View
 import android.view.animation.AlphaAnimation
 import android.widget.ImageView
 import android.widget.TextView
@@ -39,6 +40,10 @@ class ApplicationsGroupViewHolder(
                     view.setImageBitmap(icon)
                 }
             }
+            findViewById<ImageView>(R.id.is_pinned).visibility =
+                if (item.isPinned) View.VISIBLE else View.GONE
+            findViewById<ImageView>(R.id.is_selected).visibility =
+                if (item.mergeWith != null) View.VISIBLE else View.GONE
 
             setOnClickListener {
                 launch {

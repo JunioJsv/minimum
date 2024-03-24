@@ -212,13 +212,84 @@ class ApplicationsFragment : Fragment(), ApplicationsAdapter.Callbacks, Coroutin
         }
     }
 
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.applications_agroup_mode_shortcuts, menu)
+        super.onCreateOptionsMenu(menu, inflater)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        with(applicationsAdapter.controller) {
+            group?.also { group ->
+                when (item.itemId) {
+                    R.id.clear -> {
+                        onClearAllSelectionsOfAgroupMode()
+                    }
+
+                    R.id.confirm -> {
+                        onDisableAgroupMode()
+                        if (
+                            getApplicationsOnGroup(group.id).isNotEmpty() ||
+                            getApplicationsGroupsToMergeWith(group.id).isNotEmpty()
+                        )
+                            launch {
+                                addApplicationsGroup(group)
+                            }
+                    }
+                }
+            }
+        }
+
+        return true
+    }
+
+    private fun onClearAllSelectionsOfAgroupMode() {
+        group?.also { target ->
+            var cleanedCount = 0
+            launch {
+                with(applicationsAdapter.controller) {
+                    forEachInstalledApplications {
+                        var application = it
+                        if (it.group == target.id) {
+                            application = it.copy(group = null)
+                            cleanedCount++
+                        }
+                        application
+                    }
+                    forEachApplicationsGroups {
+                        var group = it
+                        if (it.mergeWith == target.id) {
+                            group = it.copy(mergeWith = null)
+                            cleanedCount++
+                        }
+                        group
+                    }
+                    if (cleanedCount < 1) {
+                        onDisableAgroupMode()
+                    }
+                }
+            }
+        }
+
+    }
+
+    private fun onEnableAgroupMode(group: ApplicationsGroup) {
+        this.group = group
+        setHasOptionsMenu(true)
+    }
+
+    private fun onDisableAgroupMode() {
+        group = null
+        setHasOptionsMenu(false)
+    }
+
     override suspend fun onClickApplication(
         application: Application,
         view: View,
     ): Application? {
-        if (group != null) {
+        group?.also { group ->
             return application.copy(
-                group = if (application.group == group!!.id) null else group!!.id
+                group = if (application.group == group.id) null else group.id
             )
         }
         try {
@@ -237,62 +308,6 @@ class ApplicationsFragment : Fragment(), ApplicationsAdapter.Callbacks, Coroutin
         return null
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.applications_agroup_mode_shortcuts, menu)
-        super.onCreateOptionsMenu(menu, inflater)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        with(applicationsAdapter.controller) {
-            group?.also { group ->
-                when (item.itemId) {
-                    R.id.clear -> {
-                        onClearAllSelectionsOfAgroupMode()
-                    }
-
-                    R.id.confirm -> {
-                        onDisableAgroupMode()
-                        if (getApplicationsOnGroup(group.id).isNotEmpty())
-                            launch {
-                                addApplicationsGroup(group)
-                            }
-                    }
-                }
-            }
-        }
-
-        return true
-    }
-
-    private fun onClearAllSelectionsOfAgroupMode() {
-        group?.also { group ->
-            var cleanedCount = 0
-            launch {
-                applicationsAdapter.controller.forEachInstalledApplications {
-                    var application = it
-                    if (it.group == group.id) {
-                        application = it.copy(group = null)
-                        cleanedCount++
-                    }
-                    application
-                }
-                if (cleanedCount < 1) {
-                    onDisableAgroupMode()
-                }
-            }
-        }
-
-    }
-
-    private fun onEnableAgroupMode(group: ApplicationsGroup) {
-        this.group = group
-        setHasOptionsMenu(true)
-    }
-
-    private fun onDisableAgroupMode() {
-        group = null
-        setHasOptionsMenu(false)
-    }
 
     override suspend fun onLongClickApplication(
         application: Application,
@@ -308,7 +323,7 @@ class ApplicationsFragment : Fragment(), ApplicationsAdapter.Callbacks, Coroutin
                 with(applicationsAdapter.controller) {
                     val label = getString(R.string.group) +
                             " ${getAdapterApplicationsGroupsCount() + 1}"
-                    val group = ApplicationsGroup(label)
+                    val group = ApplicationsGroup(label, isPinned = true)
                     onEnableAgroupMode(group)
                     update = application.copy(group = group.id)
                 }
@@ -332,7 +347,10 @@ class ApplicationsFragment : Fragment(), ApplicationsAdapter.Callbacks, Coroutin
         group: ApplicationsGroup,
         view: View
     ): ApplicationsGroup? = coroutineScope {
-        suspendCoroutine { continuation ->
+        this@ApplicationsFragment.group?.let {
+            return@coroutineScope group.copy(mergeWith = it.id)
+        }
+        suspendCoroutine<ApplicationsGroup?> { continuation ->
             val controller = applicationsAdapter.controller
             var label: String? = null
             var update: ApplicationsGroup? = null

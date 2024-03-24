@@ -54,9 +54,17 @@ class ApplicationsAdapterController(adapter: ApplicationsAdapter) :
         setInstalledApplications(update)
     }
 
+    suspend fun forEachApplicationsGroups(callback: (ApplicationsGroup) -> ApplicationsGroup) {
+        val update = groups.map(callback)
+        groups.clear()
+        groups.addAll(update)
+        onInstalledApplicationsChanged()
+    }
+
     suspend fun addApplicationsGroup(group: ApplicationsGroup) {
         groups.add(group)
         onInstalledApplicationsChanged()
+        onMergeApplicationsGroups()
     }
 
     suspend fun removeApplicationsGroupAt(index: Int) {
@@ -103,7 +111,33 @@ class ApplicationsAdapterController(adapter: ApplicationsAdapter) :
         applications.indexOfFirst { it.packageName == packageName }
 
     fun getApplicationsGroupIndexById(id: UUID) = groups.indexOfFirst { it.id == id }
-    fun getApplicationsOnGroup(uuid: UUID) = applications.filter { it.group == uuid }
+
+    /**
+     * @param id is group id
+     */
+    fun getApplicationsOnGroup(id: UUID) = applications.filter { it.group == id }
+
+    /**
+     * @param id is group to merge id
+     */
+    fun getApplicationsGroupsToMergeWith(id: UUID) = groups.filter { it.mergeWith == id }
+
+    private suspend fun onMergeApplicationsGroups() = coroutineScope {
+        val targets = groups.filter { it.mergeWith != null }.associate {
+            it.id to it.mergeWith!!
+        }
+        if (targets.isEmpty()) return@coroutineScope
+        forEachInstalledApplications {
+            var application = it
+            val successor = targets[application.group]
+            if (successor != null) {
+                application = application.copy(group = successor)
+            }
+            application
+        }
+        groups.removeAll { targets.containsKey(it.id) }
+        onInstalledApplicationsChanged()
+    }
 
     private suspend fun setAdapterApplications(
         query: String? = null,
