@@ -12,12 +12,12 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.gson.Gson
 import juniojsv.minimum.BuildConfig
 import juniojsv.minimum.databinding.ApplicationGridVariantBinding
 import juniojsv.minimum.databinding.ApplicationListVariantBinding
 import juniojsv.minimum.models.Application
 import juniojsv.minimum.models.ApplicationsGroup
+import juniojsv.minimum.utils.UUIDSerializer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
@@ -28,12 +28,20 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import java.util.UUID
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.resume
 
-private data class ApplicationState(val isPinned: Boolean, val group: UUID?)
+@Serializable
+private data class ApplicationState(
+    val isPinned: Boolean,
+    @Serializable(with = UUIDSerializer::class) val group: UUID?
+)
 
+@Serializable
 private data class ApplicationsAdapterState(
     val groups: List<ApplicationsGroup>,
     val applications: Map<String, ApplicationState>
@@ -48,7 +56,6 @@ class ApplicationsAdapter(
     ApplicationsEventsBroadcastReceiver.Callbacks, DefaultLifecycleObserver, CoroutineScope {
     private val events = ApplicationsEventsBroadcastReceiver(lifecycle, this)
     val controller = ApplicationsAdapterController(this)
-    private val gson = Gson()
     private val lastPersistedState = async {
         suspendCancellableCoroutine {
             try {
@@ -57,7 +64,7 @@ class ApplicationsAdapter(
                 val json = reader.readText()
                 reader.close()
                 file.close()
-                it.resume(gson.fromJson(json, ApplicationsAdapterState::class.java))
+                it.resume(Json.decodeFromString<ApplicationsAdapterState>(json))
             } catch (e: Throwable) {
                 it.resume(null)
             }
@@ -95,7 +102,7 @@ class ApplicationsAdapter(
                 }
             )
             val file = context.openFileOutput(STATE_FILE_NAME, Context.MODE_PRIVATE)
-            file.write(gson.toJson(state).toByteArray())
+            file.write(Json.encodeToString(state).toByteArray())
             file.close()
         }
     }

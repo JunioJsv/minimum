@@ -1,6 +1,7 @@
 plugins {
     id("com.android.application")
-    id("kotlin-android")
+    kotlin("android")
+    kotlin("plugin.serialization") version "1.8.0"
 }
 
 repositories {
@@ -17,7 +18,7 @@ android {
         minSdk = 21
         targetSdk = 33
         compileSdk = 33
-        versionCode = 140
+        versionCode = 141
         versionName = "1.6.0"
         setProperty("archivesBaseName", "$applicationId-v$versionName")
     }
@@ -44,5 +45,5 @@ dependencies {
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
     implementation("androidx.recyclerview:recyclerview:1.3.2")
     implementation("androidx.preference:preference-ktx:1.2.1")
-    implementation("com.google.code.gson:gson:2.10.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
 }
