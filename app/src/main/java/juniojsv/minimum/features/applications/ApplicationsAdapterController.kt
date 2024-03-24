@@ -167,6 +167,8 @@ class ApplicationsAdapterController(adapter: ApplicationsAdapter) :
     }
 
     fun getInstalledApplicationAt(index: Int): Application = applications[index]
+
+    fun getAdapterItemPositionById(id: UUID) = differ.currentList.indexOfFirst { it.id == id }
     fun getAdapterItemAt(position: Int): ApplicationBase = differ.currentList[position]
     override fun areItemsTheSame(oldItem: ApplicationBase, newItem: ApplicationBase): Boolean {
         return when {

@@ -27,6 +27,7 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withContext
 import java.util.UUID
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.resume
@@ -207,7 +208,18 @@ class ApplicationsAdapter(
     fun onApplicationChange(application: Application) {
         val index = getInstalledApplicationIndexByPackageName(application.packageName)
         if (index != -1) {
-            launch { controller.setInstalledApplicationAt(index, application) }
+            val previous = controller.getInstalledApplicationAt(index)
+            launch {
+                controller.setInstalledApplicationAt(index, application)
+                // Notify change in group adapter item, to update group icon
+                if (previous.group != application.group) {
+                    previous.group?.let { id ->
+                        withContext(Dispatchers.Main) {
+                            notifyItemChanged(controller.getAdapterItemPositionById(id))
+                        }
+                    }
+                }
+            }
         }
     }
 

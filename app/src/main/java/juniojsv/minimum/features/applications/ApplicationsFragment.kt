@@ -163,7 +163,7 @@ class ApplicationsFragment : Fragment(), ApplicationsAdapter.Callbacks, Coroutin
     override fun getApplicationsGroupIcon(group: ApplicationsGroup): Bitmap {
         val controller = applicationsAdapter.controller
         val applications = controller.getInstalledApplications().filter { it.group == group.id }
-        val icons = applications.take(4).sorted().map(this::getApplicationIcon)
+        val icons = applications.sorted().take(4).map(this::getApplicationIcon)
 
         val size = TypedValue.applyDimension(
             TypedValue.COMPLEX_UNIT_DIP,
