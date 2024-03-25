@@ -55,7 +55,6 @@ jobs:
       with:
         distribution: 'temurin'
         java-version: '17'
-        cache: 'gradle'
 
     # Initializes the CodeQL tools for scanning.
     - name: Initialize CodeQL
