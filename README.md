@@ -1,7 +1,7 @@
 # Minimum
 
 <p align="center">
-  <img src="https://media.licdn.com/dms/image/D4D2DAQGnxsJf_h4yBQ/profile-treasury-image-shrink_800_800/0/1708200820783?e=1715014800&v=beta&t=RUuPc7r9QaBgoo_ZJf6A1OprLEFtW29Avf_OYhvNHds">
+  <img src="https://i.imgur.com/3pVJtVg.png">
 </p>
 
 ### Minimalist App Launcher for Effortless Efficiency.
