@@ -4,6 +4,10 @@
   <img src="https://i.imgur.com/3pVJtVg.png">
 </p>
 
+## Project Migrated
+
+This project has been migrated to a new repository. You can access the new repository at the following link: [Minimum Flutter](https://github.com/JunioJsv/minimum-flutter).
+
 ### Minimalist App Launcher for Effortless Efficiency.
 
 Minimum is an elegant and efficient app launcher designed to enhance your productivity. With its clean interface and intuitive design, it allows you to access your favorite apps with ease. No more cluttered screens or wasted time - Minimum puts everything you need at your fingertips.
